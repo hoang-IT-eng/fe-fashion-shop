@@ -1,0 +1,114 @@
+/* ParallaxHero.css */
+
+.parallax-container {
+  position: relative;
+  width: 100%;
+  height: 100vh;      /* Chiều cao bằng 100% viewport */
+  overflow: hidden;   /* Quan trọng: Cắt bỏ các phần ảnh thừa lọt ra ngoài box */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* KHỐI ẢNH NỀN */
+.parallax-bg {
+  position: absolute;
+  top: -15%;          /* Treo ảnh cao lên trên 15% */
+  left: 0;
+  width: 100%;
+  height: 130%;       /* Phải để lớn hơn 100% để trong quá trình 'scrub' cuộn xuống sẽ không bị hở đáy */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 1;
+}
+
+.parallax-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4); /* Độ mờ đen giúp nổi bật chữ trắng */
+}
+
+/* KHỐI TEXT */
+.parallax-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  color: #ffffff;
+  padding: 0 20px;
+}
+
+.parallax-title {
+  font-size: clamp(3rem, 8vw, 6rem); /* Tự động co giãn theo màn hình */
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 1rem;
+  line-height: 1.1;
+  text-shadow: 2px 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.parallax-subtitle {
+  font-size: clamp(1rem, 3vw, 1.5rem);
+  font-weight: 300;
+  letter-spacing: 0.05em;
+  opacity: 0.9;
+}
+
+/* KHỐI ĐỆM MÔ PHỎNG SCROLL CỦA TRANG */
+.dummy-scroll-section {
+  height: 150vh;
+  background-color: #fafafa;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #111;
+}
+
+.dummy-scroll-section h2 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+/* NAVBAR */
+.parallax-nav {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 24px 48px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 10;
+  color: white;
+  box-sizing: border-box;
+}
+
+.parallax-logo {
+  font-weight: 700;
+  font-size: 1.5rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.parallax-link {
+  color: white;
+  text-decoration: none;
+  font-size: 1.1rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  padding: 10px 20px;
+  border-radius: 4px;
+  backdrop-filter: blur(4px);
+}
+
+.parallax-link:hover {
+  background: white;
+  color: #111;
+  border-color: white;
+}
