@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Heart, User, ShoppingCart, Menu, Globe } from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore';
+import { api } from '../api/apiClient';
+import { Product, ProductsResponse } from '../types/product';
 
 // --- CẤU HÌNH LOGO TEXT (Đã tinh chỉnh font để căn giữa chuẩn hơn) ---
 const LogoComponent = () => (
@@ -15,12 +17,7 @@ const LogoComponent = () => (
 // có tông màu trắng đen lạnh và trầm mặc, rất phù hợp với tinh thần "TheBasic".
 const HERO_BG_URL = 'https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?auto=format&fit=crop&w=2000&q=100';
 
-// --- DATA SẢN PHẨM: ĐÃ ĐỂ TRỐNG (Backend sẽ thêm vào sau) ---
-// Chúng ta chỉ giữ lại cấu trúc danh mục rỗng
-const EMPTY_SECTIONS = [
-  { title: 'NEW ARRIVALS' },
-  { title: 'ESSENTIALS COLLECTION' }
-];
+const SECTIONS = ['NEW ARRIVALS', 'ESSENTIALS COLLECTION'];
 
 // Component tạo khung rỗng (Skeleton) cho từng sản phẩm
 const ProductSkeleton = () => (
@@ -39,8 +36,15 @@ const ProductSkeleton = () => (
 export default function HomePage() {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuthStore();
-  const [scrollSections, setScrollSections] = useState<any[]>(EMPTY_SECTIONS);
-  const [isLoading, setIsLoading] = useState(false); // Tắt loading giả lập
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    api.get<ProductsResponse>('/products?limit=10')
+      .then(res => setProducts(res.data))
+      .catch(() => {})
+      .finally(() => setIsLoading(false));
+  }, []);
 
   return (
     <div className="flex flex-col min-h-screen bg-white font-sans text-gray-900 overflow-x-hidden antialiased">
@@ -114,21 +118,34 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* SECTION 2: CÁC HÀNG SẢN PHẨM ĐỂ TRỐNG (UI SKELETON) */}
-        {/* GIỮ NGUYÊN NHƯ CODE CŨ */}
+        {/* SECTION 2: SẢN PHẨM */}
         <div className="flex flex-col py-24 space-y-32 bg-[#fafafa]">
-          {scrollSections.map((section, idx) => (
+          {SECTIONS.map((title, idx) => (
             <section key={idx} className="flex flex-col pl-6 md:pl-24">
               <div className="flex items-center justify-between mb-12 pr-6 md:pr-24">
                 <h2 className="text-xl font-light uppercase tracking-[0.4em] text-gray-950 border-l-2 border-black pl-5">
-                  {section.title}
+                  {title}
                 </h2>
               </div>
-
               <div className="flex overflow-x-auto snap-x snap-mandatory gap-12 pb-12 hide-scrollbar">
-                {[...Array(5)].map((_, i) => (
-                  <ProductSkeleton key={i} />
-                ))}
+                {isLoading
+                  ? [...Array(5)].map((_, i) => <ProductSkeleton key={i} />)
+                  : products.length > 0
+                  ? products.map(p => (
+                      <div key={p.id} className="w-[75vw] md:w-[26vw] flex-shrink-0 snap-start group cursor-pointer">
+                        <div className="aspect-[3/4] w-full bg-[#f0f0f0] mb-6 overflow-hidden">
+                          {p.imageUrl
+                            ? <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                            : <div className="w-full h-full bg-[#f0f0f0]" />}
+                        </div>
+                        <div className="space-y-1 px-1 flex flex-col items-center text-center">
+                          <p className="text-sm font-medium text-gray-900">{p.name}</p>
+                          <p className="text-xs text-gray-400 uppercase tracking-wider">{p.category}</p>
+                          <p className="text-sm font-semibold pt-1">{Number(p.price).toLocaleString('vi-VN')} đ</p>
+                        </div>
+                      </div>
+                    ))
+                  : [...Array(5)].map((_, i) => <ProductSkeleton key={i} />)}
               </div>
             </section>
           ))}
