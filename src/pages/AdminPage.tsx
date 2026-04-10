@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/useAuthStore'
 import { api } from '../api/apiClient'
 import { Product, ProductsResponse, ProductForm } from '../types/product'
-import { LayoutDashboard, Package, Users, Settings, LogOut, X } from 'lucide-react'
+import { LayoutDashboard, Package, Users, Settings, LogOut, X, ImagePlus } from 'lucide-react'
 
 const EMPTY_FORM: ProductForm = {
   name: '', price: '', stock: '', category: '',
@@ -23,6 +23,12 @@ export default function AdminPage() {
   const [form, setForm] = useState<ProductForm>(EMPTY_FORM)
   const [saving, setSaving] = useState(false)
   const [formError, setFormError] = useState('')
+
+  // Upload state
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState<string>('')
+  const [uploading, setUploading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (!user || user.role !== 'admin') {
@@ -47,6 +53,8 @@ export default function AdminPage() {
   const openCreate = () => {
     setEditingProduct(null)
     setForm(EMPTY_FORM)
+    setImageFile(null)
+    setImagePreview('')
     setFormError('')
     setShowModal(true)
   }
@@ -64,31 +72,56 @@ export default function AdminPage() {
       colors: p.colors?.join(', ') || '',
       isActive: p.isActive,
     })
+    setImageFile(null)
+    setImagePreview(p.imageUrl || '')
     setFormError('')
     setShowModal(true)
+  }
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setImageFile(file)
+    setImagePreview(URL.createObjectURL(file))
   }
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
     setSaving(true)
     setFormError('')
+
     try {
+      let imageUrl = form.imageUrl
+
+      // Bước 1: Upload ảnh nếu có file mới
+      if (imageFile) {
+        setUploading(true)
+        const res = await api.upload(imageFile)
+        imageUrl = res.url
+        setUploading(false)
+      }
+
+      // Bước 2: Tạo hoặc cập nhật sản phẩm
       const body = {
         ...form,
+        imageUrl,
         price: Number(form.price),
         stock: Number(form.stock),
         sizes: form.sizes ? form.sizes.split(',').map(s => s.trim()).filter(Boolean) : [],
         colors: form.colors ? form.colors.split(',').map(s => s.trim()).filter(Boolean) : [],
       }
+
       if (editingProduct) {
         await api.put(`/products/${editingProduct.id}`, body)
       } else {
         await api.post('/products', body)
       }
+
       setShowModal(false)
       fetchProducts()
     } catch (err: any) {
       setFormError(err.message)
+      setUploading(false)
     } finally {
       setSaving(false)
     }
@@ -212,12 +245,51 @@ export default function AdminPage() {
             {formError && <p className="text-red-500 text-sm mb-4">{formError}</p>}
 
             <form onSubmit={handleSave} className="space-y-4">
+
+              {/* Upload ảnh */}
+              <div>
+                <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-500">Hình ảnh sản phẩm</label>
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  className="relative w-full h-40 border-2 border-dashed border-gray-300 rounded flex items-center justify-center cursor-pointer hover:border-black transition overflow-hidden"
+                >
+                  {imagePreview ? (
+                    <img src={imagePreview} alt="preview" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="flex flex-col items-center gap-2 text-gray-400">
+                      <ImagePlus className="w-8 h-8" />
+                      <span className="text-xs">Nhấn để chọn ảnh</span>
+                    </div>
+                  )}
+                  {uploading && (
+                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                      <span className="text-white text-sm font-medium">Đang upload...</span>
+                    </div>
+                  )}
+                </div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleFileChange}
+                />
+                {imagePreview && (
+                  <button
+                    type="button"
+                    onClick={() => { setImageFile(null); setImagePreview(''); setForm(p => ({ ...p, imageUrl: '' })) }}
+                    className="mt-1 text-xs text-red-500 hover:underline"
+                  >
+                    Xóa ảnh
+                  </button>
+                )}
+              </div>
+
               {[
                 { label: 'Tên sản phẩm *', key: 'name', type: 'text', required: true },
                 { label: 'Giá (VNĐ) *', key: 'price', type: 'number', required: true },
                 { label: 'Tồn kho', key: 'stock', type: 'number' },
                 { label: 'Danh mục', key: 'category', type: 'text' },
-                { label: 'URL hình ảnh', key: 'imageUrl', type: 'text' },
                 { label: 'Sizes (cách nhau bằng dấu phẩy)', key: 'sizes', type: 'text' },
                 { label: 'Màu sắc (cách nhau bằng dấu phẩy)', key: 'colors', type: 'text' },
               ].map(({ label, key, type, required }) => (
@@ -232,6 +304,7 @@ export default function AdminPage() {
                   />
                 </div>
               ))}
+
               <div>
                 <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-500">Mô tả</label>
                 <textarea
@@ -241,6 +314,7 @@ export default function AdminPage() {
                   className="w-full border border-gray-300 p-2.5 text-sm focus:border-black focus:outline-none"
                 />
               </div>
+
               <div className="flex items-center gap-2">
                 <input
                   type="checkbox"
@@ -250,14 +324,15 @@ export default function AdminPage() {
                 />
                 <label htmlFor="isActive" className="text-sm text-gray-700">Đang bán</label>
               </div>
+
               <div className="flex gap-3 pt-2">
                 <button type="button" onClick={() => setShowModal(false)}
                   className="flex-1 border border-gray-300 py-2.5 text-sm font-bold hover:bg-gray-50 transition">
                   Hủy
                 </button>
-                <button type="submit" disabled={saving}
+                <button type="submit" disabled={saving || uploading}
                   className="flex-1 bg-black text-white py-2.5 text-sm font-bold hover:bg-gray-800 transition disabled:opacity-50">
-                  {saving ? 'Đang lưu...' : 'Lưu'}
+                  {uploading ? 'Đang upload ảnh...' : saving ? 'Đang lưu...' : 'Lưu'}
                 </button>
               </div>
             </form>

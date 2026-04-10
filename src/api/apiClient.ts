@@ -27,4 +27,21 @@ export const api = {
   post: <T>(path: string, body: unknown) => request<T>(path, { method: 'POST', body: JSON.stringify(body) }),
   put: <T>(path: string, body: unknown) => request<T>(path, { method: 'PUT', body: JSON.stringify(body) }),
   delete: <T>(path: string) => request<T>(path, { method: 'DELETE' }),
+
+  // Upload ảnh — KHÔNG set Content-Type, browser tự xử lý multipart
+  upload: async (file: File): Promise<{ url: string; publicId: string }> => {
+    const token = localStorage.getItem('accessToken')
+    const formData = new FormData()
+    formData.append('file', file)
+
+    const res = await fetch(`${BASE_URL}/products/upload`, {
+      method: 'POST',
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      body: formData,
+    })
+
+    const data = await res.json()
+    if (!res.ok) throw new Error(data.message || 'Upload thất bại')
+    return data
+  },
 }
