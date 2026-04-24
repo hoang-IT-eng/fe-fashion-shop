@@ -45,7 +45,9 @@ export default function ProductsPage() {
     if (!isAuthenticated) { navigate('/auth'); return }
     setAddingId(p.id)
     try {
-      await addItem({ productId: p.id, name: p.name, price: Number(p.price), quantity: 1, imageUrl: p.imageUrl })
+      await addItem({ productId: p.id, name: p.name, price: Number(p.price), quantity: 1 })
+    } catch (err: any) {
+      alert(err.message)
     } finally {
       setAddingId(null)
     }

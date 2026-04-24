@@ -54,8 +54,10 @@ export default function ProductDetailPage() {
     if (!product) return
     setAdding(true)
     try {
-      await addItem({ productId: product.id, name: product.name, price: Number(product.price), quantity: 1, imageUrl: product.imageUrl })
+      await addItem({ productId: product.id, name: product.name, price: Number(product.price), quantity: 1 })
       navigate('/cart')
+    } catch (err: any) {
+      alert(err.message)
     } finally {
       setAdding(false)
     }

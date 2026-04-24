@@ -4,7 +4,7 @@ export interface CartItem {
   name: string
   price: number
   quantity: number
-  imageUrl?: string
+  imageUrl?: string  // chỉ dùng ở FE để hiển thị, không gửi lên BE
 }
 
 export interface Cart {

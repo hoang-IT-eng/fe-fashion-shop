@@ -30,7 +30,13 @@ export const useCartStore = create<CartState>((set, get) => ({
   },
 
   addItem: async (item) => {
-    await api.post('/cart', item)
+    // Chỉ gửi các field backend yêu cầu
+    await api.post('/cart', {
+      productId: item.productId,
+      name: item.name,
+      price: item.price,
+      quantity: item.quantity,
+    })
     await get().fetchCart()
   },
 
