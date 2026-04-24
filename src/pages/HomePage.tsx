@@ -85,7 +85,7 @@ export default function HomePage() {
         <div className="flex items-center gap-6 text-gray-700 flex-1 justify-end">
           <Globe className="h-4 w-4 cursor-pointer hidden md:block" />
           <Search className="h-4 w-4 cursor-pointer hover:text-black" onClick={() => navigate('/products')} />
-          <User className="h-4 w-4 cursor-pointer hover:text-black" onClick={() => navigate(isAuthenticated ? '/orders' : '/auth')} />
+          <User className="h-4 w-4 cursor-pointer hover:text-black" onClick={() => navigate(isAuthenticated ? '/profile' : '/auth')} />
           <Heart className="h-4 w-4 cursor-pointer hover:text-black" />
           <div className="relative cursor-pointer group" onClick={() => navigate('/cart')}>
             <ShoppingCart className="h-4 w-4 hover:text-black" />
