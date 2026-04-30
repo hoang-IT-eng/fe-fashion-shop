@@ -21,11 +21,16 @@ export const useCartStore = create<CartState>((set, get) => ({
     try {
       set({ loading: true })
       const data = await api.get<any>('/cart')
-      // Handle nhiều format: array trực tiếp, { items: [] }, hoặc { data: [] }
-      const items = Array.isArray(data) ? data
+      // Backend trả về array trực tiếp
+      const raw = Array.isArray(data) ? data
         : Array.isArray(data?.items) ? data.items
         : Array.isArray(data?.data) ? data.data
         : []
+      // Normalize price về number
+      const items: CartItem[] = raw.map((i: any) => ({
+        ...i,
+        price: Number(i.price),
+      }))
       set({ items })
     } catch {
       set({ items: [] })
