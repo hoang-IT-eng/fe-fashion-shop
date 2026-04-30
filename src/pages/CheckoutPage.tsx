@@ -32,8 +32,7 @@ export default function CheckoutPage() {
     setError('')
     try {
       if (paymentMethod === 'vnpay') {
-        // Gọi API tạo đơn với vnpay, backend trả về paymentUrl
-        const res = await api.post<{ paymentUrl?: string; orderId?: number }>('/orders', {
+        const res = await api.post<{ paymentUrl?: string; orderId?: number; id?: number }>('/orders', {
           items: items.map(i => ({ productId: i.productId, name: i.name, price: i.price, quantity: i.quantity })),
           total: total(),
           paymentMethod: 'vnpay',
@@ -47,7 +46,7 @@ export default function CheckoutPage() {
           window.location.href = res.paymentUrl
         } else {
           clear()
-          setSuccess(true)
+          navigate(`/orders/${res.orderId || res.id}`)
         }
       } else {
         await api.post('/orders', {
