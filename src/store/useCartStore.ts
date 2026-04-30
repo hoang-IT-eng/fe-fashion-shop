@@ -20,8 +20,13 @@ export const useCartStore = create<CartState>((set, get) => ({
   fetchCart: async () => {
     try {
       set({ loading: true })
-      const data = await api.get<Cart>('/cart')
-      set({ items: data.items || [] })
+      const data = await api.get<any>('/cart')
+      // Handle nhiều format: array trực tiếp, { items: [] }, hoặc { data: [] }
+      const items = Array.isArray(data) ? data
+        : Array.isArray(data?.items) ? data.items
+        : Array.isArray(data?.data) ? data.data
+        : []
+      set({ items })
     } catch {
       set({ items: [] })
     } finally {
