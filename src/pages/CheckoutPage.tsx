@@ -4,6 +4,8 @@ import { useCartStore } from '../store/useCartStore'
 import { useAuthStore } from '../store/useAuthStore'
 import { api } from '../api/apiClient'
 
+type PaymentMethod = 'cod' | 'vnpay'
+
 export default function CheckoutPage() {
   const navigate = useNavigate()
   const { isAuthenticated } = useAuthStore()
@@ -11,6 +13,13 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cod')
+
+  // Form fields dùng đúng tên backend yêu cầu
+  const [shippingName, setShippingName] = useState('')
+  const [shippingPhone, setShippingPhone] = useState('')
+  const [shippingAddress, setShippingAddress] = useState('')
+  const [note, setNote] = useState('')
 
   useEffect(() => {
     if (!isAuthenticated) { navigate('/auth'); return }
@@ -22,13 +31,37 @@ export default function CheckoutPage() {
     setLoading(true)
     setError('')
     try {
-      await api.post('/orders', {
-        items: items.map(i => ({ productId: i.productId, name: i.name, price: i.price, quantity: i.quantity })),
-        total: total(),
-        paymentMethod: 'cod',
-      })
-      clear()
-      setSuccess(true)
+      if (paymentMethod === 'vnpay') {
+        // Gọi API tạo đơn với vnpay, backend trả về paymentUrl
+        const res = await api.post<{ paymentUrl?: string; orderId?: number }>('/orders', {
+          items: items.map(i => ({ productId: i.productId, name: i.name, price: i.price, quantity: i.quantity })),
+          total: total(),
+          paymentMethod: 'vnpay',
+          shippingName,
+          shippingPhone,
+          shippingAddress,
+          note,
+        })
+        if (res.paymentUrl) {
+          // Redirect sang trang thanh toán VNPay
+          window.location.href = res.paymentUrl
+        } else {
+          clear()
+          setSuccess(true)
+        }
+      } else {
+        await api.post('/orders', {
+          items: items.map(i => ({ productId: i.productId, name: i.name, price: i.price, quantity: i.quantity })),
+          total: total(),
+          paymentMethod: 'cod',
+          shippingName,
+          shippingPhone,
+          shippingAddress,
+          note,
+        })
+        clear()
+        setSuccess(true)
+      }
     } catch (err: any) {
       setError(err.message)
     } finally {
@@ -61,28 +94,50 @@ export default function CheckoutPage() {
           <form onSubmit={handleOrder} className="flex-1 space-y-5">
             <h2 className="text-sm font-bold uppercase tracking-wider text-gray-700">Thông tin giao hàng</h2>
 
-            {[
-              { label: 'Họ và tên', name: 'name', type: 'text' },
-              { label: 'Số điện thoại', name: 'phone', type: 'tel' },
-              { label: 'Địa chỉ', name: 'address', type: 'text' },
-            ].map(({ label, name, type }) => (
-              <div key={name}>
-                <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-500">{label}</label>
-                <input type={type} required
-                  className="w-full border border-gray-300 p-3 text-sm focus:border-black focus:outline-none transition" />
-              </div>
-            ))}
-
+            <div>
+              <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-500">Họ và tên *</label>
+              <input type="text" required value={shippingName} onChange={e => setShippingName(e.target.value)}
+                className="w-full border border-gray-300 p-3 text-sm focus:border-black focus:outline-none transition" />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-500">Số điện thoại *</label>
+              <input type="tel" required value={shippingPhone} onChange={e => setShippingPhone(e.target.value)}
+                className="w-full border border-gray-300 p-3 text-sm focus:border-black focus:outline-none transition" />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-500">Địa chỉ giao hàng *</label>
+              <input type="text" required value={shippingAddress} onChange={e => setShippingAddress(e.target.value)}
+                className="w-full border border-gray-300 p-3 text-sm focus:border-black focus:outline-none transition" />
+            </div>
             <div>
               <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-500">Ghi chú</label>
-              <textarea rows={3} className="w-full border border-gray-300 p-3 text-sm focus:border-black focus:outline-none transition" />
+              <textarea rows={3} value={note} onChange={e => setNote(e.target.value)}
+                className="w-full border border-gray-300 p-3 text-sm focus:border-black focus:outline-none transition" />
             </div>
 
+            {/* Phương thức thanh toán */}
             <div>
               <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-gray-500">Phương thức thanh toán</label>
-              <div className="border border-black p-3 flex items-center gap-3">
-                <input type="radio" defaultChecked readOnly />
-                <span className="text-sm">Thanh toán khi nhận hàng (COD)</span>
+              <div className="space-y-2">
+                <label className={`flex items-center gap-3 p-3 border cursor-pointer transition ${paymentMethod === 'cod' ? 'border-black' : 'border-gray-300 hover:border-gray-400'}`}>
+                  <input type="radio" name="payment" value="cod" checked={paymentMethod === 'cod'}
+                    onChange={() => setPaymentMethod('cod')} />
+                  <div>
+                    <p className="text-sm font-medium">Thanh toán khi nhận hàng (COD)</p>
+                    <p className="text-xs text-gray-400">Trả tiền mặt khi nhận hàng</p>
+                  </div>
+                </label>
+                <label className={`flex items-center gap-3 p-3 border cursor-pointer transition ${paymentMethod === 'vnpay' ? 'border-black' : 'border-gray-300 hover:border-gray-400'}`}>
+                  <input type="radio" name="payment" value="vnpay" checked={paymentMethod === 'vnpay'}
+                    onChange={() => setPaymentMethod('vnpay')} />
+                  <div className="flex items-center gap-3">
+                    <div>
+                      <p className="text-sm font-medium">VNPay</p>
+                      <p className="text-xs text-gray-400">Thanh toán qua cổng VNPay (ATM, Visa, QR)</p>
+                    </div>
+                    <span className="ml-auto text-xs font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded">VNPay</span>
+                  </div>
+                </label>
               </div>
             </div>
 
@@ -90,7 +145,7 @@ export default function CheckoutPage() {
 
             <button type="submit" disabled={loading}
               className="w-full bg-black text-white py-4 text-sm font-bold uppercase tracking-wider hover:bg-gray-800 transition disabled:opacity-50">
-              {loading ? 'Đang xử lý...' : 'Đặt hàng'}
+              {loading ? 'Đang xử lý...' : paymentMethod === 'vnpay' ? 'Thanh toán qua VNPay' : 'Đặt hàng'}
             </button>
           </form>
 
@@ -105,6 +160,14 @@ export default function CheckoutPage() {
                     <span>{(item.price * item.quantity).toLocaleString('vi-VN')} đ</span>
                   </div>
                 ))}
+              </div>
+              <div className="flex justify-between text-sm mb-2">
+                <span className="text-gray-500">Tạm tính</span>
+                <span>{total().toLocaleString('vi-VN')} đ</span>
+              </div>
+              <div className="flex justify-between text-sm mb-4">
+                <span className="text-gray-500">Vận chuyển</span>
+                <span className="text-green-600">Miễn phí</span>
               </div>
               <div className="border-t border-gray-200 pt-4 flex justify-between font-bold">
                 <span>Tổng cộng</span>
