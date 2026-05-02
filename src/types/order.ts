@@ -13,5 +13,9 @@ export interface Order {
   total: number
   paymentMethod: string
   status: OrderStatus
+  shippingName?: string
+  shippingPhone?: string
+  shippingAddress?: string
+  note?: string
   createdAt: string
 }
