@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { api } from '../../api/apiClient'
 import { Product, ProductsResponse, ProductForm } from '../../types/product'
 import { X, ImagePlus } from 'lucide-react'
+import { useToast } from '../../components/Toast'
 
 const EMPTY_FORM: ProductForm = {
   name: '', price: '', stock: '', category: '',
@@ -21,6 +22,8 @@ export default function AdminProductsTab() {
   const [imagePreview, setImagePreview] = useState('')
   const [uploading, setUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const { toast } = useToast()
 
   useEffect(() => { fetchProducts() }, [])
 
@@ -71,7 +74,9 @@ export default function AdminProductsTab() {
         colors: form.colors ? form.colors.split(',').map(s => s.trim()).filter(Boolean) : [] }
       if (editingProduct) await api.put(`/products/${editingProduct.id}`, body)
       else await api.post('/products', body)
-      setShowModal(false); fetchProducts()
+      setShowModal(false)
+      fetchProducts()
+      toast(editingProduct ? 'Cập nhật sản phẩm thành công' : 'Thêm sản phẩm thành công')
     } catch (err: any) {
       setFormError(err.message); setUploading(false)
     } finally {
@@ -84,7 +89,8 @@ export default function AdminProductsTab() {
     try {
       await api.delete(`/products/${id}`)
       setProducts(prev => prev.filter(p => p.id !== id))
-    } catch (err: any) { alert(err.message) }
+      toast('Đã xóa sản phẩm')
+    } catch (err: any) { toast(err.message, 'error') }
   }
 
   return (

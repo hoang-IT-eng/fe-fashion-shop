@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { api } from '../../api/apiClient'
 import { Order, OrderStatus } from '../../types/order'
 import { X } from 'lucide-react'
+import { useToast } from '../../components/Toast'
 
 const STATUS_OPTIONS: { value: OrderStatus | ''; label: string; color: string }[] = [
   { value: '',          label: 'Tất cả',       color: 'bg-gray-100 text-gray-600' },
@@ -19,6 +20,7 @@ export default function AdminOrdersPage() {
   const [filterStatus, setFilterStatus] = useState<OrderStatus | ''>('')
   const [search, setSearch] = useState('')
   const [detail, setDetail] = useState<Order | null>(null)
+  const { toast } = useToast()
 
   useEffect(() => {
     api.get<Order[]>('/orders')
@@ -33,8 +35,9 @@ export default function AdminOrdersPage() {
       await api.patch(`/orders/${id}/status`, { status })
       setOrders(prev => prev.map(o => o.id === id ? { ...o, status } : o))
       if (detail?.id === id) setDetail(prev => prev ? { ...prev, status } : prev)
+      toast('Cập nhật trạng thái thành công')
     } catch (err: any) {
-      alert(err.message)
+      toast(err.message, 'error')
     } finally {
       setUpdating(null)
     }
@@ -46,8 +49,9 @@ export default function AdminOrdersPage() {
       await api.delete(`/orders/${id}`)
       setOrders(prev => prev.filter(o => o.id !== id))
       if (detail?.id === id) setDetail(null)
+      toast('Đã hủy đơn hàng')
     } catch (err: any) {
-      alert(err.message)
+      toast(err.message, 'error')
     }
   }
 

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { api } from '../../api/apiClient'
 import { X } from 'lucide-react'
+import { useToast } from '../../components/Toast'
 
 interface User {
   id: number
@@ -18,6 +19,8 @@ export default function AdminUsersPage() {
   const [editName, setEditName] = useState('')
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState('')
+
+  const { toast } = useToast()
 
   useEffect(() => {
     api.get<User[]>('/users')
@@ -41,6 +44,7 @@ export default function AdminUsersPage() {
       await api.put(`/users/${editingUser.id}`, { name: editName })
       setUsers(prev => prev.map(u => u.id === editingUser.id ? { ...u, name: editName } : u))
       setEditingUser(null)
+      toast('Cập nhật thành công')
     } catch (err: any) {
       setSaveError(err.message)
     } finally {
@@ -53,8 +57,9 @@ export default function AdminUsersPage() {
     try {
       await api.delete(`/users/${id}`)
       setUsers(prev => prev.filter(u => u.id !== id))
+      toast('Đã xóa user')
     } catch (err: any) {
-      alert(err.message)
+      toast(err.message, 'error')
     }
   }
 
