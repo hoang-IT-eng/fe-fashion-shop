@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Heart, User, ShoppingCart, Menu, Globe } from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore';
+import { useCartStore } from '../store/useCartStore';
 import { api } from '../api/apiClient';
 import { Product, ProductsResponse } from '../types/product';
 
@@ -36,6 +36,7 @@ const ProductSkeleton = () => (
 export default function HomePage() {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuthStore();
+  const { items, fetchCart } = useCartStore();
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -44,47 +45,12 @@ export default function HomePage() {
       .then(res => setProducts(res.data))
       .catch(() => {})
       .finally(() => setIsLoading(false));
-  }, []);
+    if (isAuthenticated) fetchCart()
+  }, [isAuthenticated]);
 
   return (
     <div className="flex flex-col min-h-screen bg-white font-sans text-gray-900 overflow-x-hidden antialiased">
       <style>{`.hide-scrollbar::-webkit-scrollbar { display: none; } .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }`}</style>
-
-      {/* THANH THÔNG BÁO MỎNG */}
-      <div className="bg-[#f5f5f5] py-2 text-center border-b border-gray-100">
-        <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-gray-600">
-          Miễn phí vận chuyển cho đơn hàng từ 2.000.000đ | Hàng mới về mỗi ngày
-        </p>
-      </div>
-
-      {/* HEADER: Đã căn giữa Logo "TheBasic" một cách chuẩn xác */}
-      <header className="sticky top-0 z-50 flex items-center justify-between bg-white/95 backdrop-blur-sm px-6 md:px-12 py-4 border-b border-gray-100 shadow-sm">
-        {/* Left Nav (Đồ Nam, Đồ Nữ,...) */}
-        <nav className="hidden gap-8 md:flex items-center flex-1 justify-start">
-          {['Bộ sưu tập', 'Đồ Nam', 'Đồ Nữ', 'Phụ kiện'].map((item) => (
-            <a key={item} href="#" className="text-xs font-semibold uppercase tracking-widest text-gray-700 hover:text-black transition">{item}</a>
-          ))}
-        </nav>
-        
-        <Menu className="h-5 w-5 text-gray-900 cursor-pointer md:hidden" />
-
-        {/* LOGO: TÁC VỤ 2 - GIỮ NGUYÊN CĂN GIỮA CHUẨN XÁC */}
-        <div className="flex items-center justify-center cursor-pointer flex-1" onClick={() => navigate('/')}>
-          <LogoComponent />
-        </div>
-
-        {/* Right Icons mảnh nhẹ */}
-        <div className="flex items-center gap-6 text-gray-700 flex-1 justify-end">
-          <Globe className="h-4 w-4 cursor-pointer hidden md:block" />
-          <Search className="h-4 w-4 cursor-pointer hover:text-black" />
-          <User className="h-4 w-4 cursor-pointer hover:text-black" onClick={() => navigate('/auth')} />
-          <Heart className="h-4 w-4 cursor-pointer hover:text-black" />
-          <div className="relative cursor-pointer group">
-            <ShoppingCart className="h-4 w-4 hover:text-black" />
-            <span className="absolute -top-2 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-black text-[9px] font-bold text-white">0</span>
-          </div>
-        </div>
-      </header>
 
       <main className="flex flex-col w-full overflow-hidden">
         {/* SECTION 1: HERO BACKGROUND VỚI TẤM ẢNH QUẦN ÁO MỚI */}

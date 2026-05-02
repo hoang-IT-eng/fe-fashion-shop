@@ -110,6 +110,13 @@ export default function AuthPage() {
           >
             {loading ? 'Đang xử lý...' : isLogin ? 'Đăng nhập' : 'Đăng ký'}
           </button>
+
+          {isLogin && (
+            <button type="button" onClick={() => navigate('/forgot-password')}
+              className="w-full text-center text-xs text-gray-400 hover:text-black transition underline mt-2">
+              Quên mật khẩu?
+            </button>
+          )}
         </form>
 
         <div className="mt-8 border-t border-gray-200 pt-8 text-center">

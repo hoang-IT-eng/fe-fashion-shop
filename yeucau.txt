@@ -1,0 +1,133 @@
+I. CHỨC NĂNG PHÍA NGƯỜI DÙNG (USER)
+1. Trang chủ (Bảo ) 
+Mô tả chức năng
+Hiển thị banner / slideshow
+Danh sách sản phẩm nổi bật
+Danh sách sản phẩm mới
+Danh mục sản phẩm (áo, quần, váy, …)
+Thanh menu điều hướng
+Footer thông tin liên hệ
+Task Frontend
+Thiết kế UI trang chủ
+Xây dựng component Banner
+Xây dựng component Product Card
+Responsive cho mobile
+
+2. Danh sách sản phẩm 	(ĐÌnh trí)
+Mô tả chức năng
+Hiển thị tất cả sản phẩm
+Hiển thị ảnh sản phẩm
+Tên sản phẩm
+Giá
+Nút xem chi tiết
+Nút thêm vào giỏ hàng
+Phân trang / Load more
+Task Frontend
+Component ProductList
+Component ProductCard
+Gọi API lấy danh sách sản phẩm
+
+3. Tìm kiếm / Bộ lọc (ĐÌnh trí)
+Mô tả chức năng
+Tìm kiếm theo tên sản phẩm
+Lọc theo loại
+Lọc theo size
+Lọc theo màu
+Lọc theo khoảng giá
+Sắp xếp giá tăng / giảm
+Task Frontend
+Search Bar
+Filter Sidebar
+Sort Dropdown
+Gọi API search/filter
+
+4. Chi tiết sản phẩm (ĐÌnh trí)
+Mô tả chức năng
+Hiển thị ảnh lớn
+Mô tả sản phẩm
+Giá
+Size
+Màu sắc
+Chọn số lượng
+Nút thêm vào giỏ hàng
+Task Frontend
+Component ProductDetail
+Image Gallery
+Size Selector
+Quantity Button
+
+5. Giỏ hàng (Đức Toàn) 
+Mô tả chức năng
+Hiển thị sản phẩm đã chọn
+Tăng / giảm số lượng
+Xóa sản phẩm
+Hiển thị tổng tiền
+Cập nhật số lượng real-time
+Task Frontend
+Trang CartPage
+Component Cart Item
+State quản lý giỏ hàng
+
+6. Thanh toán (Đức Toàn) 
+Mô tả chức năng
+Form thông tin người nhận
+Số điện thoại
+Địa chỉ
+Ghi chú
+Phương thức thanh toán
+Nút đặt hàng
+Task Frontend
+Checkout Form
+Validate input
+Gọi API tạo đơn hàng
+
+7. Đăng nhập / Đăng ký (Gia Bảo)
+Mô tả chức năng
+Đăng nhập
+Đăng ký
+Quên mật khẩu
+Đăng xuất
+
+II. CHỨC NĂNG PHÍA ADMIN (DASHBOARD) – 
+1. Dashboard tổng quan(duc toan)
+Mô tả chức năng
+Tổng số đơn hàng
+Tổng số sản phẩm
+Tổng doanh thu
+Đơn hàng mới
+Task Frontend
+Dashboard Cards
+Bảng thống kê
+
+2. Quản lý sản phẩm (CRUD)(duc toan)
+Mô tả chức năng
+Thêm sản phẩm
+Sửa sản phẩm
+Xóa sản phẩm
+Upload ảnh
+Cập nhật giá
+Cập nhật số lượng
+Task Frontend
+Bảng danh sách sản phẩm
+Modal thêm / sửa
+Form upload ảnh
+
+3. Duyệt đơn hàng
+Mô tả chức năng
+Danh sách đơn hàng
+Xem chi tiết đơn
+Xác nhận đơn
+Chuyển trạng thái đơn
+Hủy đơn
+Trạng thái đơn hàng
+Chờ xác nhận
+Đang giao
+Đã giao
+Đã hủy
+Task Frontend
+Order Table
+Status Badge
+Action Buttons 
+
+
+bổ sung (): có thể thêm trang lịch sử người dùng, quản lý tài khoản, đánh giá sản phẩm
