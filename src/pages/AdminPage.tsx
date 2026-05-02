@@ -1,19 +1,21 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/useAuthStore'
-import { LayoutDashboard, Package, Users, LogOut, ShoppingBag, Menu, X } from 'lucide-react'
+import { LayoutDashboard, Package, Users, LogOut, ShoppingBag, Menu, X, Tag } from 'lucide-react'
 import AdminDashboardPage from './admin/AdminDashboardPage'
 import AdminOrdersPage from './admin/AdminOrdersPage'
 import AdminUsersPage from './admin/AdminUsersPage'
 import AdminProductsTab from './admin/AdminProductsTab'
+import AdminCategoriesTab from './admin/AdminCategoriesTab'
 
-type Tab = 'dashboard' | 'products' | 'orders' | 'users'
+type Tab = 'dashboard' | 'products' | 'orders' | 'users' | 'categories'
 
 const NAV: { key: Tab; label: string; icon: React.ElementType }[] = [
-  { key: 'dashboard', label: 'Tổng quan',  icon: LayoutDashboard },
-  { key: 'products',  label: 'Sản phẩm',   icon: Package },
-  { key: 'orders',    label: 'Đơn hàng',   icon: ShoppingBag },
-  { key: 'users',     label: 'Khách hàng', icon: Users },
+  { key: 'dashboard',  label: 'Tổng quan',  icon: LayoutDashboard },
+  { key: 'products',   label: 'Sản phẩm',   icon: Package },
+  { key: 'categories', label: 'Danh mục',   icon: Tag },
+  { key: 'orders',     label: 'Đơn hàng',   icon: ShoppingBag },
+  { key: 'users',      label: 'Khách hàng', icon: Users },
 ]
 
 export default function AdminPage() {
@@ -35,10 +37,11 @@ export default function AdminPage() {
 
   const renderContent = () => {
     switch (tab) {
-      case 'dashboard': return <AdminDashboardPage />
-      case 'products':  return <AdminProductsTab />
-      case 'orders':    return <AdminOrdersPage />
-      case 'users':     return <AdminUsersPage />
+      case 'dashboard':  return <AdminDashboardPage />
+      case 'products':   return <AdminProductsTab />
+      case 'categories': return <AdminCategoriesTab />
+      case 'orders':     return <AdminOrdersPage />
+      case 'users':      return <AdminUsersPage />
     }
   }
 

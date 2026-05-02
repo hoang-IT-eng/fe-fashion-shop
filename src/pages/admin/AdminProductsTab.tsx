@@ -3,6 +3,7 @@ import { api } from '../../api/apiClient'
 import { Product, ProductsResponse, ProductForm } from '../../types/product'
 import { X, ImagePlus } from 'lucide-react'
 import { useToast } from '../../components/Toast'
+import { useCategoryStore } from '../../store/useCategoryStore'
 
 const EMPTY_FORM: ProductForm = {
   name: '', price: '', stock: '', category: '',
@@ -24,8 +25,9 @@ export default function AdminProductsTab() {
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const { toast } = useToast()
+  const { categories, fetch: fetchCategories } = useCategoryStore()
 
-  useEffect(() => { fetchProducts() }, [])
+  useEffect(() => { fetchProducts(); fetchCategories() }, [])
 
   const fetchProducts = async () => {
     try {
@@ -170,7 +172,6 @@ export default function AdminProductsTab() {
                 { label: 'Tên sản phẩm *', key: 'name', type: 'text', required: true },
                 { label: 'Giá (VNĐ) *', key: 'price', type: 'number', required: true },
                 { label: 'Tồn kho', key: 'stock', type: 'number' },
-                { label: 'Danh mục', key: 'category', type: 'text' },
                 { label: 'Sizes (cách nhau bằng dấu phẩy)', key: 'sizes', type: 'text' },
                 { label: 'Màu sắc (cách nhau bằng dấu phẩy)', key: 'colors', type: 'text' },
               ].map(({ label, key, type, required }) => (
@@ -181,6 +182,18 @@ export default function AdminProductsTab() {
                     required={required} className="w-full border border-gray-300 p-2.5 text-sm focus:border-black focus:outline-none" />
                 </div>
               ))}
+
+              {/* Dropdown danh mục */}
+              <div>
+                <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-500">Danh mục</label>
+                <select value={form.category} onChange={e => setForm(prev => ({ ...prev, category: e.target.value }))}
+                  className="w-full border border-gray-300 p-2.5 text-sm focus:border-black focus:outline-none">
+                  <option value="">-- Chọn danh mục --</option>
+                  {categories.map(c => (
+                    <option key={c.id} value={c.slug}>{c.name}</option>
+                  ))}
+                </select>
+              </div>
               <div>
                 <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-500">Mô tả</label>
                 <textarea value={form.description} onChange={e => setForm(prev => ({ ...prev, description: e.target.value }))}

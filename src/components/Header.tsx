@@ -1,26 +1,35 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { Search, User, ShoppingCart, Menu, X } from 'lucide-react'
 import { useAuthStore } from '../store/useAuthStore'
 import { useCartStore } from '../store/useCartStore'
+import { useCategoryStore } from '../store/useCategoryStore'
 
 export default function Header() {
   const navigate = useNavigate()
   const location = useLocation()
   const { isAuthenticated, user } = useAuthStore()
   const { items } = useCartStore()
+  const { categories, fetch: fetchCategories } = useCategoryStore()
   const [menuOpen, setMenuOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchVal, setSearchVal] = useState('')
 
   const cartCount = items.reduce((s, i) => s + i.quantity, 0)
 
-  const NAV = [
-    { label: 'Bộ sưu tập', path: '/products' },
-    { label: 'Đồ Nam', path: '/products?category=nam' },
-    { label: 'Đồ Nữ', path: '/products?category=nu' },
-    { label: 'Phụ kiện', path: '/products?category=phu-kien' },
-  ]
+  useEffect(() => {
+    fetchCategories()
+  }, [])
+
+  // Fallback nếu API chưa có data
+  const NAV = categories.length > 0
+    ? [{ label: 'Tất cả', path: '/products' }, ...categories.map(c => ({ label: c.name, path: `/products?category=${c.slug}` }))]
+    : [
+        { label: 'Bộ sưu tập', path: '/products' },
+        { label: 'Đồ Nam', path: '/products?category=nam' },
+        { label: 'Đồ Nữ', path: '/products?category=nu' },
+        { label: 'Phụ kiện', path: '/products?category=phu-kien' },
+      ]
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
