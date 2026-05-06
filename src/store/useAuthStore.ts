@@ -42,6 +42,14 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   logout: () => {
+    // Gọi API logout (fire and forget, không cần await)
+    const token = localStorage.getItem('accessToken')
+    if (token) {
+      fetch(`${import.meta.env.VITE_API_URL}/auth/logout`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      }).catch(() => {})
+    }
     localStorage.removeItem('accessToken')
     localStorage.removeItem('user')
     set({ isAuthenticated: false, user: null })
