@@ -1,5 +1,14 @@
 const BASE_URL = import.meta.env.VITE_API_URL
 
+function handleUnauthorized() {
+  localStorage.removeItem('accessToken')
+  localStorage.removeItem('user')
+  // Redirect về /auth nếu chưa ở đó
+  if (!window.location.pathname.startsWith('/auth')) {
+    window.location.href = '/auth'
+  }
+}
+
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = localStorage.getItem('accessToken')
 
@@ -13,6 +22,11 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   })
 
   const data = await res.json()
+
+  if (res.status === 401) {
+    handleUnauthorized()
+    throw new Error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.')
+  }
 
   if (!res.ok) {
     const message = Array.isArray(data.message) ? data.message[0] : data.message
@@ -42,6 +56,7 @@ export const api = {
     })
 
     const data = await res.json()
+    if (res.status === 401) { handleUnauthorized(); throw new Error('Phiên đăng nhập đã hết hạn.') }
     if (!res.ok) throw new Error(data.message || 'Upload thất bại')
     return data
   },
