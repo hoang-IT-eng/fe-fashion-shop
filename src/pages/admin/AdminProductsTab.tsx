@@ -4,6 +4,7 @@ import { Product, ProductsResponse, ProductForm } from '../../types/product'
 import { X, ImagePlus } from 'lucide-react'
 import { useToast } from '../../components/Toast'
 import { useCategoryStore } from '../../store/useCategoryStore'
+import ConfirmDialog from '../../components/ConfirmDialog'
 
 const EMPTY_FORM: ProductForm = {
   name: '', price: '', stock: '', category: '',
@@ -22,6 +23,7 @@ export default function AdminProductsTab() {
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState('')
   const [uploading, setUploading] = useState(false)
+  const [confirmId, setConfirmId] = useState<number | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const { toast } = useToast()
@@ -87,7 +89,6 @@ export default function AdminProductsTab() {
   }
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Xác nhận xóa sản phẩm này?')) return
     try {
       await api.delete(`/products/${id}`)
       setProducts(prev => prev.filter(p => p.id !== id))
@@ -139,7 +140,7 @@ export default function AdminProductsTab() {
                 </td>
                 <td className="px-6 py-4 text-right space-x-3">
                   <button onClick={() => openEdit(p)} className="text-blue-600 font-medium hover:underline">Sửa</button>
-                  <button onClick={() => handleDelete(p.id)} className="text-red-600 font-medium hover:underline">Xóa</button>
+                  <button onClick={() => setConfirmId(p.id)} className="text-red-600 font-medium hover:underline">Xóa</button>
                 </td>
               </tr>
             ))}
@@ -213,6 +214,15 @@ export default function AdminProductsTab() {
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={confirmId !== null}
+        title="Xóa sản phẩm"
+        message="Bạn có chắc muốn xóa sản phẩm này? Hành động này không thể hoàn tác."
+        confirmLabel="Xóa"
+        onConfirm={() => { if (confirmId) handleDelete(confirmId); setConfirmId(null) }}
+        onCancel={() => setConfirmId(null)}
+      />
     </div>
   )
 }

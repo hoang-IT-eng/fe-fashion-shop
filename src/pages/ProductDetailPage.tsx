@@ -5,6 +5,8 @@ import { useCartStore } from '../store/useCartStore'
 import { useAuthStore } from '../store/useAuthStore'
 import { api } from '../api/apiClient'
 import { Product } from '../types/product'
+import Breadcrumb from '../components/Breadcrumb'
+import { useToast } from '../components/Toast'
 
 interface Review {
   id: number
@@ -25,13 +27,13 @@ export default function ProductDetailPage() {
   const navigate = useNavigate()
   const { isAuthenticated } = useAuthStore()
   const { addItem } = useCartStore()
+  const { toast } = useToast()
 
   const [product, setProduct] = useState<Product | null>(null)
   const [reviews, setReviews] = useState<Review[]>([])
   const [avgRating, setAvgRating] = useState(0)
   const [loading, setLoading] = useState(true)
   const [adding, setAdding] = useState(false)
-
   const [rating, setRating] = useState(5)
   const [comment, setComment] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -55,9 +57,9 @@ export default function ProductDetailPage() {
     setAdding(true)
     try {
       await addItem({ productId: product.id, name: product.name, price: Number(product.price), quantity: 1 })
-      navigate('/cart')
+      toast('Đã thêm vào giỏ hàng')
     } catch (err: any) {
-      alert(err.message)
+      toast(err.message, 'error')
     } finally {
       setAdding(false)
     }
@@ -66,15 +68,14 @@ export default function ProductDetailPage() {
   const handleReview = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!isAuthenticated) { navigate('/auth'); return }
-    setSubmitting(true)
-    setReviewError('')
+    setSubmitting(true); setReviewError('')
     try {
       await api.post(`/products/${id}/reviews`, { rating, comment })
       const r = await api.get<ReviewsResponse>(`/products/${id}/reviews`)
       setReviews(r.reviews || [])
       setAvgRating(r.averageRating || 0)
-      setComment('')
-      setRating(5)
+      setComment(''); setRating(5)
+      toast('Đã gửi đánh giá')
     } catch (err: any) {
       setReviewError(err.message)
     } finally {
@@ -88,6 +89,14 @@ export default function ProductDetailPage() {
   return (
     <div className="min-h-screen bg-white font-sans">
       <div className="max-w-5xl mx-auto px-6 py-12">
+
+        {/* Breadcrumb */}
+        <Breadcrumb items={[
+          { label: 'Trang chủ', path: '/' },
+          { label: 'Sản phẩm', path: '/products' },
+          ...(product.category ? [{ label: product.category, path: `/products?category=${product.category}` }] : []),
+          { label: product.name },
+        ]} />
 
         {/* Product info */}
         <div className="flex flex-col md:flex-row gap-12 mb-16">
@@ -114,7 +123,6 @@ export default function ProductDetailPage() {
                 </div>
               </div>
             )}
-
             {product.colors && product.colors.length > 0 && (
               <div className="mb-6">
                 <p className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Màu sắc</p>
@@ -134,8 +142,6 @@ export default function ProductDetailPage() {
         {/* Reviews */}
         <div>
           <h2 className="text-lg font-light uppercase tracking-widest mb-8 border-b border-gray-100 pb-4">Đánh giá</h2>
-
-          {/* Form gửi đánh giá */}
           {isAuthenticated && (
             <form onSubmit={handleReview} className="mb-8 p-6 border border-gray-200">
               <p className="text-sm font-bold uppercase tracking-wider mb-4">Viết đánh giá</p>
@@ -155,10 +161,11 @@ export default function ProductDetailPage() {
               </button>
             </form>
           )}
-
-          {/* Danh sách đánh giá */}
           {reviews.length === 0 ? (
-            <p className="text-gray-400 text-sm">Chưa có đánh giá nào.</p>
+            <div className="text-center py-12">
+              <span className="text-4xl mb-4 block">💬</span>
+              <p className="text-gray-400 text-sm">Chưa có đánh giá nào. Hãy là người đầu tiên!</p>
+            </div>
           ) : (
             <div className="space-y-6">
               {reviews.map(r => (

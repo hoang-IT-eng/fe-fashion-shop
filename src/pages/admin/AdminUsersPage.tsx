@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { api } from '../../api/apiClient'
 import { X } from 'lucide-react'
 import { useToast } from '../../components/Toast'
+import ConfirmDialog from '../../components/ConfirmDialog'
 
 interface User {
   id: number
@@ -19,6 +20,7 @@ export default function AdminUsersPage() {
   const [editName, setEditName] = useState('')
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState('')
+  const [confirmId, setConfirmId] = useState<number | null>(null)
 
   const { toast } = useToast()
 
@@ -53,7 +55,6 @@ export default function AdminUsersPage() {
   }
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Xóa user này?')) return
     try {
       await api.delete(`/users/${id}`)
       setUsers(prev => prev.filter(u => u.id !== id))
@@ -118,7 +119,7 @@ export default function AdminUsersPage() {
                 <td className="px-6 py-4 text-right space-x-3">
                   <button onClick={() => openEdit(u)} className="text-blue-600 font-medium hover:underline text-xs">Sửa</button>
                   {u.role !== 'admin' && (
-                    <button onClick={() => handleDelete(u.id)} className="text-red-600 font-medium hover:underline text-xs">Xóa</button>
+                    <button onClick={() => setConfirmId(u.id)} className="text-red-600 font-medium hover:underline text-xs">Xóa</button>
                   )}
                 </td>
               </tr>
@@ -164,6 +165,15 @@ export default function AdminUsersPage() {
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={confirmId !== null}
+        title="Xóa tài khoản"
+        message="Bạn có chắc muốn xóa tài khoản này? Hành động này không thể hoàn tác."
+        confirmLabel="Xóa"
+        onConfirm={() => { if (confirmId) handleDelete(confirmId); setConfirmId(null) }}
+        onCancel={() => setConfirmId(null)}
+      />
     </div>
   )
 }

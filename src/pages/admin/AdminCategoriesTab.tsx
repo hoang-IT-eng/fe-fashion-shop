@@ -4,6 +4,7 @@ import { Category } from '../../types/category'
 import { X } from 'lucide-react'
 import { useToast } from '../../components/Toast'
 import { useCategoryStore } from '../../store/useCategoryStore'
+import ConfirmDialog from '../../components/ConfirmDialog'
 
 export default function AdminCategoriesTab() {
   const [categories, setCategories] = useState<Category[]>([])
@@ -14,6 +15,7 @@ export default function AdminCategoriesTab() {
   const [slug, setSlug] = useState('')
   const [saving, setSaving] = useState(false)
   const [formError, setFormError] = useState('')
+  const [confirmId, setConfirmId] = useState<number | null>(null)
   const { toast } = useToast()
   const { fetch: refetchStore } = useCategoryStore()
 
@@ -78,7 +80,6 @@ export default function AdminCategoriesTab() {
   }
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Xóa danh mục này?')) return
     try {
       await api.delete(`/categories/${id}`)
       setCategories(prev => prev.filter(c => c.id !== id))
@@ -127,7 +128,7 @@ export default function AdminCategoriesTab() {
                 </td>
                 <td className="px-6 py-4 text-right space-x-3">
                   <button onClick={() => openEdit(c)} className="text-blue-600 font-medium hover:underline text-xs">Sửa</button>
-                  <button onClick={() => handleDelete(c.id)} className="text-red-600 font-medium hover:underline text-xs">Xóa</button>
+                  <button onClick={() => setConfirmId(c.id)} className="text-red-600 font-medium hover:underline text-xs">Xóa</button>
                 </td>
               </tr>
             ))}
@@ -168,6 +169,15 @@ export default function AdminCategoriesTab() {
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={confirmId !== null}
+        title="Xóa danh mục"
+        message="Bạn có chắc muốn xóa danh mục này?"
+        confirmLabel="Xóa"
+        onConfirm={() => { if (confirmId) handleDelete(confirmId); setConfirmId(null) }}
+        onCancel={() => setConfirmId(null)}
+      />
     </div>
   )
 }
