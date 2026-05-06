@@ -2,21 +2,16 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useCartStore } from '../store/useCartStore'
 import { useAuthStore } from '../store/useAuthStore'
+import { useCategoryStore } from '../store/useCategoryStore'
 import { api } from '../api/apiClient'
 import { Product, ProductsResponse } from '../types/product'
-
-const CATEGORIES = [
-  { label: 'Tất cả', value: '' },
-  { label: 'Đồ Nam', value: 'nam' },
-  { label: 'Đồ Nữ', value: 'nu' },
-  { label: 'Phụ kiện', value: 'phu-kien' },
-]
 
 export default function ProductsPage() {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const { isAuthenticated } = useAuthStore()
   const { addItem } = useCartStore()
+  const { categories, fetch: fetchCategories } = useCategoryStore()
 
   const [products, setProducts] = useState<Product[]>([])
   const [total, setTotal] = useState(0)
@@ -26,6 +21,13 @@ export default function ProductsPage() {
   const category = searchParams.get('category') || ''
   const search = searchParams.get('search') || ''
   const page = Number(searchParams.get('page') || 1)
+
+  useEffect(() => { fetchCategories() }, [])
+
+  const CATEGORIES = [
+    { label: 'Tất cả', value: '' },
+    ...categories.map(c => ({ label: c.name, value: c.slug })),
+  ]
 
   useEffect(() => {
     setLoading(true)

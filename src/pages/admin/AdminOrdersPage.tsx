@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react'
 import { api } from '../../api/apiClient'
 import { Order, OrderStatus } from '../../types/order'
 import { X } from 'lucide-react'
+import { useToast } from '../../components/Toast'
+import ConfirmDialog from '../../components/ConfirmDialog'
 
 const STATUS_OPTIONS: { value: OrderStatus | ''; label: string; color: string }[] = [
   { value: '',          label: 'Tất cả',       color: 'bg-gray-100 text-gray-600' },
@@ -19,6 +21,8 @@ export default function AdminOrdersPage() {
   const [filterStatus, setFilterStatus] = useState<OrderStatus | ''>('')
   const [search, setSearch] = useState('')
   const [detail, setDetail] = useState<Order | null>(null)
+  const [confirmId, setConfirmId] = useState<number | null>(null)
+  const { toast } = useToast()
 
   useEffect(() => {
     api.get<Order[]>('/orders')
@@ -33,21 +37,22 @@ export default function AdminOrdersPage() {
       await api.patch(`/orders/${id}/status`, { status })
       setOrders(prev => prev.map(o => o.id === id ? { ...o, status } : o))
       if (detail?.id === id) setDetail(prev => prev ? { ...prev, status } : prev)
+      toast('Cập nhật trạng thái thành công')
     } catch (err: any) {
-      alert(err.message)
+      toast(err.message, 'error')
     } finally {
       setUpdating(null)
     }
   }
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Hủy đơn hàng này?')) return
     try {
       await api.delete(`/orders/${id}`)
       setOrders(prev => prev.filter(o => o.id !== id))
       if (detail?.id === id) setDetail(null)
+      toast('Đã hủy đơn hàng')
     } catch (err: any) {
-      alert(err.message)
+      toast(err.message, 'error')
     }
   }
 
@@ -125,7 +130,7 @@ export default function AdminOrdersPage() {
                   </td>
                   <td className="px-4 py-4 text-right space-x-3">
                     <button onClick={() => setDetail(order)} className="text-blue-600 font-medium hover:underline text-xs">Chi tiết</button>
-                    <button onClick={() => handleDelete(order.id)} className="text-red-600 font-medium hover:underline text-xs">Hủy</button>
+                    <button onClick={() => setConfirmId(order.id)} className="text-red-600 font-medium hover:underline text-xs">Hủy</button>
                   </td>
                 </tr>
               )
@@ -135,8 +140,7 @@ export default function AdminOrdersPage() {
       </div>
 
       {/* Modal chi tiết đơn hàng */}
-      {detail && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+      {detail && (        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="bg-white w-full max-w-lg rounded-lg shadow-xl p-6 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg font-bold">Chi tiết đơn #{detail.id}</h2>
@@ -199,6 +203,15 @@ export default function AdminOrdersPage() {
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={confirmId !== null}
+        title="Hủy đơn hàng"
+        message="Bạn có chắc muốn hủy đơn hàng này? Hành động này không thể hoàn tác."
+        confirmLabel="Hủy đơn"
+        onConfirm={() => { if (confirmId) handleDelete(confirmId); setConfirmId(null) }}
+        onCancel={() => setConfirmId(null)}
+      />
     </div>
   )
 }

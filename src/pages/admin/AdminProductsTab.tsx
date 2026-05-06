@@ -2,6 +2,9 @@ import React, { useState, useEffect, useRef } from 'react'
 import { api } from '../../api/apiClient'
 import { Product, ProductsResponse, ProductForm } from '../../types/product'
 import { X, ImagePlus } from 'lucide-react'
+import { useToast } from '../../components/Toast'
+import { useCategoryStore } from '../../store/useCategoryStore'
+import ConfirmDialog from '../../components/ConfirmDialog'
 
 const EMPTY_FORM: ProductForm = {
   name: '', price: '', stock: '', category: '',
@@ -20,9 +23,13 @@ export default function AdminProductsTab() {
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState('')
   const [uploading, setUploading] = useState(false)
+  const [confirmId, setConfirmId] = useState<number | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  useEffect(() => { fetchProducts() }, [])
+  const { toast } = useToast()
+  const { categories, fetch: fetchCategories } = useCategoryStore()
+
+  useEffect(() => { fetchProducts(); fetchCategories() }, [])
 
   const fetchProducts = async () => {
     try {
@@ -71,7 +78,9 @@ export default function AdminProductsTab() {
         colors: form.colors ? form.colors.split(',').map(s => s.trim()).filter(Boolean) : [] }
       if (editingProduct) await api.put(`/products/${editingProduct.id}`, body)
       else await api.post('/products', body)
-      setShowModal(false); fetchProducts()
+      setShowModal(false)
+      fetchProducts()
+      toast(editingProduct ? 'Cập nhật sản phẩm thành công' : 'Thêm sản phẩm thành công')
     } catch (err: any) {
       setFormError(err.message); setUploading(false)
     } finally {
@@ -80,11 +89,11 @@ export default function AdminProductsTab() {
   }
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Xác nhận xóa sản phẩm này?')) return
     try {
       await api.delete(`/products/${id}`)
       setProducts(prev => prev.filter(p => p.id !== id))
-    } catch (err: any) { alert(err.message) }
+      toast('Đã xóa sản phẩm')
+    } catch (err: any) { toast(err.message, 'error') }
   }
 
   return (
@@ -131,7 +140,7 @@ export default function AdminProductsTab() {
                 </td>
                 <td className="px-6 py-4 text-right space-x-3">
                   <button onClick={() => openEdit(p)} className="text-blue-600 font-medium hover:underline">Sửa</button>
-                  <button onClick={() => handleDelete(p.id)} className="text-red-600 font-medium hover:underline">Xóa</button>
+                  <button onClick={() => setConfirmId(p.id)} className="text-red-600 font-medium hover:underline">Xóa</button>
                 </td>
               </tr>
             ))}
@@ -164,7 +173,6 @@ export default function AdminProductsTab() {
                 { label: 'Tên sản phẩm *', key: 'name', type: 'text', required: true },
                 { label: 'Giá (VNĐ) *', key: 'price', type: 'number', required: true },
                 { label: 'Tồn kho', key: 'stock', type: 'number' },
-                { label: 'Danh mục', key: 'category', type: 'text' },
                 { label: 'Sizes (cách nhau bằng dấu phẩy)', key: 'sizes', type: 'text' },
                 { label: 'Màu sắc (cách nhau bằng dấu phẩy)', key: 'colors', type: 'text' },
               ].map(({ label, key, type, required }) => (
@@ -175,6 +183,18 @@ export default function AdminProductsTab() {
                     required={required} className="w-full border border-gray-300 p-2.5 text-sm focus:border-black focus:outline-none" />
                 </div>
               ))}
+
+              {/* Dropdown danh mục */}
+              <div>
+                <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-500">Danh mục</label>
+                <select value={form.category} onChange={e => setForm(prev => ({ ...prev, category: e.target.value }))}
+                  className="w-full border border-gray-300 p-2.5 text-sm focus:border-black focus:outline-none">
+                  <option value="">-- Chọn danh mục --</option>
+                  {categories.map(c => (
+                    <option key={c.id} value={c.slug}>{c.name}</option>
+                  ))}
+                </select>
+              </div>
               <div>
                 <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-500">Mô tả</label>
                 <textarea value={form.description} onChange={e => setForm(prev => ({ ...prev, description: e.target.value }))}
@@ -194,6 +214,15 @@ export default function AdminProductsTab() {
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={confirmId !== null}
+        title="Xóa sản phẩm"
+        message="Bạn có chắc muốn xóa sản phẩm này? Hành động này không thể hoàn tác."
+        confirmLabel="Xóa"
+        onConfirm={() => { if (confirmId) handleDelete(confirmId); setConfirmId(null) }}
+        onCancel={() => setConfirmId(null)}
+      />
     </div>
   )
 }
