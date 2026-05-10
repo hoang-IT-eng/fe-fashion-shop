@@ -24,6 +24,8 @@ export default function AdminProductsTab() {
   const [imagePreview, setImagePreview] = useState('')
   const [uploading, setUploading] = useState(false)
   const [confirmId, setConfirmId] = useState<number | null>(null)
+  const [search, setSearch] = useState('')
+  const [filterCategory, setFilterCategory] = useState('')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const { toast } = useToast()
@@ -34,7 +36,7 @@ export default function AdminProductsTab() {
   const fetchProducts = async () => {
     try {
       setLoading(true)
-      const res = await api.get<ProductsResponse>('/products?limit=50')
+      const res = await api.get<ProductsResponse>('/products?limit=100')
       setProducts(res.data)
     } catch (err: any) {
       setError(err.message)
@@ -96,6 +98,14 @@ export default function AdminProductsTab() {
     } catch (err: any) { toast(err.message, 'error') }
   }
 
+  const filtered = products.filter(p => {
+    const matchSearch = !search
+      || p.name.toLowerCase().includes(search.toLowerCase())
+      || String(p.id).includes(search)
+    const matchCategory = !filterCategory || p.category === filterCategory
+    return matchSearch && matchCategory
+  })
+
   return (
     <div>
       <header className="mb-8 flex items-center justify-between">
@@ -107,6 +117,36 @@ export default function AdminProductsTab() {
 
       {error && <p className="text-red-500 mb-4">{error}</p>}
 
+      {/* Search + Filter */}
+      <div className="flex flex-wrap gap-3 mb-6">
+        <input
+          type="text"
+          placeholder="Tìm theo tên hoặc ID..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          className="border border-gray-300 px-3 py-2 text-sm focus:border-black focus:outline-none w-64"
+        />
+        <select
+          value={filterCategory}
+          onChange={e => setFilterCategory(e.target.value)}
+          className="border border-gray-300 px-3 py-2 text-sm focus:border-black focus:outline-none"
+        >
+          <option value="">Tất cả danh mục</option>
+          {categories.map(c => (
+            <option key={c.id} value={c.slug}>{c.name}</option>
+          ))}
+        </select>
+        {(search || filterCategory) && (
+          <button onClick={() => { setSearch(''); setFilterCategory('') }}
+            className="text-xs text-gray-400 hover:text-black transition underline">
+            Xóa bộ lọc
+          </button>
+        )}
+        <span className="text-xs text-gray-400 self-center">
+          {filtered.length}/{products.length} sản phẩm
+        </span>
+      </div>
+
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         <table className="w-full text-left text-sm text-gray-600">
           <thead className="bg-gray-50 text-xs uppercase text-gray-500 border-b border-gray-200">
@@ -114,6 +154,7 @@ export default function AdminProductsTab() {
               <th className="px-6 py-4 font-bold">ID</th>
               <th className="px-6 py-4 font-bold">Hình ảnh</th>
               <th className="px-6 py-4 font-bold">Tên sản phẩm</th>
+              <th className="px-6 py-4 font-bold">Danh mục</th>
               <th className="px-6 py-4 font-bold">Giá bán</th>
               <th className="px-6 py-4 font-bold">Trạng thái</th>
               <th className="px-6 py-4 font-bold text-right">Thao tác</th>
@@ -121,10 +162,12 @@ export default function AdminProductsTab() {
           </thead>
           <tbody className="divide-y divide-gray-100">
             {loading ? (
-              <tr><td colSpan={6} className="px-6 py-8 text-center text-gray-400">Đang tải...</td></tr>
-            ) : products.length === 0 ? (
-              <tr><td colSpan={6} className="px-6 py-8 text-center text-gray-400">Chưa có sản phẩm nào</td></tr>
-            ) : products.map(p => (
+              <tr><td colSpan={7} className="px-6 py-8 text-center text-gray-400">Đang tải...</td></tr>
+            ) : filtered.length === 0 ? (
+              <tr><td colSpan={7} className="px-6 py-8 text-center text-gray-400">
+                {(search || filterCategory) ? 'Không tìm thấy sản phẩm nào' : 'Chưa có sản phẩm nào'}
+              </td></tr>
+            ) : filtered.map(p => (
               <tr key={p.id} className="hover:bg-gray-50">
                 <td className="px-6 py-4 font-medium">#{p.id}</td>
                 <td className="px-6 py-4">
@@ -132,6 +175,7 @@ export default function AdminProductsTab() {
                     : <div className="w-10 h-10 bg-gray-100 rounded" />}
                 </td>
                 <td className="px-6 py-4 font-medium text-gray-900">{p.name}</td>
+                <td className="px-6 py-4 text-gray-500">{p.category || '—'}</td>
                 <td className="px-6 py-4">{Number(p.price).toLocaleString('vi-VN')} đ</td>
                 <td className="px-6 py-4">
                   {p.stock > 5 ? <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-sm">Còn hàng</span>
