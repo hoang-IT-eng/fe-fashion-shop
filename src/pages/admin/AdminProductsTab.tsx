@@ -5,6 +5,7 @@ import { X, ImagePlus } from 'lucide-react'
 import { useToast } from '../../components/Toast'
 import { useCategoryStore } from '../../store/useCategoryStore'
 import ConfirmDialog from '../../components/ConfirmDialog'
+import AdminVariantsModal from './AdminVariantsModal'
 
 const EMPTY_FORM: ProductForm = {
   name: '', price: '', stock: '', category: '',
@@ -26,6 +27,7 @@ export default function AdminProductsTab() {
   const [confirmId, setConfirmId] = useState<number | null>(null)
   const [search, setSearch] = useState('')
   const [filterCategory, setFilterCategory] = useState('')
+  const [variantsProduct, setVariantsProduct] = useState<Product | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const { toast } = useToast()
@@ -184,6 +186,7 @@ export default function AdminProductsTab() {
                 </td>
                 <td className="px-6 py-4 text-right space-x-3">
                   <button onClick={() => openEdit(p)} className="text-blue-600 font-medium hover:underline">Sửa</button>
+                  <button onClick={() => setVariantsProduct(p)} className="text-purple-600 font-medium hover:underline">Biến thể</button>
                   <button onClick={() => setConfirmId(p.id)} className="text-red-600 font-medium hover:underline">Xóa</button>
                 </td>
               </tr>
@@ -267,6 +270,14 @@ export default function AdminProductsTab() {
         onConfirm={() => { if (confirmId) handleDelete(confirmId); setConfirmId(null) }}
         onCancel={() => setConfirmId(null)}
       />
+
+      {variantsProduct && (
+        <AdminVariantsModal
+          productId={variantsProduct.id}
+          productName={variantsProduct.name}
+          onClose={() => setVariantsProduct(null)}
+        />
+      )}
     </div>
   )
 }

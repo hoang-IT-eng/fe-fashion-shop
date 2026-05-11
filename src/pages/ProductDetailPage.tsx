@@ -5,6 +5,7 @@ import { useCartStore } from '../store/useCartStore'
 import { useAuthStore } from '../store/useAuthStore'
 import { api } from '../api/apiClient'
 import { Product } from '../types/product'
+import { ProductVariant } from '../types/variant'
 import Breadcrumb from '../components/Breadcrumb'
 import { useToast } from '../components/Toast'
 
@@ -30,10 +31,16 @@ export default function ProductDetailPage() {
   const { toast } = useToast()
 
   const [product, setProduct] = useState<Product | null>(null)
+  const [variants, setVariants] = useState<ProductVariant[]>([])
   const [reviews, setReviews] = useState<Review[]>([])
   const [avgRating, setAvgRating] = useState(0)
   const [loading, setLoading] = useState(true)
   const [adding, setAdding] = useState(false)
+
+  // Variant selection
+  const [selectedSize, setSelectedSize] = useState('')
+  const [selectedColor, setSelectedColor] = useState('')
+
   const [rating, setRating] = useState(5)
   const [comment, setComment] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -43,20 +50,67 @@ export default function ProductDetailPage() {
     Promise.all([
       api.get<Product>(`/products/${id}`),
       api.get<ReviewsResponse>(`/products/${id}/reviews`),
-    ]).then(([p, r]) => {
+      api.get<ProductVariant[]>(`/products/${id}/variants`).catch(() => []),
+    ]).then(([p, r, v]) => {
       setProduct(p)
       setReviews(r.reviews || [])
       setAvgRating(r.averageRating || 0)
+      setVariants(Array.isArray(v) ? v : [])
     }).catch(() => navigate('/products'))
       .finally(() => setLoading(false))
   }, [id])
 
+  // Tìm variant tương ứng với size + màu đã chọn
+  const selectedVariant = variants.find(
+    v => v.size === selectedSize && v.color === selectedColor
+  )
+
+  // Lấy danh sách size unique từ variants
+  const availableSizes = [...new Set(variants.map(v => v.size))]
+
+  // Lấy màu available cho size đang chọn
+  const availableColors = selectedSize
+    ? variants.filter(v => v.size === selectedSize).map(v => v.color)
+    : [...new Set(variants.map(v => v.color))]
+
+  // Kiểm tra stock
+  const hasVariants = variants.length > 0
+  const currentStock = hasVariants
+    ? (selectedVariant?.stock ?? null)
+    : product?.stock ?? 0
+
+  const isOutOfStock = hasVariants
+    ? (selectedVariant ? selectedVariant.stock === 0 : false)
+    : (product?.stock === 0)
+
+  const canAddToCart = hasVariants
+    ? (!!selectedVariant && selectedVariant.stock > 0)
+    : (product?.stock ?? 0) > 0
+
   const handleAddToCart = async () => {
     if (!isAuthenticated) { navigate('/auth'); return }
     if (!product) return
+
+    if (hasVariants) {
+      if (!selectedSize) { toast('Vui lòng chọn size', 'error'); return }
+      if (!selectedColor) { toast('Vui lòng chọn màu sắc', 'error'); return }
+      if (!selectedVariant) { toast('Không tìm thấy biến thể này', 'error'); return }
+      if (selectedVariant.stock === 0) { toast('Biến thể này đã hết hàng', 'error'); return }
+    }
+
     setAdding(true)
     try {
-      await addItem({ productId: product.id, name: product.name, price: Number(product.price), quantity: 1 })
+      await addItem({
+        productId: product.id,
+        name: product.name,
+        price: Number(product.price),
+        quantity: 1,
+        ...(hasVariants && selectedVariant ? {
+          variantId: selectedVariant.id,
+          size: selectedVariant.size,
+          color: selectedVariant.color,
+        } : {}),
+      })
       toast('Đã thêm vào giỏ hàng')
     } catch (err: any) {
       toast(err.message, 'error')
@@ -90,7 +144,6 @@ export default function ProductDetailPage() {
     <div className="min-h-screen bg-white font-sans">
       <div className="max-w-5xl mx-auto px-6 py-12">
 
-        {/* Breadcrumb */}
         <Breadcrumb items={[
           { label: 'Trang chủ', path: '/' },
           { label: 'Sản phẩm', path: '/products' },
@@ -98,7 +151,6 @@ export default function ProductDetailPage() {
           { label: product.name },
         ]} />
 
-        {/* Product info */}
         <div className="flex flex-col md:flex-row gap-12 mb-16">
           <div className="md:w-1/2 aspect-square bg-gray-100">
             {product.imageUrl && <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />}
@@ -115,26 +167,95 @@ export default function ProductDetailPage() {
             <p className="text-2xl font-medium mb-4">{Number(product.price).toLocaleString('vi-VN')} đ</p>
             {product.description && <p className="text-sm text-gray-500 mb-6 leading-relaxed">{product.description}</p>}
 
-            {product.sizes && product.sizes.length > 0 && (
-              <div className="mb-4">
-                <p className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Size</p>
-                <div className="flex gap-2 flex-wrap">
-                  {product.sizes.map(s => <span key={s} className="border border-gray-300 px-3 py-1 text-sm">{s}</span>)}
-                </div>
-              </div>
-            )}
-            {product.colors && product.colors.length > 0 && (
-              <div className="mb-6">
-                <p className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Màu sắc</p>
-                <div className="flex gap-2 flex-wrap">
-                  {product.colors.map(c => <span key={c} className="border border-gray-300 px-3 py-1 text-sm">{c}</span>)}
-                </div>
-              </div>
+            {/* Variant selection */}
+            {hasVariants ? (
+              <>
+                {/* Chọn Size */}
+                {availableSizes.length > 0 && (
+                  <div className="mb-4">
+                    <p className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">
+                      Size {selectedSize && <span className="text-black">— {selectedSize}</span>}
+                    </p>
+                    <div className="flex gap-2 flex-wrap">
+                      {availableSizes.map(s => {
+                        const hasStock = variants.some(v => v.size === s && v.stock > 0)
+                        return (
+                          <button key={s} onClick={() => { setSelectedSize(s); setSelectedColor('') }}
+                            disabled={!hasStock}
+                            className={`px-3 py-1.5 text-sm border transition ${
+                              selectedSize === s ? 'border-black bg-black text-white'
+                              : hasStock ? 'border-gray-300 hover:border-black'
+                              : 'border-gray-200 text-gray-300 cursor-not-allowed line-through'
+                            }`}>
+                            {s}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Chọn Màu */}
+                {availableColors.length > 0 && (
+                  <div className="mb-6">
+                    <p className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">
+                      Màu sắc {selectedColor && <span className="text-black">— {selectedColor}</span>}
+                    </p>
+                    <div className="flex gap-2 flex-wrap">
+                      {availableColors.map(c => {
+                        const variant = variants.find(v => v.size === selectedSize && v.color === c)
+                        const hasStock = variant ? variant.stock > 0 : true
+                        return (
+                          <button key={c} onClick={() => setSelectedColor(c)}
+                            disabled={!hasStock}
+                            className={`px-3 py-1.5 text-sm border transition ${
+                              selectedColor === c ? 'border-black bg-black text-white'
+                              : hasStock ? 'border-gray-300 hover:border-black'
+                              : 'border-gray-200 text-gray-300 cursor-not-allowed line-through'
+                            }`}>
+                            {c}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Hiển thị stock của variant đã chọn */}
+                {selectedVariant && (
+                  <p className={`text-xs mb-4 ${selectedVariant.stock > 0 ? 'text-green-600' : 'text-red-500'}`}>
+                    {selectedVariant.stock > 0 ? `Còn ${selectedVariant.stock} sản phẩm` : 'Hết hàng'}
+                  </p>
+                )}
+              </>
+            ) : (
+              <>
+                {/* Fallback: hiển thị sizes/colors từ product nếu không có variants */}
+                {product.sizes && product.sizes.length > 0 && (
+                  <div className="mb-4">
+                    <p className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Size</p>
+                    <div className="flex gap-2 flex-wrap">
+                      {product.sizes.map(s => <span key={s} className="border border-gray-300 px-3 py-1 text-sm">{s}</span>)}
+                    </div>
+                  </div>
+                )}
+                {product.colors && product.colors.length > 0 && (
+                  <div className="mb-6">
+                    <p className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Màu sắc</p>
+                    <div className="flex gap-2 flex-wrap">
+                      {product.colors.map(c => <span key={c} className="border border-gray-300 px-3 py-1 text-sm">{c}</span>)}
+                    </div>
+                  </div>
+                )}
+              </>
             )}
 
-            <button onClick={handleAddToCart} disabled={adding || product.stock === 0}
+            <button onClick={handleAddToCart} disabled={adding || !canAddToCart}
               className="w-full bg-black text-white py-4 text-sm font-bold uppercase tracking-wider hover:bg-gray-800 transition disabled:opacity-50">
-              {adding ? 'Đang thêm...' : product.stock === 0 ? 'Hết hàng' : 'Thêm vào giỏ hàng'}
+              {adding ? 'Đang thêm...'
+                : isOutOfStock ? 'Hết hàng'
+                : hasVariants && (!selectedSize || !selectedColor) ? 'Chọn size và màu'
+                : 'Thêm vào giỏ hàng'}
             </button>
           </div>
         </div>
