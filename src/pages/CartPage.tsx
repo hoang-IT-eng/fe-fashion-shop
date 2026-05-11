@@ -44,6 +44,11 @@ export default function CartPage() {
                   </div>
                   <div className="flex-1">
                     <p className="font-medium text-gray-900">{item.name}</p>
+                    {(item.size || item.color) && (
+                      <p className="text-xs text-gray-400 mt-0.5">
+                        {[item.size, item.color].filter(Boolean).join(' / ')}
+                      </p>
+                    )}
                     <p className="text-sm text-gray-500 mt-1">{item.price.toLocaleString('vi-VN')} đ</p>
                     <div className="flex items-center gap-3 mt-3">
                       <button onClick={() => item.quantity > 1 && updateItem(item.id, item.quantity - 1)}
