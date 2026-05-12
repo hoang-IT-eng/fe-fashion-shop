@@ -114,8 +114,17 @@ export default function AdminOrdersPage() {
                     <p className="font-medium text-gray-900">{order.shippingName || '—'}</p>
                     <p className="text-xs text-gray-400">{order.shippingPhone || ''}</p>
                   </td>
-                  <td className="px-4 py-4 text-xs text-gray-500 max-w-[180px] truncate">
-                    {order.items?.map(i => `${i.name} ×${i.quantity}`).join(', ')}
+                  <td className="px-4 py-4 text-xs text-gray-500 max-w-[180px]">
+                    <div className="space-y-0.5">
+                      {order.items?.map((i, idx) => (
+                        <div key={idx} className="truncate">
+                          {i.name} ×{i.quantity}
+                          {(i.size || i.color) && (
+                            <span className="text-gray-400 ml-1">({[i.size, i.color].filter(Boolean).join('/')})</span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
                   </td>
                   <td className="px-4 py-4 font-medium">{order.total?.toLocaleString('vi-VN')} đ</td>
                   <td className="px-4 py-4 text-xs">{new Date(order.createdAt).toLocaleDateString('vi-VN')}</td>
@@ -178,7 +187,14 @@ export default function AdminOrdersPage() {
               <div className="space-y-2">
                 {detail.items?.map((item, i) => (
                   <div key={i} className="flex justify-between text-sm">
-                    <span className="text-gray-700">{item.name} × {item.quantity}</span>
+                    <div>
+                      <span className="text-gray-700">{item.name} × {item.quantity}</span>
+                      {(item.size || item.color) && (
+                        <p className="text-xs text-gray-400 mt-0.5">
+                          {[item.size && `Size: ${item.size}`, item.color && `Màu: ${item.color}`].filter(Boolean).join(' · ')}
+                        </p>
+                      )}
+                    </div>
                     <span className="font-medium">{(item.price * item.quantity).toLocaleString('vi-VN')} đ</span>
                   </div>
                 ))}
