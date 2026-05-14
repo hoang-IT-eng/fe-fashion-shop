@@ -33,7 +33,15 @@ export default function CheckoutPage() {
     try {
       if (paymentMethod === 'vnpay') {
         const res = await api.post<{ paymentUrl?: string; orderId?: number; id?: number }>('/orders', {
-          items: items.map(i => ({ productId: i.productId, name: i.name, price: i.price, quantity: i.quantity })),
+          items: items.map(i => ({
+            productId: i.productId,
+            ...(i.variantId ? { variantId: i.variantId } : {}),
+            ...(i.size ? { size: i.size } : {}),
+            ...(i.color ? { color: i.color } : {}),
+            name: i.name,
+            price: i.price,
+            quantity: i.quantity,
+          })),
           total: total(),
           paymentMethod: 'vnpay',
           shippingName,
@@ -50,7 +58,15 @@ export default function CheckoutPage() {
         }
       } else {
         await api.post('/orders', {
-          items: items.map(i => ({ productId: i.productId, name: i.name, price: i.price, quantity: i.quantity })),
+          items: items.map(i => ({
+            productId: i.productId,
+            ...(i.variantId ? { variantId: i.variantId } : {}),
+            ...(i.size ? { size: i.size } : {}),
+            ...(i.color ? { color: i.color } : {}),
+            name: i.name,
+            price: i.price,
+            quantity: i.quantity,
+          })),
           total: total(),
           paymentMethod: 'cod',
           shippingName,

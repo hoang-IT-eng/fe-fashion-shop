@@ -1,12 +1,22 @@
 import { create } from 'zustand'
 import { api } from '../api/apiClient'
-import { Cart, CartItem } from '../types/cart'
+import { CartItem } from '../types/cart'
+
+interface AddItemPayload {
+  productId: number
+  variantId?: number
+  name: string
+  price: number
+  quantity: number
+  size?: string
+  color?: string
+}
 
 interface CartState {
   items: CartItem[]
   loading: boolean
   fetchCart: () => Promise<void>
-  addItem: (item: Omit<CartItem, 'id'>) => Promise<void>
+  addItem: (item: AddItemPayload) => Promise<void>
   updateItem: (itemId: number, quantity: number) => Promise<void>
   removeItem: (itemId: number) => Promise<void>
   clear: () => void
@@ -21,12 +31,10 @@ export const useCartStore = create<CartState>((set, get) => ({
     try {
       set({ loading: true })
       const data = await api.get<any>('/cart')
-      // Backend trả về array trực tiếp
       const raw = Array.isArray(data) ? data
         : Array.isArray(data?.items) ? data.items
         : Array.isArray(data?.data) ? data.data
         : []
-      // Normalize price về number
       const items: CartItem[] = raw.map((i: any) => ({
         ...i,
         price: Number(i.price),
@@ -40,13 +48,18 @@ export const useCartStore = create<CartState>((set, get) => ({
   },
 
   addItem: async (item) => {
-    // Chỉ gửi các field backend yêu cầu
-    await api.post('/cart', {
+    const body: Record<string, unknown> = {
       productId: item.productId,
       name: item.name,
       price: item.price,
       quantity: item.quantity,
-    })
+    }
+    // Chỉ gửi variant fields nếu có
+    if (item.variantId) body.variantId = item.variantId
+    if (item.size) body.size = item.size
+    if (item.color) body.color = item.color
+
+    await api.post('/cart', body)
     await get().fetchCart()
   },
 
