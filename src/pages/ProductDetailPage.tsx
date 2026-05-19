@@ -4,7 +4,7 @@ import { Star } from 'lucide-react'
 import { useCartStore } from '../store/useCartStore'
 import { useAuthStore } from '../store/useAuthStore'
 import { api } from '../api/apiClient'
-import { Product } from '../types/product'
+import { Product, ProductsResponse } from '../types/product'
 import { ProductVariant } from '../types/variant'
 import Breadcrumb from '../components/Breadcrumb'
 import { useToast } from '../components/Toast'
@@ -36,6 +36,7 @@ export default function ProductDetailPage() {
   const [avgRating, setAvgRating] = useState(0)
   const [loading, setLoading] = useState(true)
   const [adding, setAdding] = useState(false)
+  const [related, setRelated] = useState<Product[]>([])
 
   // Variant selection
   const [selectedSize, setSelectedSize] = useState('')
@@ -47,6 +48,8 @@ export default function ProductDetailPage() {
   const [reviewError, setReviewError] = useState('')
 
   useEffect(() => {
+    setLoading(true)
+    setRelated([])
     Promise.all([
       api.get<Product>(`/products/${id}`),
       api.get<ReviewsResponse>(`/products/${id}/reviews`),
@@ -59,6 +62,20 @@ export default function ProductDetailPage() {
     }).catch(() => navigate('/products'))
       .finally(() => setLoading(false))
   }, [id])
+
+  // Fetch sản phẩm liên quan theo category, loại bỏ sản phẩm đang xem
+  useEffect(() => {
+    if (!product?.category || !product?.id) return
+    const params = new URLSearchParams()
+    params.set('category', product.category)
+    params.set('limit', '8')
+    api.get<ProductsResponse>(`/products?${params}`)
+      .then(res => {
+        const filtered = (res.data || []).filter(p => p.id !== product.id).slice(0, 4)
+        setRelated(filtered)
+      })
+      .catch(() => setRelated([]))
+  }, [product?.id, product?.category])
 
   // Tìm variant tương ứng với size + màu đã chọn
   const selectedVariant = variants.find(
@@ -259,6 +276,32 @@ export default function ProductDetailPage() {
             </button>
           </div>
         </div>
+
+        {/* Sản phẩm liên quan */}
+        {related.length > 0 && (
+          <div className="mb-16">
+            <h2 className="text-lg font-light uppercase tracking-widest mb-8 border-b border-gray-100 pb-4">
+              Sản phẩm liên quan
+            </h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              {related.map(p => (
+                <div
+                  key={p.id}
+                  className="group cursor-pointer"
+                  onClick={() => navigate(`/products/${p.id}`)}
+                >
+                  <div className="aspect-[3/4] bg-gray-100 overflow-hidden mb-3">
+                    {p.imageUrl
+                      ? <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                      : <div className="w-full h-full bg-gray-100" />}
+                  </div>
+                  <p className="text-sm font-medium text-gray-900 truncate">{p.name}</p>
+                  <p className="text-sm text-gray-500 mt-0.5">{Number(p.price).toLocaleString('vi-VN')} đ</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Reviews */}
         <div>
