@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { useCartStore } from '../store/useCartStore'
-import { useAuthStore } from '../store/useAuthStore'
 import { useCategoryStore } from '../store/useCategoryStore'
 import { api } from '../api/apiClient'
 import { Product, ProductsResponse } from '../types/product'
@@ -9,14 +7,11 @@ import { Product, ProductsResponse } from '../types/product'
 export default function ProductsPage() {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
-  const { isAuthenticated } = useAuthStore()
-  const { addItem } = useCartStore()
   const { categories, fetch: fetchCategories } = useCategoryStore()
 
   const [products, setProducts] = useState<Product[]>([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
-  const [addingId, setAddingId] = useState<number | null>(null)
 
   const category = searchParams.get('category') || ''
   const search = searchParams.get('search') || ''
@@ -42,18 +37,6 @@ export default function ProductsPage() {
       .catch(() => {})
       .finally(() => setLoading(false))
   }, [category, search, page])
-
-  const handleAddToCart = async (p: Product) => {
-    if (!isAuthenticated) { navigate('/auth'); return }
-    setAddingId(p.id)
-    try {
-      await addItem({ productId: p.id, name: p.name, price: Number(p.price), quantity: 1 })
-    } catch (err: any) {
-      alert(err.message)
-    } finally {
-      setAddingId(null)
-    }
-  }
 
   const totalPages = Math.ceil(total / 12)
 
@@ -104,18 +87,19 @@ export default function ProductsPage() {
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {products.map(p => (
-              <div key={p.id} className="group cursor-pointer">
-                <div className="aspect-[3/4] bg-gray-100 overflow-hidden mb-3 relative"
-                  onClick={() => navigate(`/products/${p.id}`)}>
+              <div
+                key={p.id}
+                className="group cursor-pointer"
+                onClick={() => navigate(`/products/${p.id}`)}
+              >
+                <div className="aspect-[3/4] bg-gray-100 overflow-hidden mb-3 relative">
                   {p.imageUrl
                     ? <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                     : <div className="w-full h-full bg-gray-100" />}
-                  <button
-                    onClick={e => { e.stopPropagation(); handleAddToCart(p) }}
-                    disabled={addingId === p.id || p.stock === 0}
-                    className="absolute bottom-0 left-0 right-0 bg-black text-white py-2.5 text-xs font-bold uppercase tracking-wider opacity-0 group-hover:opacity-100 transition disabled:opacity-50">
-                    {addingId === p.id ? 'Đang thêm...' : p.stock === 0 ? 'Hết hàng' : 'Thêm vào giỏ'}
-                  </button>
+                  {/* Overlay "Xem chi tiết" — dẫn vào trang detail để chọn size/màu đúng */}
+                  <div className="absolute bottom-0 left-0 right-0 bg-black/80 text-white py-2.5 text-xs font-bold uppercase tracking-wider text-center opacity-0 group-hover:opacity-100 transition">
+                    {p.stock === 0 ? 'Hết hàng' : 'Xem chi tiết'}
+                  </div>
                 </div>
                 <p className="text-sm font-medium text-gray-900 truncate">{p.name}</p>
                 <p className="text-sm text-gray-500 mt-0.5">{Number(p.price).toLocaleString('vi-VN')} đ</p>
