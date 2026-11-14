@@ -1,27 +1,35 @@
 # Deploy — Plan B (Azure Free, $0 credit)
 
 ## Architecture
-- **FE:** Azure Static Web Apps **Free** → `https://yellow-river-0623ac700.3.azurestaticapps.net`
-- **BE:** Azure App Service **F1 Free** → `https://thebasic-shop-api.azurewebsites.net`
-- **DB:** Neon / Render Postgres free (`DATABASE_URL` on App Service)
-- **Images:** Cloudinary free
-- **Redis:** Docker local only (optional on Azure)
+| Piece | Choice | URL / notes |
+| --- | --- | --- |
+| **FE** | Azure Static Web Apps **Free** | https://yellow-river-0623ac700.3.azurestaticapps.net |
+| **BE (target)** | Azure App Service **F1** shell | https://thebasic-shop-api.azurewebsites.net |
+| **BE (working path)** | Keep **Render** free web service **or** local Docker until F1 can run Nest | Render cold-starts; F1 often OOMs / times out on `npm`/Oryx for this Nest app |
+| **DB** | Neon / Render Postgres free | `DATABASE_URL` |
+| **Images** | Cloudinary free | — |
+| **Redis** | Docker local only | omit `REDIS_URL` on Azure |
 
-Resource group: `thebasic-rg` (East Asia / SWA East Asia)
+Resource group: `thebasic-rg` (East Asia)
 
-## FE — GitHub secret (required for CD on main)
-Repo → Settings → Secrets and variables → Actions → New repository secret:
+### App Service F1 caveat
+Nest + `node_modules` is heavy for **F1 Free** (Kudu/Oryx/`npm ci` timeouts, 503). Prefer:
+1. Local `docker compose` for BE+Postgres+Redis
+2. External free Postgres (Neon/Render)
+3. Deploy BE to Azure only after confirming F1 capacity, or accept Render free for API for now
 
-- Name: `AZURE_STATIC_WEB_APPS_API_TOKEN`
-- Value:
-  ```bash
-  az staticwebapp secrets list -n thebasic-shop-fe -g thebasic-rg --query properties.apiKey -o tsv
-  ```
+BE upgrade PR (Docker/Redis/seed): https://github.com/hoang-IT-eng/be-fashion-shop/pull/19
 
-Optional repo **variable** `VITE_API_URL` = `https://thebasic-shop-api.azurewebsites.net`
+## FE — GitHub secret (CD on main)
+Repo → Settings → Secrets → Actions → New secret:
 
-- PR checks: `.github/workflows/ci.yml` (lint/test/build)
-- CD: `.github/workflows/azure-static-web-apps.yml` runs on push to `main` only (skips deploy if secret missing)
+- `AZURE_STATIC_WEB_APPS_API_TOKEN` ←  
+  `az staticwebapp secrets list -n thebasic-shop-fe -g thebasic-rg --query properties.apiKey -o tsv`
+
+Repo **variable** `VITE_API_URL` = your live API base (Render or Azure), no trailing slash.
+
+- PR checks: `.github/workflows/ci.yml`
+- CD: `.github/workflows/azure-static-web-apps.yml` (push `main` only; skips if secret missing)
 
 ## Local
 ```bash
