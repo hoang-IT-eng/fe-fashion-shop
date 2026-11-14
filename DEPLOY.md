@@ -9,15 +9,19 @@
 
 Resource group: `thebasic-rg` (East Asia / SWA East Asia)
 
-## FE — GitHub secret
-Add repository secret:
-- `AZURE_STATIC_WEB_APPS_API_TOKEN` — from:
-  `az staticwebapp secrets list -n thebasic-shop-fe -g thebasic-rg --query properties.apiKey -o tsv`
+## FE — GitHub secret (required for CD on main)
+Repo → Settings → Secrets and variables → Actions → New repository secret:
 
-Optional repo **variable**:
-- `VITE_API_URL` = `https://thebasic-shop-api.azurewebsites.net` (no trailing slash; match BE global prefix if any)
+- Name: `AZURE_STATIC_WEB_APPS_API_TOKEN`
+- Value:
+  ```bash
+  az staticwebapp secrets list -n thebasic-shop-fe -g thebasic-rg --query properties.apiKey -o tsv
+  ```
 
-Workflow: `.github/workflows/azure-static-web-apps.yml` deploys on push to `main`.
+Optional repo **variable** `VITE_API_URL` = `https://thebasic-shop-api.azurewebsites.net`
+
+- PR checks: `.github/workflows/ci.yml` (lint/test/build)
+- CD: `.github/workflows/azure-static-web-apps.yml` runs on push to `main` only (skips deploy if secret missing)
 
 ## Local
 ```bash

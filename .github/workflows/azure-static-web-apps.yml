@@ -1,17 +1,18 @@
-name: Azure Static Web Apps CI/CD
+# Deploys only after merge to main.
+# Requires repo secret: AZURE_STATIC_WEB_APPS_API_TOKEN
+# (az staticwebapp secrets list -n thebasic-shop-fe -g thebasic-rg --query properties.apiKey -o tsv)
+# PR validation stays in .github/workflows/ci.yml (lint/test/build).
+
+name: Azure Static Web Apps CD
 
 on:
   push:
     branches:
       - main
-  pull_request:
-    types: [opened, synchronize, reopened, closed]
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
   build_and_deploy_job:
-    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
     runs-on: ubuntu-latest
     name: Build and Deploy Job
     steps:
@@ -19,6 +20,19 @@ jobs:
         with:
           submodules: true
           lfs: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install and build
+        run: |
+          npm ci
+          npm run build
+        env:
+          VITE_API_URL: ${{ vars.VITE_API_URL }}
 
       - name: Build And Deploy
         id: builddeploy
@@ -30,19 +44,5 @@ jobs:
           app_location: /
           api_location: ''
           output_location: dist
-        env:
-          VITE_API_URL: ${{ vars.VITE_API_URL }}
-          PRE_BUILD_COMMAND: npm ci
-          CUSTOM_BUILD_COMMAND: npm run build
-
-  close_pull_request_job:
-    if: github.event_name == 'pull_request' && github.event.action == 'closed'
-    runs-on: ubuntu-latest
-    name: Close Pull Request Job
-    steps:
-      - name: Close Pull Request
-        id: closepullrequest
-        uses: Azure/static-web-apps-deploy@v1
-        with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
-          action: close
+          skip_app_build: true
+          skip_deploy_on_missing_secrets: true
