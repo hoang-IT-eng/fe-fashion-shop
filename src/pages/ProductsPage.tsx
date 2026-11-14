@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { useCategoryStore } from '../store/useCategoryStore'
 import { api } from '../api/apiClient'
 import { Product, ProductsResponse } from '../types/product'
+import ProductCard from '../components/ProductCard'
+import Footer from '../components/Footer'
 
 export default function ProductsPage() {
-  const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const { categories, fetch: fetchCategories } = useCategoryStore()
 
@@ -17,7 +18,9 @@ export default function ProductsPage() {
   const search = searchParams.get('search') || ''
   const page = Number(searchParams.get('page') || 1)
 
-  useEffect(() => { fetchCategories() }, [])
+  useEffect(() => {
+    fetchCategories()
+  }, [])
 
   const CATEGORIES = [
     { label: 'Tất cả', value: '' },
@@ -32,8 +35,12 @@ export default function ProductsPage() {
     params.set('page', String(page))
     params.set('limit', '12')
 
-    api.get<ProductsResponse>(`/products?${params}`)
-      .then(res => { setProducts(res.data); setTotal(res.total) })
+    api
+      .get<ProductsResponse>(`/products?${params}`)
+      .then(res => {
+        setProducts(res.data)
+        setTotal(res.total)
+      })
       .catch(() => {})
       .finally(() => setLoading(false))
   }, [category, search, page])
@@ -41,86 +48,99 @@ export default function ProductsPage() {
   const totalPages = Math.ceil(total / 12)
 
   return (
-    <div className="min-h-screen bg-white font-sans">
-      <div className="max-w-7xl mx-auto px-6 py-12">
-
-        {/* Header + Search */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-          <h1 className="text-2xl font-light uppercase tracking-widest">Sản phẩm</h1>
+    <div className="min-h-screen bg-paper">
+      <div className="tb-container py-12 md:py-16">
+        <div className="mb-10 flex flex-col justify-between gap-6 md:flex-row md:items-end">
+          <div>
+            <p className="tb-eyebrow mb-3">Shop</p>
+            <h1 className="font-display text-4xl font-medium uppercase tracking-[0.14em] md:text-5xl">
+              Sản phẩm
+            </h1>
+            <p className="mt-3 text-sm text-muted">{total} sản phẩm</p>
+          </div>
           <input
             type="text"
             placeholder="Tìm kiếm..."
             defaultValue={search}
             onKeyDown={e => {
               if (e.key === 'Enter') {
-                setSearchParams(p => { p.set('search', (e.target as HTMLInputElement).value); p.set('page', '1'); return p })
+                setSearchParams(p => {
+                  p.set('search', (e.target as HTMLInputElement).value)
+                  p.set('page', '1')
+                  return p
+                })
               }
             }}
-            className="border border-gray-300 px-4 py-2 text-sm w-full md:w-64 focus:border-black focus:outline-none"
+            className="w-full border border-line bg-white px-4 py-3 text-sm outline-none focus:border-ink md:w-72"
           />
         </div>
 
-        {/* Category filter */}
-        <div className="flex gap-2 mb-8 flex-wrap">
+        <div className="mb-10 flex flex-wrap gap-2">
           {CATEGORIES.map(c => (
-            <button key={c.value}
-              onClick={() => setSearchParams(p => { p.set('category', c.value); p.set('page', '1'); return p })}
-              className={`px-4 py-2 text-xs font-bold uppercase tracking-wider border transition ${category === c.value ? 'bg-black text-white border-black' : 'border-gray-300 text-gray-600 hover:border-black'}`}>
+            <button
+              key={c.value || 'all'}
+              type="button"
+              onClick={() =>
+                setSearchParams(p => {
+                  if (c.value) p.set('category', c.value)
+                  else p.delete('category')
+                  p.set('page', '1')
+                  return p
+                })
+              }
+              className={`border px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] transition ${
+                category === c.value
+                  ? 'border-ink bg-ink text-white'
+                  : 'border-line text-muted hover:border-ink hover:text-ink'
+              }`}
+            >
               {c.label}
             </button>
           ))}
         </div>
 
-        {/* Grid */}
         {loading ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-3 lg:grid-cols-4 md:gap-x-6">
             {[...Array(12)].map((_, i) => (
-              <div key={i} className="animate-pulse">
-                <div className="aspect-[3/4] bg-gray-100 mb-3" />
-                <div className="h-3 bg-gray-100 rounded mb-2 w-3/4" />
-                <div className="h-3 bg-gray-100 rounded w-1/2" />
+              <div key={i}>
+                <div className="mb-4 aspect-[3/4] animate-pulse bg-sand" />
+                <div className="mx-auto h-3 w-1/2 animate-pulse bg-sand" />
               </div>
             ))}
           </div>
         ) : products.length === 0 ? (
-          <div className="text-center py-24 text-gray-400">Không tìm thấy sản phẩm nào</div>
+          <div className="py-24 text-center text-muted">Không tìm thấy sản phẩm nào</div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-3 lg:grid-cols-4 md:gap-x-6 md:gap-y-14">
             {products.map(p => (
-              <div
-                key={p.id}
-                className="group cursor-pointer"
-                onClick={() => navigate(`/products/${p.id}`)}
-              >
-                <div className="aspect-[3/4] bg-gray-100 overflow-hidden mb-3 relative">
-                  {p.imageUrl
-                    ? <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                    : <div className="w-full h-full bg-gray-100" />}
-                  {/* Overlay "Xem chi tiết" — dẫn vào trang detail để chọn size/màu đúng */}
-                  <div className="absolute bottom-0 left-0 right-0 bg-black/80 text-white py-2.5 text-xs font-bold uppercase tracking-wider text-center opacity-0 group-hover:opacity-100 transition">
-                    {p.stock === 0 ? 'Hết hàng' : 'Xem chi tiết'}
-                  </div>
-                </div>
-                <p className="text-sm font-medium text-gray-900 truncate">{p.name}</p>
-                <p className="text-sm text-gray-500 mt-0.5">{Number(p.price).toLocaleString('vi-VN')} đ</p>
-              </div>
+              <ProductCard key={p.id} product={p} />
             ))}
           </div>
         )}
 
-        {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex justify-center gap-2 mt-12">
+          <div className="mt-14 flex justify-center gap-2">
             {[...Array(totalPages)].map((_, i) => (
-              <button key={i}
-                onClick={() => setSearchParams(p => { p.set('page', String(i + 1)); return p })}
-                className={`w-9 h-9 text-sm border transition ${page === i + 1 ? 'bg-black text-white border-black' : 'border-gray-300 hover:border-black'}`}>
+              <button
+                key={i}
+                type="button"
+                onClick={() =>
+                  setSearchParams(p => {
+                    p.set('page', String(i + 1))
+                    return p
+                  })
+                }
+                className={`flex h-10 w-10 items-center justify-center border text-sm transition ${
+                  page === i + 1 ? 'border-ink bg-ink text-white' : 'border-line hover:border-ink'
+                }`}
+              >
                 {i + 1}
               </button>
             ))}
           </div>
         )}
       </div>
+      <Footer />
     </div>
   )
 }

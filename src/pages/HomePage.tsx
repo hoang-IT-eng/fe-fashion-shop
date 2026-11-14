@@ -1,128 +1,170 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '../store/useAuthStore';
-import { useCartStore } from '../store/useCartStore';
-import { api } from '../api/apiClient';
-import { Product, ProductsResponse } from '../types/product';
+import React, { useState, useEffect, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useAuthStore } from '../store/useAuthStore'
+import { useCartStore } from '../store/useCartStore'
+import { api } from '../api/apiClient'
+import { Product, ProductsResponse } from '../types/product'
+import ProductCard from '../components/ProductCard'
+import Footer from '../components/Footer'
 
-// --- CẤU HÌNH LOGO TEXT (Đã tinh chỉnh font để căn giữa chuẩn hơn) ---
-const LogoComponent = () => (
-  <h1 className="text-3xl font-extralight tracking-[0.35em] uppercase text-gray-950 serif">
-    The<span className="font-semibold">Basic</span>
-  </h1>
-);
+const HERO_BG_URL =
+  'https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?auto=format&fit=crop&w=2400&q=80'
 
-// --- TÁC VỤ 1: SỬ DỤNG TẤM ẢNH HERO QUẦN ÁO TRẮNG ĐEN ---
-// Tôi chọn tấm ảnh này vì nó hiển thị trực tiếp các loại quần áo cơ bản (áo thun, sơ mi) được gấp gọn,
-// có tông màu trắng đen lạnh và trầm mặc, rất phù hợp với tinh thần "TheBasic".
-const HERO_BG_URL = 'https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?auto=format&fit=crop&w=2000&q=100';
+const LOOKBOOK_URL =
+  'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1600&q=80'
 
-const SECTIONS = ['NEW ARRIVALS', 'ESSENTIALS COLLECTION'];
-
-// Component tạo khung rỗng (Skeleton) cho từng sản phẩm
-const ProductSkeleton = () => (
-  <div className="w-[75vw] md:w-[26vw] flex-shrink-0 snap-start group">
-    {/* Khung ảnh rỗng: Mảng màu xám nhẹ */}
-    <div className="aspect-[3/4] w-full bg-[#f0f0f0] mb-6 border border-gray-100 shadow-sm transition-all duration-500 group-hover:shadow-xl group-hover:border-gray-200"></div>
-    {/* Thông tin rỗng: Các dòng kẻ xám */}
-    <div className="space-y-3 px-1 flex flex-col items-center">
-      <div className="h-4 w-3/4 bg-[#f0f0f0] rounded-sm"></div> {/* Tên SP rỗng */}
-      <div className="h-3 w-1/2 bg-[#f0f0f0] rounded-sm"></div> {/* New Season rỗng */}
-      <div className="h-5 w-2/5 bg-[#f0f0f0] rounded-sm pt-2"></div> {/* Giá rỗng */}
+function ProductSkeleton() {
+  return (
+    <div className="w-[72vw] flex-shrink-0 snap-start md:w-[22vw]">
+      <div className="mb-4 aspect-[3/4] w-full animate-pulse bg-sand" />
+      <div className="mx-auto h-3 w-2/3 animate-pulse bg-sand" />
     </div>
-  </div>
-);
+  )
+}
 
 export default function HomePage() {
-  const navigate = useNavigate();
-  const { isAuthenticated } = useAuthStore();
-  const { items, fetchCart } = useCartStore();
-  const [products, setProducts] = useState<Product[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate()
+  const { isAuthenticated } = useAuthStore()
+  const { fetchCart } = useCartStore()
+  const [products, setProducts] = useState<Product[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const railRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    api.get<ProductsResponse>('/products?limit=10')
+    api
+      .get<ProductsResponse>('/products?limit=10')
       .then(res => setProducts(res.data))
       .catch(() => {})
-      .finally(() => setIsLoading(false));
+      .finally(() => setIsLoading(false))
     if (isAuthenticated) fetchCart()
-  }, [isAuthenticated]);
+  }, [isAuthenticated])
+
+  const arrivals = products.slice(0, 5)
+  const essentials = products.slice(0, 8)
 
   return (
-    <div className="flex flex-col min-h-screen bg-white font-sans text-gray-900 overflow-x-hidden antialiased">
-      <style>{`.hide-scrollbar::-webkit-scrollbar { display: none; } .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }`}</style>
+    <div className="min-h-screen overflow-x-hidden bg-paper text-ink">
+      <main>
+        {/* Hero — one composition, brand first, full-bleed */}
+        <section className="relative flex min-h-[88vh] items-end overflow-hidden md:items-center">
+          <img
+            src={HERO_BG_URL}
+            alt=""
+            className="absolute inset-0 h-full w-full object-cover animate-tb-kenburns"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-ink/75 via-ink/35 to-ink/20" />
 
-      <main className="flex flex-col w-full overflow-hidden">
-        {/* SECTION 1: HERO BACKGROUND VỚI TẤM ẢNH QUẦN ÁO MỚI */}
-        <section 
-          className="relative flex items-center justify-center h-[85vh] bg-cover bg-center bg-no-repeat border-b border-gray-100 overflow-hidden"
-          // TÁC VỤ 3: SỬ DỤNG LINK ẢNH QUẦN ÁO MỚI
-          style={{ backgroundImage: `url(${HERO_BG_URL})` }} 
-        >
-          {/* Lớp phủ mờ (Overlay) tạo chiều sâu và làm chữ nổi lên */}
-          <div className="absolute inset-0 bg-black/35"></div>
-          
-          {/* Nội dung chữ trắng đè lên ảnh */}
-          <div className="relative z-10 flex flex-col items-center justify-center text-center text-white px-6">
-            <span className="mb-4 inline-block bg-white text-black px-4 py-1 text-[10px] font-bold uppercase tracking-[0.3em]">
-              New Collection
-            </span>
-            <h2 className="mb-3 text-5xl font-extralight uppercase tracking-[0.25em] md:text-7xl leading-tight serif">
-              THE<span className='font-semibold'>BASIC</span> S/S 26
-            </h2>
-            <p className="mb-10 text-sm font-light uppercase tracking-widest max-w-lg opacity-90">
-              Khám phá những thiết kế tối giản, tinh tế định hình phong cách thời trang bền vững.
+          <div className="relative z-10 w-full px-6 pb-16 pt-28 text-white md:px-14 md:pb-24 md:pt-20">
+            <p className="animate-tb-rise tb-eyebrow mb-5 text-white/70">Season S/S 26</p>
+            <h1 className="animate-tb-rise-delay font-display text-5xl font-medium uppercase leading-[0.95] tracking-[0.18em] md:text-7xl lg:text-8xl">
+              The<span className="font-semibold">Basic</span>
+            </h1>
+            <p className="animate-tb-rise-delay-2 mt-5 max-w-md text-sm font-light leading-relaxed tracking-wide text-white/85 md:text-base">
+              Essentials tối giản — chất liệu sạch, form chuẩn, mặc mỗi ngày.
             </p>
-            <div className="flex gap-4">
-              <button className="bg-white px-10 py-4 text-[11px] font-bold uppercase tracking-[0.2em] text-black hover:bg-black hover:text-white transition duration-300">
-                ĐỒ NAM
+            <div className="animate-tb-rise-delay-2 mt-10 flex flex-wrap gap-3">
+              <button type="button" className="tb-btn-light" onClick={() => navigate('/products?category=nam')}>
+                Đồ nam
               </button>
-              <button className="bg-transparent border-2 border-white px-10 py-4 text-[11px] font-bold uppercase tracking-[0.2em] text-white hover:bg-white hover:text-black transition duration-300">
-                ĐỒ NỮ
+              <button type="button" className="tb-btn-ghost text-white" onClick={() => navigate('/products?category=nu')}>
+                Đồ nữ
               </button>
             </div>
           </div>
         </section>
 
-        {/* SECTION 2: SẢN PHẨM */}
-        <div className="flex flex-col py-24 space-y-32 bg-[#fafafa]">
-          {SECTIONS.map((title, idx) => (
-            <section key={idx} className="flex flex-col pl-6 md:pl-24">
-              <div className="flex items-center justify-between mb-12 pr-6 md:pr-24">
-                <h2 className="text-xl font-light uppercase tracking-[0.4em] text-gray-950 border-l-2 border-black pl-5">
-                  {title}
-                </h2>
-              </div>
-              <div className="flex overflow-x-auto snap-x snap-mandatory gap-12 pb-12 hide-scrollbar">
-                {isLoading
-                  ? [...Array(5)].map((_, i) => <ProductSkeleton key={i} />)
-                  : products.length > 0
-                  ? products.map(p => (
-                      <div key={p.id} className="w-[75vw] md:w-[26vw] flex-shrink-0 snap-start group cursor-pointer">
-                        <div className="aspect-[3/4] w-full bg-[#f0f0f0] mb-6 overflow-hidden">
-                          {p.imageUrl
-                            ? <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                            : <div className="w-full h-full bg-[#f0f0f0]" />}
-                        </div>
-                        <div className="space-y-1 px-1 flex flex-col items-center text-center">
-                          <p className="text-sm font-medium text-gray-900">{p.name}</p>
-                          <p className="text-xs text-gray-400 uppercase tracking-wider">{p.category}</p>
-                          <p className="text-sm font-semibold pt-1">{Number(p.price).toLocaleString('vi-VN')} đ</p>
-                        </div>
-                      </div>
-                    ))
-                  : [...Array(5)].map((_, i) => <ProductSkeleton key={i} />)}
-              </div>
-            </section>
-          ))}
-        </div>
+        {/* New arrivals rail */}
+        <section className="border-b border-line bg-paper py-20 md:py-28">
+          <div className="mb-10 flex items-end justify-between px-6 md:px-14">
+            <div>
+              <p className="tb-eyebrow mb-3">Just in</p>
+              <h2 className="font-display text-3xl font-medium tracking-[0.12em] uppercase md:text-4xl">
+                New Arrivals
+              </h2>
+            </div>
+            <button
+              type="button"
+              onClick={() => navigate('/products')}
+              className="hidden text-[11px] font-semibold uppercase tracking-[0.22em] underline-offset-4 hover:underline md:inline"
+            >
+              Xem tất cả
+            </button>
+          </div>
 
-        {/* FOOTER */}
-        <footer className="bg-black text-white px-12 py-16 text-center border-t border-gray-800">
-          <h3 className="text-2xl font-light tracking-[0.3em] uppercase mb-6 serif">THE<span className='font-semibold'>BASIC</span></h3>
-          <p className="text-xs text-gray-400 tracking-wider">© 2026 TheBasic. All rights reserved. Phong cách tối giản cho cuộc sống hiện đại.</p>
-        </footer>
+          <div
+            ref={railRef}
+            className="flex snap-x snap-mandatory gap-6 overflow-x-auto px-6 pb-4 hide-scrollbar md:gap-8 md:px-14"
+          >
+            {isLoading
+              ? [...Array(5)].map((_, i) => <ProductSkeleton key={i} />)
+              : arrivals.length > 0
+                ? arrivals.map(p => (
+                    <ProductCard key={p.id} product={p} className="w-[72vw] flex-shrink-0 snap-start md:w-[22vw]" />
+                  ))
+                : [...Array(5)].map((_, i) => <ProductSkeleton key={i} />)}
+          </div>
+        </section>
+
+        {/* Editorial lookbook band */}
+        <section className="relative grid min-h-[70vh] md:grid-cols-2">
+          <div className="relative min-h-[50vh] overflow-hidden md:min-h-full">
+            <img
+              src={LOOKBOOK_URL}
+              alt="TheBasic lookbook"
+              className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.2s] hover:scale-105"
+            />
+          </div>
+          <div className="flex flex-col justify-center bg-ink px-8 py-16 text-white md:px-16">
+            <p className="tb-eyebrow mb-4 text-white/50">Essentials Edit</p>
+            <h2 className="font-display text-4xl font-medium leading-tight tracking-[0.08em] uppercase md:text-5xl">
+              Ít món hơn.
+              <br />
+              Mặc lâu hơn.
+            </h2>
+            <p className="mt-6 max-w-sm text-sm font-light leading-relaxed text-white/70">
+              Bộ sưu tập essentials được chọn lọc để bạn mặc xuyên mùa — không ồn ào, chỉ đủ đẹp.
+            </p>
+            <button
+              type="button"
+              className="tb-btn-light mt-10 w-fit"
+              onClick={() => navigate('/products')}
+            >
+              Khám phá collection
+            </button>
+          </div>
+        </section>
+
+        {/* Essentials grid */}
+        <section className="bg-paper py-20 md:py-28">
+          <div className="tb-container">
+            <div className="mb-12 max-w-xl">
+              <p className="tb-eyebrow mb-3">Wardrobe</p>
+              <h2 className="font-display text-3xl font-medium tracking-[0.12em] uppercase md:text-4xl">
+                Essentials Collection
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-4 md:gap-x-6 md:gap-y-14">
+              {isLoading
+                ? [...Array(8)].map((_, i) => (
+                    <div key={i}>
+                      <div className="mb-4 aspect-[3/4] animate-pulse bg-sand" />
+                      <div className="mx-auto h-3 w-1/2 animate-pulse bg-sand" />
+                    </div>
+                  ))
+                : essentials.map(p => <ProductCard key={`e-${p.id}`} product={p} />)}
+            </div>
+
+            <div className="mt-14 flex justify-center">
+              <button type="button" className="tb-btn-primary" onClick={() => navigate('/products')}>
+                Xem cửa hàng
+              </button>
+            </div>
+          </div>
+        </section>
       </main>
+
+      <Footer />
     </div>
-  );
+  )
 }
