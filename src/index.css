@@ -1,17 +1,117 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Outfit:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --tb-ink: #0c0c0c;
+  --tb-muted: #6b6b6b;
+  --tb-line: #e8e6e3;
+  --tb-paper: #f7f6f4;
+  --tb-sand: #ebe7e1;
+  --tb-accent: #1a1a1a;
+  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --font-body: 'Outfit', 'Helvetica Neue', sans-serif;
+}
+
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
-    @apply bg-white text-gray-900 antialiased;
+    @apply antialiased;
+    background: var(--tb-paper);
+    color: var(--tb-ink);
+    font-family: var(--font-body);
+  }
+
+  ::selection {
+    background: var(--tb-ink);
+    color: #fff;
   }
 }
 
-@keyframes fade-in {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
+@layer components {
+  .font-display {
+    font-family: var(--font-display);
+  }
+
+  .tb-container {
+    @apply mx-auto w-full max-w-7xl px-5 md:px-10;
+  }
+
+  .tb-eyebrow {
+    @apply text-[10px] font-semibold uppercase tracking-[0.32em] text-[color:var(--tb-muted)];
+  }
+
+  .tb-btn {
+    @apply inline-flex items-center justify-center px-8 py-3.5 text-[11px] font-semibold uppercase tracking-[0.22em] transition-all duration-300;
+  }
+
+  .tb-btn-primary {
+    @apply tb-btn bg-[color:var(--tb-ink)] text-white hover:bg-transparent hover:text-[color:var(--tb-ink)] border border-[color:var(--tb-ink)];
+  }
+
+  .tb-btn-ghost {
+    @apply tb-btn border border-current bg-transparent hover:bg-white hover:text-[color:var(--tb-ink)];
+  }
+
+  .tb-btn-light {
+    @apply tb-btn bg-white text-[color:var(--tb-ink)] hover:bg-[color:var(--tb-ink)] hover:text-white border border-white;
+  }
+
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }
+
+@keyframes tb-rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes tb-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes tb-kenburns {
+  from { transform: scale(1); }
+  to { transform: scale(1.06); }
+}
+
+.animate-tb-rise {
+  animation: tb-rise 0.85s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-tb-rise-delay {
+  animation: tb-rise 0.85s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
+}
+
+.animate-tb-rise-delay-2 {
+  animation: tb-rise 0.85s cubic-bezier(0.22, 1, 0.36, 1) 0.3s both;
+}
+
+.animate-tb-fade {
+  animation: tb-fade 1s ease both;
+}
+
+.animate-tb-kenburns {
+  animation: tb-kenburns 18s ease-out forwards;
+}
+
 .animate-fade-in {
-  animation: fade-in 0.2s ease-out;
+  animation: tb-rise 0.35s ease-out both;
 }

@@ -7,6 +7,8 @@ import { api } from '../api/apiClient'
 import { Product, ProductsResponse } from '../types/product'
 import { ProductVariant } from '../types/variant'
 import Breadcrumb from '../components/Breadcrumb'
+import Footer from '../components/Footer'
+import ProductCard from '../components/ProductCard'
 import { useToast } from '../components/Toast'
 
 interface Review {
@@ -154,12 +156,12 @@ export default function ProductDetailPage() {
     }
   }
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center text-gray-400">Đang tải...</div>
+  if (loading) return <div className="min-h-screen flex items-center justify-center text-muted">Đang tải...</div>
   if (!product) return null
 
   return (
-    <div className="min-h-screen bg-white font-sans">
-      <div className="max-w-5xl mx-auto px-6 py-12">
+    <div className="min-h-screen bg-paper">
+      <div className="tb-container py-12 md:py-16">
 
         <Breadcrumb items={[
           { label: 'Trang chủ', path: '/' },
@@ -168,13 +170,13 @@ export default function ProductDetailPage() {
           { label: product.name },
         ]} />
 
-        <div className="flex flex-col md:flex-row gap-12 mb-16">
-          <div className="md:w-1/2 aspect-square bg-gray-100">
-            {product.imageUrl && <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />}
+        <div className="mb-16 flex flex-col gap-12 md:flex-row">
+          <div className="aspect-[3/4] bg-sand md:w-1/2 md:aspect-square">
+            {product.imageUrl && <img src={product.imageUrl} alt={product.name} className="h-full w-full object-cover animate-tb-fade" />}
           </div>
-          <div className="md:w-1/2 flex flex-col justify-center">
-            <p className="text-xs text-gray-400 uppercase tracking-wider mb-2">{product.category}</p>
-            <h1 className="text-2xl font-light text-gray-900 mb-3">{product.name}</h1>
+          <div className="flex flex-col justify-center md:w-1/2">
+            <p className="tb-eyebrow mb-3">{product.category}</p>
+            <h1 className="font-display mb-3 text-3xl font-medium tracking-[0.06em] text-ink md:text-4xl">{product.name}</h1>
             <div className="flex items-center gap-2 mb-4">
               <div className="flex">
                 {[1,2,3,4,5].map(s => <Star key={s} className={`w-4 h-4 ${s <= Math.round(avgRating) ? 'fill-black text-black' : 'text-gray-300'}`} />)}
@@ -280,24 +282,12 @@ export default function ProductDetailPage() {
         {/* Sản phẩm liên quan */}
         {related.length > 0 && (
           <div className="mb-16">
-            <h2 className="text-lg font-light uppercase tracking-widest mb-8 border-b border-gray-100 pb-4">
+            <h2 className="font-display mb-8 border-b border-line pb-4 text-2xl font-medium uppercase tracking-[0.12em]">
               Sản phẩm liên quan
             </h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 gap-6 md:grid-cols-4 md:gap-8">
               {related.map(p => (
-                <div
-                  key={p.id}
-                  className="group cursor-pointer"
-                  onClick={() => navigate(`/products/${p.id}`)}
-                >
-                  <div className="aspect-[3/4] bg-gray-100 overflow-hidden mb-3">
-                    {p.imageUrl
-                      ? <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                      : <div className="w-full h-full bg-gray-100" />}
-                  </div>
-                  <p className="text-sm font-medium text-gray-900 truncate">{p.name}</p>
-                  <p className="text-sm text-gray-500 mt-0.5">{Number(p.price).toLocaleString('vi-VN')} đ</p>
-                </div>
+                <ProductCard key={p.id} product={p} />
               ))}
             </div>
           </div>
@@ -305,7 +295,7 @@ export default function ProductDetailPage() {
 
         {/* Reviews */}
         <div>
-          <h2 className="text-lg font-light uppercase tracking-widest mb-8 border-b border-gray-100 pb-4">Đánh giá</h2>
+          <h2 className="font-display mb-8 border-b border-line pb-4 text-2xl font-medium uppercase tracking-[0.12em]">Đánh giá</h2>
           {isAuthenticated && (
             <form onSubmit={handleReview} className="mb-8 p-6 border border-gray-200">
               <p className="text-sm font-bold uppercase tracking-wider mb-4">Viết đánh giá</p>
@@ -327,27 +317,27 @@ export default function ProductDetailPage() {
           )}
           {reviews.length === 0 ? (
             <div className="text-center py-12">
-              <span className="text-4xl mb-4 block">💬</span>
-              <p className="text-gray-400 text-sm">Chưa có đánh giá nào. Hãy là người đầu tiên!</p>
+              <p className="text-sm text-muted">Chưa có đánh giá nào. Hãy là người đầu tiên!</p>
             </div>
           ) : (
             <div className="space-y-6">
               {reviews.map(r => (
-                <div key={r.id} className="border-b border-gray-100 pb-6">
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="font-medium text-sm">{r.user?.name || 'Ẩn danh'}</p>
-                    <p className="text-xs text-gray-400">{new Date(r.createdAt).toLocaleDateString('vi-VN')}</p>
+                <div key={r.id} className="border-b border-line pb-6">
+                  <div className="mb-2 flex items-center justify-between">
+                    <p className="text-sm font-medium">{r.user?.name || 'Ẩn danh'}</p>
+                    <p className="text-xs text-muted">{new Date(r.createdAt).toLocaleDateString('vi-VN')}</p>
                   </div>
-                  <div className="flex mb-2">
-                    {[1,2,3,4,5].map(s => <Star key={s} className={`w-3.5 h-3.5 ${s <= r.rating ? 'fill-black text-black' : 'text-gray-300'}`} />)}
+                  <div className="mb-2 flex">
+                    {[1,2,3,4,5].map(s => <Star key={s} className={`w-3.5 h-3.5 ${s <= r.rating ? 'fill-ink text-ink' : 'text-line'}`} />)}
                   </div>
-                  {r.comment && <p className="text-sm text-gray-600">{r.comment}</p>}
+                  {r.comment && <p className="text-sm text-muted">{r.comment}</p>}
                 </div>
               ))}
             </div>
           )}
         </div>
       </div>
+      <Footer />
     </div>
   )
 }

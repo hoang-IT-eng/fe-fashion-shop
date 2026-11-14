@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
-import { Search, User, ShoppingCart, Menu, X } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { Search, User, ShoppingBag, Menu, X } from 'lucide-react'
 import { useAuthStore } from '../store/useAuthStore'
 import { useCartStore } from '../store/useCartStore'
 import { useCategoryStore } from '../store/useCategoryStore'
 
 export default function Header() {
   const navigate = useNavigate()
-  const location = useLocation()
   const { isAuthenticated, user } = useAuthStore()
   const { items } = useCartStore()
   const { categories, fetch: fetchCategories } = useCategoryStore()
   const [menuOpen, setMenuOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchVal, setSearchVal] = useState('')
+  const [scrolled, setScrolled] = useState(false)
 
   const cartCount = items.reduce((s, i) => s + i.quantity, 0)
 
@@ -21,7 +21,13 @@ export default function Header() {
     fetchCategories()
   }, [])
 
-  // Fallback nếu API chưa có data
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 12)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
   const NAV = categories.length > 0
     ? [{ label: 'Tất cả', path: '/products' }, ...categories.map(c => ({ label: c.name, path: `/products?category=${c.slug}` }))]
     : [
@@ -37,53 +43,66 @@ export default function Header() {
       navigate(`/products?search=${encodeURIComponent(searchVal.trim())}`)
       setSearchOpen(false)
       setSearchVal('')
+      setMenuOpen(false)
     }
   }
 
   return (
-    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-100 shadow-sm">
-      {/* Thanh thông báo */}
-      <div className="bg-[#f5f5f5] py-2 text-center border-b border-gray-100">
-        <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-gray-600">
+    <header
+      className={`sticky top-0 z-50 transition-all duration-300 ${
+        scrolled ? 'border-b border-line bg-paper/95 backdrop-blur-md' : 'border-b border-transparent bg-paper'
+      }`}
+    >
+      <div className="bg-ink py-2 text-center">
+        <p className="text-[10px] font-medium uppercase tracking-[0.28em] text-white/85">
           Miễn phí vận chuyển cho đơn hàng từ 2.000.000đ
         </p>
       </div>
 
-      <div className="flex items-center justify-between px-6 md:px-12 py-4">
-        {/* Left nav — desktop */}
-        <nav className="hidden md:flex gap-8 items-center flex-1">
+      <div className="tb-container flex items-center justify-between py-4 md:py-5">
+        <nav className="hidden flex-1 items-center gap-7 md:flex">
           {NAV.map(item => (
-            <a key={item.label} href={item.path}
-              className="text-xs font-semibold uppercase tracking-widest text-gray-700 hover:text-black transition">
+            <button
+              key={item.label}
+              type="button"
+              onClick={() => navigate(item.path)}
+              className="text-[11px] font-semibold uppercase tracking-[0.2em] text-ink/70 transition hover:text-ink"
+            >
               {item.label}
-            </a>
+            </button>
           ))}
         </nav>
 
-        {/* Mobile menu button */}
-        <button className="md:hidden" onClick={() => setMenuOpen(!menuOpen)}>
+        <button type="button" className="md:hidden" aria-label="Menu" onClick={() => setMenuOpen(!menuOpen)}>
           {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
 
-        {/* Logo */}
-        <div className="flex items-center justify-center cursor-pointer flex-1" onClick={() => navigate('/')}>
-          <h1 className="text-2xl font-extralight tracking-[0.35em] uppercase text-gray-950">
+        <button
+          type="button"
+          className="flex flex-1 items-center justify-center"
+          onClick={() => navigate('/')}
+        >
+          <span className="font-display text-2xl font-medium uppercase tracking-[0.32em] text-ink md:text-[1.65rem]">
             The<span className="font-semibold">Basic</span>
-          </h1>
-        </div>
+          </span>
+        </button>
 
-        {/* Right icons */}
-        <div className="flex items-center gap-5 text-gray-700 flex-1 justify-end">
-          <button onClick={() => setSearchOpen(!searchOpen)} className="hover:text-black transition">
+        <div className="flex flex-1 items-center justify-end gap-4 text-ink/80 md:gap-5">
+          <button type="button" aria-label="Search" onClick={() => setSearchOpen(!searchOpen)} className="transition hover:text-ink">
             <Search className="h-4 w-4" />
           </button>
-          <button onClick={() => navigate(isAuthenticated ? '/profile' : '/auth')} className="hover:text-black transition">
+          <button
+            type="button"
+            aria-label="Account"
+            onClick={() => navigate(isAuthenticated ? '/profile' : '/auth')}
+            className="transition hover:text-ink"
+          >
             <User className="h-4 w-4" />
           </button>
-          <button onClick={() => navigate('/cart')} className="relative hover:text-black transition">
-            <ShoppingCart className="h-4 w-4" />
+          <button type="button" aria-label="Cart" onClick={() => navigate('/cart')} className="relative transition hover:text-ink">
+            <ShoppingBag className="h-4 w-4" />
             {cartCount > 0 && (
-              <span className="absolute -top-2 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-black text-[9px] font-bold text-white">
+              <span className="absolute -right-2 -top-2 flex h-4 min-w-4 items-center justify-center bg-ink px-1 text-[9px] font-bold text-white">
                 {cartCount}
               </span>
             )}
@@ -91,37 +110,60 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Search bar dropdown */}
       {searchOpen && (
-        <div className="border-t border-gray-100 px-6 py-3 bg-white">
-          <form onSubmit={handleSearch} className="flex gap-2 max-w-lg mx-auto">
-            <input autoFocus type="text" value={searchVal} onChange={e => setSearchVal(e.target.value)}
+        <div className="animate-tb-rise border-t border-line bg-paper px-5 py-4 md:px-10">
+          <form onSubmit={handleSearch} className="mx-auto flex max-w-xl gap-2">
+            <input
+              autoFocus
+              type="text"
+              value={searchVal}
+              onChange={e => setSearchVal(e.target.value)}
               placeholder="Tìm kiếm sản phẩm..."
-              className="flex-1 border border-gray-300 px-4 py-2 text-sm focus:border-black focus:outline-none" />
-            <button type="submit" className="bg-black text-white px-4 py-2 text-sm font-bold hover:bg-gray-800 transition">
+              className="flex-1 border border-line bg-white px-4 py-3 text-sm outline-none focus:border-ink"
+            />
+            <button type="submit" className="tb-btn-primary px-6">
               Tìm
             </button>
           </form>
         </div>
       )}
 
-      {/* Mobile menu */}
       {menuOpen && (
-        <div className="md:hidden border-t border-gray-100 bg-white px-6 py-4 space-y-3">
-          {NAV.map(item => (
-            <a key={item.label} href={item.path}
-              onClick={() => setMenuOpen(false)}
-              className="block text-sm font-semibold uppercase tracking-widest text-gray-700 hover:text-black py-2">
-              {item.label}
-            </a>
-          ))}
-          <div className="border-t border-gray-100 pt-3 space-y-2">
-            <button onClick={() => { navigate(isAuthenticated ? '/profile' : '/auth'); setMenuOpen(false) }}
-              className="block text-sm text-gray-600 hover:text-black py-1">
+        <div className="animate-tb-rise border-t border-line bg-paper px-5 py-5 md:hidden">
+          <div className="space-y-1">
+            {NAV.map(item => (
+              <button
+                key={item.label}
+                type="button"
+                onClick={() => {
+                  navigate(item.path)
+                  setMenuOpen(false)
+                }}
+                className="block w-full py-3 text-left text-sm font-semibold uppercase tracking-[0.18em] text-ink/80"
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+          <div className="mt-4 space-y-2 border-t border-line pt-4 text-sm text-muted">
+            <button
+              type="button"
+              className="block"
+              onClick={() => {
+                navigate(isAuthenticated ? '/profile' : '/auth')
+                setMenuOpen(false)
+              }}
+            >
               {isAuthenticated ? `Tài khoản (${user?.name || user?.email})` : 'Đăng nhập'}
             </button>
-            <button onClick={() => { navigate('/orders'); setMenuOpen(false) }}
-              className="block text-sm text-gray-600 hover:text-black py-1">
+            <button
+              type="button"
+              className="block"
+              onClick={() => {
+                navigate('/orders')
+                setMenuOpen(false)
+              }}
+            >
               Đơn hàng của tôi
             </button>
           </div>
