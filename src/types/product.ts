@@ -1,13 +1,20 @@
+import { Variant } from './variant'
+
 export interface Product {
   id: number
   name: string
+  brand?: string | null
+  releaseType?: 'grail' | 'reborn' | 'archive' | 'drop' | string | null
+  condition?: string | null
+  authenticityCode?: string | null
   description: string
-  price: string
+  price: number
   stock: number
   category: string
   imageUrl: string
   sizes: string[] | null
   colors: string[] | null
+  variants?: Variant[]
   isActive: boolean
   createdAt: string
   updatedAt: string
@@ -23,6 +30,10 @@ export interface ProductsResponse {
 
 export interface ProductForm {
   name: string
+  brand: string
+  releaseType: string
+  condition: string
+  authenticityCode: string
   price: number | ''
   stock: number | ''
   category: string

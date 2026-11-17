@@ -1,116 +1,207 @@
 import React, { useEffect, useState } from 'react'
-import { useParams, useSearchParams, useNavigate } from 'react-router-dom'
-import { useAuthStore } from '../store/useAuthStore'
-import { useCartStore } from '../store/useCartStore'
+import { useNavigate, useParams } from 'react-router-dom'
+import { CheckCircle2, ShieldCheck, XCircle } from 'lucide-react'
 import { api } from '../api/apiClient'
-import { Order, OrderStatus } from '../types/order'
+import { Order } from '../types/order'
+import { formatVnd } from '../lib/format'
+import Breadcrumb from '../components/Breadcrumb'
+import { useToast } from '../components/Toast'
 
-const STATUS_LABEL: Record<OrderStatus, { label: string; color: string }> = {
-  pending:   { label: 'Chờ xác nhận', color: 'bg-yellow-100 text-yellow-700' },
-  confirmed: { label: 'Đã xác nhận',  color: 'bg-blue-100 text-blue-700' },
-  shipping:  { label: 'Đang giao',    color: 'bg-purple-100 text-purple-700' },
-  delivered: { label: 'Đã giao',      color: 'bg-green-100 text-green-700' },
-  cancelled: { label: 'Đã hủy',       color: 'bg-red-100 text-red-700' },
+const FIVE_STAGES = [
+  { key: 'placed', label: '01 · Order Sealed' },
+  { key: 'pending', label: '02 · Vault Reserved' },
+  { key: 'confirmed', label: '03 · NFC Authenticated' },
+  { key: 'shipping', label: '04 · Armored Transit' },
+  { key: 'delivered', label: '05 · Collector Signed' },
+]
+
+function stageIndexForStatus(status: string): number {
+  if (status === 'pending') return 1
+  if (status === 'confirmed') return 2
+  if (status === 'shipping') return 3
+  if (status === 'delivered') return 4
+  return -1
 }
 
 export default function OrderDetailPage() {
-  const { id } = useParams()
-  const [searchParams] = useSearchParams()
+  const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { isAuthenticated } = useAuthStore()
-  const { clear } = useCartStore()
+  const { toast } = useToast()
 
-  const payment = searchParams.get('payment') // 'success' | 'failed' | null
   const [order, setOrder] = useState<Order | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!isAuthenticated) { navigate('/auth'); return }
-
-    // Nếu thanh toán thành công thì clear giỏ hàng
-    if (payment === 'success') clear()
-
-    api.get<Order>(`/orders/${id}`)
+    if (!id) return
+    void api
+      .get<Order>(`/orders/${id}`)
       .then(setOrder)
       .catch(() => navigate('/orders'))
       .finally(() => setLoading(false))
-  }, [id])
+  }, [id, navigate])
 
-  if (loading) return (
-    <div className="min-h-screen flex items-center justify-center text-gray-400">Đang tải...</div>
-  )
+  const handleCancel = async () => {
+    if (!order) return
+    try {
+      const updated = await api.delete<Order>(`/orders/${order.id}/cancel`)
+      setOrder(updated)
+      toast(`Order #${order.id} cancelled.`, 'info')
+    } catch (err: any) {
+      toast(err?.message || 'Unable to cancel order', 'error')
+    }
+  }
 
-  if (!order) return null
+  if (loading || !order) {
+    return (
+      <div className="min-h-screen bg-[#070709] flex items-center justify-center font-mono text-xs text-[#9a948a]">
+        LOADING PROVENANCE DOSSIER...
+      </div>
+    )
+  }
 
-  const s = STATUS_LABEL[order.status]
+  const activeStage = stageIndexForStatus(order.status)
 
   return (
-    <div className="min-h-screen bg-white font-sans">
-      <div className="max-w-2xl mx-auto px-6 py-12">
+    <div className="min-h-screen bg-[#070709] text-[#ece5d8] py-10 md:py-14">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <Breadcrumb
+          items={[
+            { label: 'Archive', path: '/' },
+            { label: 'Orders', path: '/orders' },
+            { label: `Order #${order.id}` },
+          ]}
+        />
 
-        {/* Kết quả thanh toán VNPay */}
-        {payment === 'success' && (
-          <div className="mb-8 rounded-lg bg-green-50 border border-green-200 p-6 text-center">
-            <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-green-600 text-2xl">✓</span>
-            </div>
-            <h2 className="text-lg font-bold text-green-700 mb-1">Thanh toán thành công!</h2>
-            <p className="text-sm text-green-600">Đơn hàng của bạn đã được xác nhận và đang được xử lý.</p>
+        <div className="flex flex-wrap items-end justify-between gap-4 pb-8 border-b border-[#ece5d8]/10 mb-10">
+          <div>
+            <p className="font-mono text-xs tracking-[0.3em] uppercase text-[#cfa156] mb-2">
+              PROVENANCE DISPATCH CERTIFICATE
+            </p>
+            <h1 className="font-display text-4xl md:text-5xl text-[#ece5d8]">
+              Order #{order.id}
+            </h1>
           </div>
-        )}
-
-        {payment === 'failed' && (
-          <div className="mb-8 rounded-lg bg-red-50 border border-red-200 p-6 text-center">
-            <div className="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-red-600 text-2xl">✕</span>
-            </div>
-            <h2 className="text-lg font-bold text-red-700 mb-1">Thanh toán thất bại</h2>
-            <p className="text-sm text-red-600 mb-4">Giao dịch không thành công. Vui lòng thử lại hoặc chọn phương thức khác.</p>
-            <button onClick={() => navigate('/cart')}
-              className="bg-black text-white px-6 py-2.5 text-sm font-bold uppercase tracking-wider hover:bg-gray-800 transition">
-              Quay lại giỏ hàng
-            </button>
+          <div className="font-mono text-xs text-[#9a948a]">
+            {new Date(order.createdAt).toLocaleString()}
           </div>
-        )}
-
-        {/* Chi tiết đơn hàng */}
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-light uppercase tracking-widest">Đơn hàng #{order.id}</h1>
-          <span className={`px-3 py-1 text-xs font-bold rounded-sm ${s.color}`}>{s.label}</span>
         </div>
 
-        <div className="border border-gray-200 rounded-lg overflow-hidden mb-6">
-          <div className="bg-gray-50 px-6 py-3 text-xs font-bold uppercase tracking-wider text-gray-500">
-            Sản phẩm
-          </div>
-          <div className="divide-y divide-gray-100">
-            {order.items?.map((item, i) => (
-              <div key={i} className="flex justify-between px-6 py-4 text-sm">
-                <span className="text-gray-700">{item.name} × {item.quantity}</span>
-                <span className="font-medium">{(item.price * item.quantity).toLocaleString('vi-VN')} đ</span>
+        {/* 5-Stage Visual Provenance Stepper */}
+        <section className="p-6 md:p-8 bg-[#111115] border border-[#ece5d8]/15 mb-8">
+          {order.status === 'cancelled' ? (
+            <div className="flex items-center gap-3 text-red-300 font-mono text-sm">
+              <XCircle className="w-5 h-5" />
+              <span>THIS ALLOCATION HAS BEEN CANCELLED AND RETURNED TO THE VAULT.</span>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-5 gap-4">
+              {FIVE_STAGES.map((stage, idx) => {
+                const done = idx <= activeStage
+                const current = idx === activeStage
+                return (
+                  <div
+                    key={stage.key}
+                    className={`p-3.5 border transition ${
+                      current
+                        ? 'border-[#cfa156] bg-[#070709]'
+                        : done
+                          ? 'border-[#cfa156]/40 bg-[#070709]/60'
+                          : 'border-[#ece5d8]/10 bg-[#070709]/30 opacity-50'
+                    }`}
+                  >
+                    <CheckCircle2
+                      className={`w-4 h-4 mb-2 ${done ? 'text-[#cfa156]' : 'text-[#9a948a]'}`}
+                    />
+                    <p className="font-mono text-[11px] uppercase tracking-wider text-[#ece5d8]">
+                      {stage.label}
+                    </p>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </section>
+
+        {/* Manifest + Recipient */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          <div className="lg:col-span-7 bg-[#111115] border border-[#ece5d8]/12 p-6 space-y-4">
+            <h2 className="font-display text-2xl">Authenticated Items</h2>
+            {order.items.map((item, idx) => (
+              <div
+                key={idx}
+                className="flex items-center justify-between gap-4 py-3 border-b border-[#ece5d8]/10 last:border-0"
+              >
+                <div className="flex items-center gap-4">
+                  <img
+                    src={item.imageUrl || '/images/enigma/grail-sneaker-obsidian.jpg'}
+                    alt={item.name}
+                    className="w-16 h-20 object-cover bg-[#070709]"
+                  />
+                  <div>
+                    <p className="font-medium text-sm text-[#ece5d8]">{item.name}</p>
+                    <p className="font-mono text-xs text-[#9a948a] mt-0.5">
+                      Qty {item.quantity} {item.size ? `· Size ${item.size}` : ''}
+                      {item.color ? ` · ${item.color}` : ''}
+                    </p>
+                  </div>
+                </div>
+                <span className="font-mono text-sm font-semibold text-[#ece5d8] tabular-nums">
+                  {formatVnd(item.price * item.quantity)}
+                </span>
               </div>
             ))}
           </div>
-          <div className="border-t border-gray-200 px-6 py-4 flex justify-between font-bold">
-            <span>Tổng cộng</span>
-            <span>{order.total?.toLocaleString('vi-VN')} đ</span>
+
+          <div className="lg:col-span-5 space-y-6">
+            <div className="bg-[#111115] border border-[#ece5d8]/12 p-6 space-y-3 font-mono text-xs">
+              <h2 className="font-display text-2xl text-[#ece5d8] font-normal mb-2">
+                Settlement &amp; Dispatch
+              </h2>
+              <div className="flex justify-between text-[#9a948a]">
+                <span>RECIPIENT</span>
+                <span className="text-[#ece5d8]">{order.shippingName || 'Collector'}</span>
+              </div>
+              <div className="flex justify-between text-[#9a948a]">
+                <span>PHONE</span>
+                <span className="text-[#ece5d8]">{order.shippingPhone || '—'}</span>
+              </div>
+              <div className="pt-1 text-[#9a948a]">
+                <span className="block mb-1">DISPATCH DESTINATION</span>
+                <span className="text-[#ece5d8]">{order.shippingAddress || 'Vault Pickup'}</span>
+              </div>
+              <div className="pt-3 border-t border-[#ece5d8]/10 flex justify-between text-[#9a948a]">
+                <span>PAYMENT</span>
+                <span className="text-[#ece5d8] uppercase">
+                  {order.paymentMethod} ({order.paymentStatus || 'pending'})
+                </span>
+              </div>
+              {order.voucherCode && (
+                <div className="flex justify-between text-[#cfa156]">
+                  <span>PRIVILEGE ({order.voucherCode})</span>
+                  <span className="tabular-nums">-{formatVnd(order.discountAmount || 0)}</span>
+                </div>
+              )}
+              <div className="pt-3 border-t border-[#ece5d8]/10 flex justify-between text-base font-semibold text-[#cfa156]">
+                <span>TOTAL SETTLED</span>
+                <span className="tabular-nums">{formatVnd(order.total)}</span>
+              </div>
+            </div>
+
+            {order.status === 'pending' && (
+              <button
+                type="button"
+                onClick={() => void handleCancel()}
+                className="w-full py-3 border border-red-500/50 text-red-300 font-mono text-xs uppercase tracking-widest hover:bg-red-950/40 transition"
+              >
+                Cancel Pending Reservation
+              </button>
+            )}
+
+            <div className="p-4 bg-[#111115] border border-[#cfa156]/35 flex items-center gap-3 font-mono text-[11px] text-[#9a948a]">
+              <ShieldCheck className="w-5 h-5 text-[#cfa156] flex-shrink-0" />
+              <span>NFC Cryptographic Provenance Tag Bound to Order #{order.id}</span>
+            </div>
           </div>
-        </div>
-
-        <div className="text-sm text-gray-500 mb-8">
-          <p>Ngày đặt: {new Date(order.createdAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
-          <p className="mt-1">Phương thức: {order.paymentMethod === 'vnpay' ? 'VNPay' : 'Thanh toán khi nhận hàng (COD)'}</p>
-        </div>
-
-        <div className="flex gap-3">
-          <button onClick={() => navigate('/orders')}
-            className="flex-1 border border-gray-300 py-3 text-sm font-bold hover:border-black transition">
-            Xem tất cả đơn hàng
-          </button>
-          <button onClick={() => navigate('/')}
-            className="flex-1 bg-black text-white py-3 text-sm font-bold hover:bg-gray-800 transition">
-            Tiếp tục mua sắm
-          </button>
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, createContext, useContext, useCallback } from 'react'
+import React, { useState, createContext, useContext, useCallback } from 'react'
 import { X, CheckCircle, XCircle, AlertCircle } from 'lucide-react'
 
 type ToastType = 'success' | 'error' | 'info'
@@ -27,7 +27,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   const toast = useCallback((message: string, type: ToastType = 'success') => {
     const id = ++counter
     setToasts(prev => [...prev, { id, message, type }])
-    setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 3000)
+    setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 3500)
   }, [])
 
   const remove = (id: number) => setToasts(prev => prev.filter(t => t.id !== id))
@@ -35,18 +35,34 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   return (
     <ToastContext.Provider value={{ toast }}>
       {children}
-      <div className="fixed bottom-6 right-6 z-[100] flex flex-col gap-2 max-w-sm w-full">
+      <div className="fixed bottom-6 left-6 z-[115] flex flex-col gap-2.5 max-w-sm w-full pointer-events-none">
         {toasts.map(t => (
-          <div key={t.id}
-            className={`flex items-start gap-3 px-4 py-3 rounded-lg shadow-lg text-sm font-medium animate-fade-in
-              ${t.type === 'success' ? 'bg-green-600 text-white'
-              : t.type === 'error' ? 'bg-red-600 text-white'
-              : 'bg-gray-800 text-white'}`}>
-            {t.type === 'success' && <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />}
-            {t.type === 'error' && <XCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />}
-            {t.type === 'info' && <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />}
-            <span className="flex-1">{t.message}</span>
-            <button onClick={() => remove(t.id)} className="opacity-70 hover:opacity-100 transition">
+          <div
+            key={t.id}
+            role="status"
+            className={`pointer-events-auto flex items-start gap-3 px-4 py-3.5 border bg-[#111115]/95 backdrop-blur-md shadow-2xl text-xs tracking-wide ${
+              t.type === 'success'
+                ? 'border-[#cfa156]/60 text-[#ece5d8]'
+                : t.type === 'error'
+                  ? 'border-red-500/60 text-red-200'
+                  : 'border-[#ece5d8]/20 text-[#ece5d8]'
+            }`}
+          >
+            {t.type === 'success' && (
+              <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0 text-[#cfa156]" />
+            )}
+            {t.type === 'error' && (
+              <XCircle className="w-4 h-4 mt-0.5 flex-shrink-0 text-red-400" />
+            )}
+            {t.type === 'info' && (
+              <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0 text-[#9a948a]" />
+            )}
+            <span className="flex-1 leading-relaxed">{t.message}</span>
+            <button
+              onClick={() => remove(t.id)}
+              aria-label="Dismiss notification"
+              className="text-[#9a948a] hover:text-[#ece5d8] transition"
+            >
               <X className="w-4 h-4" />
             </button>
           </div>

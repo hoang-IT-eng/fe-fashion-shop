@@ -1,153 +1,301 @@
-import React, { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
+import {
+  BarChart3,
+  Package,
+  Gavel,
+  Crosshair,
+  Tag,
+  ShoppingCart,
+  FolderTree,
+  Users,
+  Search,
+  ArrowUpRight,
+  Command,
+  KeyRound,
+} from 'lucide-react'
+import { api } from '../api/apiClient'
+import { ExecutiveDashboardStats } from '../types/enigma'
+import { formatVnd } from '../lib/format'
 import { useAuthStore } from '../store/useAuthStore'
-import { LayoutDashboard, Package, Users, LogOut, ShoppingBag, Menu, X, Tag, ChevronRight } from 'lucide-react'
+import { EnigmaCrest } from '../components/EnigmaCrest'
 import AdminDashboardPage from './admin/AdminDashboardPage'
-import AdminOrdersPage from './admin/AdminOrdersPage'
-import AdminUsersPage from './admin/AdminUsersPage'
 import AdminProductsTab from './admin/AdminProductsTab'
+import AdminAuctionsTab from './admin/AdminAuctionsTab'
+import AdminConciergeTab from './admin/AdminConciergeTab'
+import AdminVouchersTab from './admin/AdminVouchersTab'
+import AdminOrdersPage from './admin/AdminOrdersPage'
 import AdminCategoriesTab from './admin/AdminCategoriesTab'
+import AdminUsersPage from './admin/AdminUsersPage'
 
-type Tab = 'dashboard' | 'products' | 'orders' | 'users' | 'categories'
+type AdminTabId =
+  | 'analytics'
+  | 'products'
+  | 'auctions'
+  | 'concierge'
+  | 'vouchers'
+  | 'orders'
+  | 'categories'
+  | 'users'
 
-const NAV: { key: Tab; label: string; icon: React.ElementType }[] = [
-  { key: 'dashboard',  label: 'Tổng quan',  icon: LayoutDashboard },
-  { key: 'products',   label: 'Sản phẩm',   icon: Package },
-  { key: 'categories', label: 'Danh mục',   icon: Tag },
-  { key: 'orders',     label: 'Đơn hàng',   icon: ShoppingBag },
-  { key: 'users',      label: 'Khách hàng', icon: Users },
+const ADMIN_TABS: { id: AdminTabId; label: string; shortcut: string; icon: React.FC<{ className?: string }> }[] = [
+  { id: 'analytics', label: 'Executive Analytics', shortcut: 'G A', icon: BarChart3 },
+  { id: 'products', label: 'Products & SKU Matrix', shortcut: 'G P', icon: Package },
+  { id: 'auctions', label: 'Live Auctions Monitor', shortcut: 'G L', icon: Gavel },
+  { id: 'concierge', label: 'Codex & Concierge Desk', shortcut: 'G C', icon: Crosshair },
+  { id: 'vouchers', label: 'Vouchers & ENIGMA15', shortcut: 'G V', icon: Tag },
+  { id: 'orders', label: 'Orders Pipeline', shortcut: 'G O', icon: ShoppingCart },
+  { id: 'categories', label: 'Archive Capsules', shortcut: 'G T', icon: FolderTree },
+  { id: 'users', label: 'Collectors & Roles', shortcut: 'G U', icon: Users },
 ]
 
 export default function AdminPage() {
-  const navigate = useNavigate()
-  const { logout, user } = useAuthStore()
-  const [tab, setTab] = useState<Tab>('dashboard')
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const { isAuthenticated, user, login } = useAuthStore()
+  const [activeTab, setActiveTab] = useState<AdminTabId>('analytics')
+  const [kpi, setKpi] = useState<ExecutiveDashboardStats | null>(null)
+  const [cmdOpen, setCmdOpen] = useState(false)
+  const [cmdQuery, setCmdQuery] = useState('')
 
   useEffect(() => {
-    if (!user || user.role !== 'admin') navigate('/auth')
+    void api.get<ExecutiveDashboardStats>('/dashboard/executive').then(setKpi).catch(() => {})
+  }, [activeTab])
+
+  // Cmd/Ctrl+K Quick Filter Command Palette
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault()
+        setCmdOpen(v => !v)
+      } else if (e.key === 'Escape') {
+        setCmdOpen(false)
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
   }, [])
 
-  const handleLogout = () => { logout(); navigate('/') }
-
-  const handleTabChange = (key: Tab) => {
-    setTab(key)
-    setSidebarOpen(false)
-  }
-
-  const renderContent = () => {
-    switch (tab) {
-      case 'dashboard':  return <AdminDashboardPage />
-      case 'products':   return <AdminProductsTab />
-      case 'categories': return <AdminCategoriesTab />
-      case 'orders':     return <AdminOrdersPage />
-      case 'users':      return <AdminUsersPage />
-    }
-  }
-
-  const currentLabel = NAV.find(n => n.key === tab)?.label || ''
-
-  const SidebarContent = () => (
-    <div className="flex flex-col h-full bg-gray-950">
-      {/* Logo */}
-      <div className="h-16 flex items-center px-6 border-b border-white/10 flex-shrink-0">
-        <span className="text-lg font-extralight tracking-[0.2em] text-white uppercase">
-          The<span className="font-bold">Basic</span>
-        </span>
-        <span className="ml-2 text-[10px] font-medium text-gray-500 bg-white/10 px-2 py-0.5 rounded-full uppercase tracking-wider">
-          Admin
-        </span>
-      </div>
-
-      {/* Navigation */}
-      <nav className="flex-1 px-3 py-6 space-y-1 overflow-y-auto">
-        <p className="px-3 mb-3 text-[10px] font-bold uppercase tracking-[0.15em] text-gray-600">
-          Menu
-        </p>
-        {NAV.map(({ key, label, icon: Icon }) => {
-          const active = tab === key
-          return (
-            <button
-              key={key}
-              onClick={() => handleTabChange(key)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm rounded-lg transition-all duration-200 group
-                ${active
-                  ? 'bg-white text-gray-900 font-semibold shadow-lg shadow-white/5'
-                  : 'text-gray-400 hover:bg-white/5 hover:text-white'
-                }`}
-            >
-              <Icon className={`w-[18px] h-[18px] transition-colors ${active ? 'text-gray-900' : 'text-gray-500 group-hover:text-gray-300'}`} />
-              {label}
-              {active && <ChevronRight className="w-4 h-4 ml-auto text-gray-400" />}
-            </button>
-          )
-        })}
-      </nav>
-
-      {/* User info */}
-      <div className="p-4 border-t border-white/10 flex-shrink-0">
-        <div className="flex items-center gap-3 mb-4 px-1">
-          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center text-sm font-bold text-white flex-shrink-0 ring-2 ring-white/10">
-            {(user?.name?.[0] || user?.email?.[0] || 'A').toUpperCase()}
+  // Allow instant 1-click Curator authorization if someone visits /admin directly without signing in
+  if (!isAuthenticated || user?.role !== 'admin') {
+    return (
+      <div className="min-h-screen bg-[#070709] text-[#ece5d8] flex items-center justify-center p-6">
+        <div className="max-w-md w-full bg-[#111115] border border-[#cfa156]/50 p-8 text-center space-y-6">
+          <EnigmaCrest className="w-12 h-12 mx-auto" />
+          <div>
+            <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#cfa156]">
+              RESTRICTED CURATOR CONSOLE
+            </p>
+            <h1 className="font-display text-3xl mt-1">Executive Grail Desk</h1>
+            <p className="text-xs text-[#9a948a] mt-2 leading-relaxed">
+              Curator clearance is required to access GMV telemetry, SKU matrices, live auction
+              controls, and sourcing mandates.
+            </p>
           </div>
-          <div className="min-w-0">
-            <p className="text-sm font-medium text-white truncate">{user?.name || user?.email}</p>
-            <p className="text-[11px] text-gray-500">Quản trị viên</p>
-          </div>
+          <button
+            id="instant-admin-unlock-btn"
+            type="button"
+            onClick={() => void login('admin@fashionshop.com', 'Admin@123')}
+            className="w-full py-3.5 bg-[#cfa156] text-[#070709] font-mono text-xs font-semibold uppercase tracking-[0.22em] hover:bg-[#dec37b] transition inline-flex items-center justify-center gap-2"
+          >
+            <KeyRound className="w-4 h-4" /> Authenticate Demo Curator (Admin@123)
+          </button>
+          <Link
+            to="/"
+            className="inline-block font-mono text-xs uppercase tracking-widest text-[#9a948a] hover:text-[#ece5d8]"
+          >
+            ← Return to Storefront
+          </Link>
         </div>
-        <button
-          onClick={handleLogout}
-          className="w-full flex items-center justify-center gap-2 text-sm text-gray-500 hover:text-red-400 hover:bg-white/5 rounded-lg py-2 transition-all duration-200"
-        >
-          <LogOut className="w-4 h-4" /> Đăng xuất
-        </button>
       </div>
-    </div>
+    )
+  }
+
+  const filteredCommands = ADMIN_TABS.filter(t =>
+    t.label.toLowerCase().includes(cmdQuery.trim().toLowerCase())
   )
 
   return (
-    <div className="flex min-h-screen bg-gray-100 font-sans">
-      {/* Sidebar desktop */}
-      <aside className="w-[260px] flex-col hidden lg:flex fixed inset-y-0 left-0 z-30">
-        <SidebarContent />
+    <div className="min-h-screen bg-[#070709] text-[#ece5d8] flex flex-col lg:flex-row">
+      {/* Left High-Density Studio Sidebar */}
+      <aside className="lg:w-64 bg-[#0b0b0f] border-b lg:border-b-0 lg:border-r border-[#ece5d8]/10 flex flex-col justify-between flex-shrink-0">
+        <div>
+          <div className="p-5 border-b border-[#ece5d8]/10 flex items-center justify-between">
+            <EnigmaCrest className="w-7 h-7" showWordmark subtitle="GRAIL DESK" />
+          </div>
+
+          <div className="p-3">
+            <button
+              id="admin-cmdk-btn"
+              type="button"
+              onClick={() => setCmdOpen(true)}
+              className="w-full px-3 py-2 bg-[#111115] border border-[#ece5d8]/15 hover:border-[#cfa156]/60 flex items-center justify-between font-mono text-xs text-[#9a948a] transition"
+            >
+              <span className="inline-flex items-center gap-2">
+                <Search className="w-3.5 h-3.5 text-[#cfa156]" /> Quick Jump...
+              </span>
+              <span className="px-1.5 py-0.5 bg-[#070709] border border-[#ece5d8]/15 text-[10px]">
+                ⌘K
+              </span>
+            </button>
+          </div>
+
+          <nav aria-label="Admin sections" className="px-3 pb-4 space-y-1">
+            {ADMIN_TABS.map(tab => {
+              const Icon = tab.icon
+              const active = activeTab === tab.id
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`w-full flex items-center justify-between px-3 py-2.5 font-mono text-xs transition border-l-2 ${
+                    active
+                      ? 'border-[#cfa156] bg-[#111115] text-[#cfa156]'
+                      : 'border-transparent text-[#9a948a] hover:text-[#ece5d8] hover:bg-[#111115]/50'
+                  }`}
+                >
+                  <span className="inline-flex items-center gap-2.5 truncate">
+                    <Icon className="w-3.5 h-3.5 flex-shrink-0" />
+                    <span className="truncate">{tab.label}</span>
+                  </span>
+                </button>
+              )
+            })}
+          </nav>
+        </div>
+
+        <div className="p-4 border-t border-[#ece5d8]/10 space-y-2">
+          <div className="font-mono text-[10px] text-[#9a948a] truncate">
+            CURATOR: <span className="text-[#ece5d8]">{user.name}</span>
+          </div>
+          <Link
+            to="/"
+            className="w-full py-2 px-3 border border-[#ece5d8]/15 hover:border-[#cfa156] font-mono text-[10px] uppercase tracking-widest text-[#ece5d8] flex items-center justify-between"
+          >
+            <span>Live Storefront</span>
+            <ArrowUpRight className="w-3.5 h-3.5 text-[#cfa156]" />
+          </Link>
+        </div>
       </aside>
 
-      {/* Sidebar mobile overlay */}
-      {sidebarOpen && (
-        <div className="fixed inset-0 z-40 lg:hidden">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setSidebarOpen(false)} />
-          <aside className="absolute left-0 top-0 bottom-0 w-[260px] flex flex-col z-50 shadow-2xl">
-            <SidebarContent />
-          </aside>
-        </div>
-      )}
+      {/* Main Executive Workspace */}
+      <div className="flex-1 min-w-0 flex flex-col">
+        {/* Top Tabular-Nums KPI Strip */}
+        <header className="bg-[#0b0b0f] border-b border-[#ece5d8]/10 px-6 py-4">
+          <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
+            <h1 className="font-display text-2xl md:text-3xl text-[#ece5d8]">
+              ENIGMA Executive Commerce &amp; Grail Desk
+            </h1>
+            <span className="font-mono text-[10px] tracking-[0.24em] uppercase text-[#cfa156]">
+              STUDIO TELEMETRY · LIVE SYNC
+            </span>
+          </div>
 
-      {/* Main */}
-      <div className="flex-1 flex flex-col min-w-0 lg:ml-[260px]">
-        {/* Top bar */}
-        <header className="sticky top-0 z-20 bg-white/80 backdrop-blur-xl border-b border-gray-200/60">
-          <div className="flex items-center justify-between px-4 lg:px-8 h-16">
-            <div className="flex items-center gap-4">
-              <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-2 -ml-2 rounded-lg hover:bg-gray-100 transition">
-                <Menu className="w-5 h-5 text-gray-600" />
-              </button>
-              <div>
-                <h1 className="text-lg font-bold text-gray-900">{currentLabel}</h1>
-              </div>
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 font-mono">
+            <div className="p-3 bg-[#111115] border border-[#ece5d8]/10">
+              <span className="block text-[9px] uppercase tracking-widest text-[#9a948a]">
+                GROSS GMV
+              </span>
+              <span className="text-sm md:text-base font-semibold text-[#cfa156] tabular-nums">
+                {formatVnd(kpi?.totalRevenue || 0)}
+              </span>
             </div>
-            <div className="flex items-center gap-3">
-              <div className="hidden sm:flex items-center gap-2 text-sm text-gray-500">
-                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                Online
-              </div>
+            <div className="p-3 bg-[#111115] border border-[#ece5d8]/10">
+              <span className="block text-[9px] uppercase tracking-widest text-[#9a948a]">
+                AVG ORDER VALUE
+              </span>
+              <span className="text-sm md:text-base font-semibold text-[#ece5d8] tabular-nums">
+                {formatVnd(kpi?.averageOrderValue || 0)}
+              </span>
+            </div>
+            <div className="p-3 bg-[#111115] border border-[#ece5d8]/10">
+              <span className="block text-[9px] uppercase tracking-widest text-[#9a948a]">
+                LIVE GRAIL LOTS
+              </span>
+              <span className="text-sm md:text-base font-semibold text-[#ece5d8] tabular-nums">
+                {kpi?.auctionHeat.liveCount ?? 3} ACTIVE
+              </span>
+            </div>
+            <div className="p-3 bg-[#111115] border border-[#ece5d8]/10">
+              <span className="block text-[9px] uppercase tracking-widest text-[#9a948a]">
+                CONCIERGE QUEUE
+              </span>
+              <span className="text-sm md:text-base font-semibold text-[#cfa156] tabular-nums">
+                {kpi?.pendingConciergeCount ?? 2} OPEN
+              </span>
+            </div>
+            <div className="p-3 bg-[#111115] border border-[#ece5d8]/10 col-span-2 sm:col-span-1">
+              <span className="block text-[9px] uppercase tracking-widest text-[#9a948a]">
+                LOW-STOCK SKUS
+              </span>
+              <span className="text-sm md:text-base font-semibold text-[#ece5d8] tabular-nums">
+                {kpi?.lowStockSkus.length ?? 0} ALERTS
+              </span>
             </div>
           </div>
         </header>
 
-        <main className="flex-1 p-4 lg:p-8 overflow-auto">
-          {renderContent()}
-        </main>
+        {/* Active Desk View */}
+        <div className="p-6 md:p-8 flex-1">
+          {activeTab === 'analytics' && <AdminDashboardPage />}
+          {activeTab === 'products' && <AdminProductsTab />}
+          {activeTab === 'auctions' && <AdminAuctionsTab />}
+          {activeTab === 'concierge' && <AdminConciergeTab />}
+          {activeTab === 'vouchers' && <AdminVouchersTab />}
+          {activeTab === 'orders' && <AdminOrdersPage />}
+          {activeTab === 'categories' && <AdminCategoriesTab />}
+          {activeTab === 'users' && <AdminUsersPage />}
+        </div>
       </div>
+
+      {/* Cmd/Ctrl+K Command Palette Modal */}
+      {cmdOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-[125] flex items-start justify-center pt-24 p-4 bg-black/80 backdrop-blur-sm"
+          onClick={() => setCmdOpen(false)}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            className="w-full max-w-lg bg-[#111115] border border-[#cfa156]/60 shadow-2xl overflow-hidden"
+          >
+            <div className="p-3.5 border-b border-[#ece5d8]/10 flex items-center gap-3">
+              <Command className="w-4 h-4 text-[#cfa156]" />
+              <input
+                type="text"
+                autoFocus
+                value={cmdQuery}
+                onChange={e => setCmdQuery(e.target.value)}
+                placeholder="Jump to Analytics, SKU Matrix, Auctions, Concierge, Vouchers..."
+                className="flex-1 bg-transparent font-mono text-xs text-[#ece5d8] placeholder-[#9a948a] focus:outline-none"
+              />
+            </div>
+            <div className="divide-y divide-[#ece5d8]/10 max-h-72 overflow-y-auto">
+              {filteredCommands.map(cmd => {
+                const Icon = cmd.icon
+                return (
+                  <button
+                    key={cmd.id}
+                    type="button"
+                    onClick={() => {
+                      setActiveTab(cmd.id)
+                      setCmdOpen(false)
+                      setCmdQuery('')
+                    }}
+                    className="w-full px-4 py-3 flex items-center justify-between hover:bg-[#1c1d24] font-mono text-xs text-[#ece5d8]"
+                  >
+                    <span className="inline-flex items-center gap-2.5">
+                      <Icon className="w-3.5 h-3.5 text-[#cfa156]" />
+                      {cmd.label}
+                    </span>
+                    <span className="text-[10px] text-[#9a948a]">{cmd.shortcut}</span>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

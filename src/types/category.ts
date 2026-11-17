@@ -1,6 +1,7 @@
 export interface Category {
   id: number
   name: string
-  slug: string
+  slug?: string
+  imageUrl?: string | null
   isActive?: boolean
 }

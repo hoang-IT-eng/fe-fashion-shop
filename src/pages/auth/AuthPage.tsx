@@ -1,143 +1,185 @@
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { KeyRound, ShieldCheck } from 'lucide-react'
 import { useAuthStore } from '../../store/useAuthStore'
+import { EnigmaCrest } from '../../components/EnigmaCrest'
+import { useToast } from '../../components/Toast'
 
 export default function AuthPage() {
-  const [isLogin, setIsLogin] = useState(true)
+  const navigate = useNavigate()
+  const { login, register } = useAuthStore()
+  const { toast } = useToast()
+
+  const [mode, setMode] = useState<'login' | 'register'>('login')
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const [successMsg, setSuccessMsg] = useState('')
   const [loading, setLoading] = useState(false)
-
-  const { login, register } = useAuthStore()
-  const navigate = useNavigate()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError('')
-    setSuccessMsg('')
-    setLoading(true)
-
     try {
-      if (isLogin) {
+      setLoading(true)
+      if (mode === 'login') {
         await login(email, password)
-        const user = useAuthStore.getState().user
-        navigate(user?.role === 'admin' ? '/admin' : '/')
+        const currentUser = useAuthStore.getState().user
+        toast(`Welcome back, ${currentUser?.name || 'Collector'}.`, 'success')
+        navigate(currentUser?.role === 'admin' ? '/admin' : '/')
       } else {
         const msg = await register(name, email, password)
-        setSuccessMsg(msg)
-        setIsLogin(true)
+        toast(msg || 'Registration complete. Sign in below.', 'success')
+        setMode('login')
       }
     } catch (err: any) {
-      setError(err.message)
+      toast(err?.message || 'Authentication failed', 'error')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const quickLogin = async (demoEmail: string, demoPass: string, dest: string) => {
+    try {
+      setLoading(true)
+      await login(demoEmail, demoPass)
+      toast(`Authenticated as ${demoEmail}`, 'success')
+      navigate(dest)
+    } catch (err: any) {
+      toast(err?.message || 'Quick login failed', 'error')
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="flex min-h-screen bg-white font-sans">
-      <div className="flex w-full flex-col justify-center px-8 md:w-1/2 md:px-24">
-        <div className="mb-12">
-          <h1
-            className="cursor-pointer text-2xl font-black text-red-600 tracking-tighter"
-            onClick={() => navigate('/')}
-          >
-            THEBASIC
+    <div className="min-h-[82vh] bg-[#070709] text-[#ece5d8] flex items-center justify-center px-4 py-14">
+      <div className="w-full max-w-md bg-[#111115] border border-[#ece5d8]/15 p-8 md:p-10 space-y-6">
+        <div className="flex flex-col items-center text-center">
+          <EnigmaCrest className="w-11 h-11 mb-4" />
+          <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#cfa156]">
+            COLLECTOR VAULT ACCESS
+          </p>
+          <h1 className="font-display text-3xl md:text-4xl mt-1">
+            {mode === 'login' ? 'Enter the Inner Circle' : 'Request Collector Passkey'}
           </h1>
         </div>
 
-        <h2 className="mb-8 text-3xl font-light uppercase tracking-widest text-gray-900">
-          {isLogin ? 'Đăng nhập' : 'Tạo tài khoản'}
-        </h2>
+        {/* Mode Switcher */}
+        <div className="grid grid-cols-2 border border-[#ece5d8]/15 bg-[#070709]">
+          <button
+            type="button"
+            onClick={() => setMode('login')}
+            className={`py-2.5 font-mono text-xs uppercase tracking-widest ${
+              mode === 'login' ? 'bg-[#cfa156] text-[#070709] font-semibold' : 'text-[#9a948a]'
+            }`}
+          >
+            Sign In
+          </button>
+          <button
+            type="button"
+            onClick={() => setMode('register')}
+            className={`py-2.5 font-mono text-xs uppercase tracking-widest ${
+              mode === 'register' ? 'bg-[#cfa156] text-[#070709] font-semibold' : 'text-[#9a948a]'
+            }`}
+          >
+            Initiate
+          </button>
+        </div>
 
-        {error && (
-          <div className="mb-4 rounded bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-600">
-            {error}
-          </div>
-        )}
-        {successMsg && (
-          <div className="mb-4 rounded bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-600">
-            {successMsg}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {!isLogin && (
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {mode === 'register' && (
             <div>
-              <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-gray-500">
-                Họ và tên
+              <label className="block font-mono text-[10px] uppercase tracking-widest text-[#9a948a] mb-1.5">
+                Collector Alias / Full Name
               </label>
               <input
                 type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full border border-gray-300 p-3 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black transition"
                 required
+                value={name}
+                onChange={e => setName(e.target.value)}
+                placeholder="Kaelen Vinh"
+                className="w-full bg-[#070709] border border-[#ece5d8]/15 px-3.5 py-2.5 text-sm text-[#ece5d8] focus:outline-none focus:border-[#cfa156]"
               />
             </div>
           )}
+
           <div>
-            <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-gray-500">
-              Địa chỉ Email
+            <label className="block font-mono text-[10px] uppercase tracking-widest text-[#9a948a] mb-1.5">
+              Email Address
             </label>
             <input
+              id="auth-email-input"
               type="email"
+              required
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full border border-gray-300 p-3 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black transition"
-              required
+              onChange={e => setEmail(e.target.value)}
+              placeholder="demo@fashionshop.com"
+              className="w-full bg-[#070709] border border-[#ece5d8]/15 px-3.5 py-2.5 text-sm text-[#ece5d8] focus:outline-none focus:border-[#cfa156]"
             />
           </div>
+
           <div>
-            <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-gray-500">
-              Mật khẩu
-            </label>
+            <div className="flex justify-between font-mono text-[10px] uppercase tracking-widest mb-1.5">
+              <span className="text-[#9a948a]">Passkey</span>
+              {mode === 'login' && (
+                <Link to="/auth/forgot-password" className="text-[#cfa156] hover:underline">
+                  Reset Passkey
+                </Link>
+              )}
+            </div>
             <input
+              id="auth-password-input"
               type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full border border-gray-300 p-3 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black transition"
               required
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              placeholder="••••••••"
+              className="w-full bg-[#070709] border border-[#ece5d8]/15 px-3.5 py-2.5 text-sm text-[#ece5d8] focus:outline-none focus:border-[#cfa156]"
             />
           </div>
+
           <button
+            id="auth-submit-btn"
             type="submit"
             disabled={loading}
-            className="mt-4 w-full bg-black py-4 text-sm font-bold uppercase tracking-wider text-white hover:bg-gray-800 transition disabled:opacity-50"
+            className="w-full py-3.5 bg-[#cfa156] text-[#070709] font-mono text-xs font-semibold uppercase tracking-[0.24em] hover:bg-[#dec37b] transition"
           >
-            {loading ? 'Đang xử lý...' : isLogin ? 'Đăng nhập' : 'Đăng ký'}
+            {loading
+              ? 'VERIFYING...'
+              : mode === 'login'
+                ? 'AUTHENTICATE PASSKEY'
+                : 'CREATE COLLECTOR ACCOUNT'}
           </button>
-
-          {isLogin && (
-            <button type="button" onClick={() => navigate('/forgot-password')}
-              className="w-full text-center text-xs text-gray-400 hover:text-black transition underline mt-2">
-              Quên mật khẩu?
-            </button>
-          )}
         </form>
 
-        <div className="mt-8 border-t border-gray-200 pt-8 text-center">
-          <p className="text-sm text-gray-600">
-            {isLogin ? 'Bạn chưa có tài khoản?' : 'Đã có tài khoản?'}
+        {/* Instant Reviewer One-Click Access */}
+        <div className="pt-5 border-t border-[#ece5d8]/10 space-y-2.5">
+          <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[#9a948a] flex items-center gap-1.5">
+            <KeyRound className="w-3.5 h-3.5 text-[#cfa156]" />
+            1-Click Demo Vault Passkeys
           </p>
-          <button
-            onClick={() => { setIsLogin(!isLogin); setError(''); setSuccessMsg('') }}
-            className="mt-2 text-sm font-bold uppercase tracking-wider text-black underline hover:text-gray-600"
-          >
-            {isLogin ? 'Tạo tài khoản ngay' : 'Đăng nhập tại đây'}
-          </button>
+          <div className="grid grid-cols-2 gap-2.5">
+            <button
+              id="demo-collector-login-btn"
+              type="button"
+              onClick={() => void quickLogin('demo@fashionshop.com', 'Demo@123', '/')}
+              className="py-2.5 px-3 border border-[#ece5d8]/20 hover:border-[#cfa156] font-mono text-[10px] uppercase tracking-wider text-[#ece5d8] transition"
+            >
+              Collector Access
+            </button>
+            <button
+              id="demo-admin-login-btn"
+              type="button"
+              onClick={() => void quickLogin('admin@fashionshop.com', 'Admin@123', '/admin')}
+              className="py-2.5 px-3 border border-[#cfa156]/60 bg-[#cfa156]/10 hover:bg-[#cfa156] hover:text-[#070709] font-mono text-[10px] uppercase tracking-wider text-[#cfa156] transition"
+            >
+              Executive Admin
+            </button>
+          </div>
+          <p className="flex items-center justify-center gap-1.5 font-mono text-[10px] text-[#9a948a] pt-1">
+            <ShieldCheck className="w-3.5 h-3.5 text-[#cfa156]" />
+            Works with live NestJS API or offline Demo Vault
+          </p>
         </div>
-      </div>
-
-      <div className="hidden w-1/2 bg-gray-100 md:block">
-        <img
-          src="https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?auto=format&fit=crop&w=1000&q=80"
-          alt="Fashion Lookbook"
-          className="h-full w-full object-cover"
-        />
       </div>
     </div>
   )

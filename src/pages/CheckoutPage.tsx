@@ -1,195 +1,499 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { MapPin, Truck, CreditCard, Tag, ShieldCheck, CheckCircle2 } from 'lucide-react'
+import { api } from '../api/apiClient'
+import { Order } from '../types/order'
 import { useCartStore } from '../store/useCartStore'
 import { useAuthStore } from '../store/useAuthStore'
-import { api } from '../api/apiClient'
+import { useSoundStore } from '../store/useSoundStore'
+import { formatVnd } from '../lib/format'
+import Breadcrumb from '../components/Breadcrumb'
+import EmptyState from '../components/EmptyState'
+import { useToast } from '../components/Toast'
 
-type PaymentMethod = 'cod' | 'vnpay'
+const SAVED_ADDRESSES = [
+  {
+    id: 'saigon',
+    label: 'Saigon Residence · District 1',
+    name: 'Kaelen Vinh',
+    phone: '0909123456',
+    address: '88 Đồng Khởi, Bến Nghé, Quận 1, TP. Hồ Chí Minh',
+  },
+  {
+    id: 'hanoi',
+    label: 'Hanoi Studio · Hoàn Kiếm',
+    name: 'Kaelen Vinh',
+    phone: '0912345678',
+    address: '24 Tràng Tiền, Hoàn Kiếm, Hà Nội',
+  },
+]
 
 export default function CheckoutPage() {
   const navigate = useNavigate()
-  const { isAuthenticated } = useAuthStore()
-  const { items, total, clear } = useCartStore()
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [success, setSuccess] = useState(false)
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cod')
+  const { user } = useAuthStore()
+  const { playChime } = useSoundStore()
+  const {
+    items,
+    clear,
+    appliedVoucher,
+    applyVoucherCode,
+    removeVoucher,
+    subtotal,
+    discountAmount,
+  } = useCartStore()
+  const { toast } = useToast()
 
-  // Form fields dùng đúng tên backend yêu cầu
-  const [shippingName, setShippingName] = useState('')
-  const [shippingPhone, setShippingPhone] = useState('')
-  const [shippingAddress, setShippingAddress] = useState('')
+  const [step, setStep] = useState<1 | 2 | 3>(1)
+  const [selectedPreset, setSelectedPreset] = useState('saigon')
+  const [shippingName, setShippingName] = useState(user?.name || SAVED_ADDRESSES[0].name)
+  const [shippingPhone, setShippingPhone] = useState(SAVED_ADDRESSES[0].phone)
+  const [shippingAddress, setShippingAddress] = useState(SAVED_ADDRESSES[0].address)
   const [note, setNote] = useState('')
 
-  useEffect(() => {
-    if (!isAuthenticated) { navigate('/auth'); return }
-    if (items.length === 0) navigate('/cart')
-  }, [])
+  const [shippingMethod, setShippingMethod] = useState<'standard' | 'armored'>('standard')
+  const [paymentMethod, setPaymentMethod] = useState<'cod' | 'vnpay' | 'card'>('vnpay')
+  const [couponInput, setCouponInput] = useState('')
+  const [placing, setPlacing] = useState(false)
 
-  const handleOrder = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
-    try {
-      if (paymentMethod === 'vnpay') {
-        const res = await api.post<{ paymentUrl?: string; orderId?: number; id?: number }>('/orders', {
-          items: items.map(i => ({
-            productId: i.productId,
-            ...(i.variantId ? { variantId: i.variantId } : {}),
-            ...(i.size ? { size: i.size } : {}),
-            ...(i.color ? { color: i.color } : {}),
-            name: i.name,
-            price: i.price,
-            quantity: i.quantity,
-          })),
-          total: total(),
-          paymentMethod: 'vnpay',
-          shippingName,
-          shippingPhone,
-          shippingAddress,
-          note,
-        })
-        if (res.paymentUrl) {
-          // Redirect sang trang thanh toán VNPay
-          window.location.href = res.paymentUrl
-        } else {
-          clear()
-          navigate(`/orders/${res.orderId || res.id}`)
-        }
-      } else {
-        await api.post('/orders', {
-          items: items.map(i => ({
-            productId: i.productId,
-            ...(i.variantId ? { variantId: i.variantId } : {}),
-            ...(i.size ? { size: i.size } : {}),
-            ...(i.color ? { color: i.color } : {}),
-            name: i.name,
-            price: i.price,
-            quantity: i.quantity,
-          })),
-          total: total(),
-          paymentMethod: 'cod',
-          shippingName,
-          shippingPhone,
-          shippingAddress,
-          note,
-        })
-        clear()
-        setSuccess(true)
-      }
-    } catch (err: any) {
-      setError(err.message)
-    } finally {
-      setLoading(false)
+  if (items.length === 0) {
+    return (
+      <div className="min-h-screen bg-[#070709] text-[#ece5d8] py-14 max-w-5xl mx-auto px-4">
+        <EmptyState
+          title="No Active Allocation in Bag"
+          description="Select archive pieces before initiating armored checkout."
+          actionLabel="Return to Drops"
+          onAction={() => navigate('/products')}
+        />
+      </div>
+    )
+  }
+
+  const sub = subtotal()
+  const disc = discountAmount()
+  const shippingFee = shippingMethod === 'armored' ? 150000 : 0
+  const grandTotal = Math.max(0, sub - disc + shippingFee)
+
+  const selectAddressBook = (presetId: string) => {
+    setSelectedPreset(presetId)
+    const found = SAVED_ADDRESSES.find(a => a.id === presetId)
+    if (found) {
+      setShippingName(found.name)
+      setShippingPhone(found.phone)
+      setShippingAddress(found.address)
     }
   }
 
-  if (success) return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-white font-sans">
-      <div className="text-center max-w-md px-6">
-        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-          <span className="text-green-600 text-2xl">✓</span>
-        </div>
-        <h1 className="text-2xl font-light uppercase tracking-widest mb-3">Đặt hàng thành công</h1>
-        <p className="text-gray-500 text-sm mb-8">Cảm ơn bạn đã mua hàng. Chúng tôi sẽ liên hệ xác nhận đơn hàng sớm nhất.</p>
-        <button onClick={() => navigate('/')} className="bg-black text-white px-8 py-3 text-sm font-bold uppercase tracking-wider hover:bg-gray-800 transition">
-          Về trang chủ
-        </button>
-      </div>
-    </div>
-  )
+  const handleApplyCoupon = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!couponInput.trim()) return
+    try {
+      const res = await applyVoucherCode(couponInput)
+      toast(res.message, 'success')
+      setCouponInput('')
+    } catch (err: any) {
+      toast(err?.message || 'Invalid privilege code', 'error')
+    }
+  }
+
+  const handlePlaceOrder = async () => {
+    if (!shippingName.trim() || !shippingPhone.trim() || !shippingAddress.trim()) {
+      toast('Please complete dispatch recipient details.', 'error')
+      setStep(1)
+      return
+    }
+    try {
+      setPlacing(true)
+      const res = await api.post<{ order?: Order; id?: number; paymentUrl?: string | null }>(
+        '/orders',
+        {
+          items,
+          shippingName,
+          shippingPhone,
+          shippingAddress,
+          shippingFee,
+          voucherCode: appliedVoucher?.code || undefined,
+          paymentMethod,
+          note,
+        }
+      )
+      playChime()
+      const orderId = res.order?.id || res.id || 1004
+      clear()
+      toast(`Provenance Order #${orderId} sealed & confirmed!`, 'success')
+      navigate(`/orders/${orderId}`)
+    } catch (err: any) {
+      toast(err?.message || 'Checkout failed', 'error')
+    } finally {
+      setPlacing(false)
+    }
+  }
 
   return (
-    <div className="min-h-screen bg-white font-sans">
-      <div className="max-w-4xl mx-auto px-6 py-12">
-        <h1 className="text-2xl font-light uppercase tracking-widest mb-10">Thanh toán</h1>
+    <div className="min-h-screen bg-[#070709] text-[#ece5d8] py-10 md:py-14">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <Breadcrumb
+          items={[
+            { label: 'Archive', path: '/' },
+            { label: 'Vault Bag', path: '/cart' },
+            { label: 'Armored Checkout' },
+          ]}
+        />
 
-        <div className="flex flex-col lg:flex-row gap-12">
-          {/* Form thông tin */}
-          <form onSubmit={handleOrder} className="flex-1 space-y-5">
-            <h2 className="text-sm font-bold uppercase tracking-wider text-gray-700">Thông tin giao hàng</h2>
+        <h1 className="font-display text-4xl md:text-5xl text-[#ece5d8] mb-8">
+          Armored Dispatch &amp; Settlement
+        </h1>
 
-            <div>
-              <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-500">Họ và tên *</label>
-              <input type="text" required value={shippingName} onChange={e => setShippingName(e.target.value)}
-                className="w-full border border-gray-300 p-3 text-sm focus:border-black focus:outline-none transition" />
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-500">Số điện thoại *</label>
-              <input type="tel" required value={shippingPhone} onChange={e => setShippingPhone(e.target.value)}
-                className="w-full border border-gray-300 p-3 text-sm focus:border-black focus:outline-none transition" />
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-500">Địa chỉ giao hàng *</label>
-              <input type="text" required value={shippingAddress} onChange={e => setShippingAddress(e.target.value)}
-                className="w-full border border-gray-300 p-3 text-sm focus:border-black focus:outline-none transition" />
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-500">Ghi chú</label>
-              <textarea rows={3} value={note} onChange={e => setNote(e.target.value)}
-                className="w-full border border-gray-300 p-3 text-sm focus:border-black focus:outline-none transition" />
-            </div>
-
-            {/* Phương thức thanh toán */}
-            <div>
-              <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-gray-500">Phương thức thanh toán</label>
-              <div className="space-y-2">
-                <label className={`flex items-center gap-3 p-3 border cursor-pointer transition ${paymentMethod === 'cod' ? 'border-black' : 'border-gray-300 hover:border-gray-400'}`}>
-                  <input type="radio" name="payment" value="cod" checked={paymentMethod === 'cod'}
-                    onChange={() => setPaymentMethod('cod')} />
-                  <div>
-                    <p className="text-sm font-medium">Thanh toán khi nhận hàng (COD)</p>
-                    <p className="text-xs text-gray-400">Trả tiền mặt khi nhận hàng</p>
-                  </div>
-                </label>
-                <label className={`flex items-center gap-3 p-3 border cursor-pointer transition ${paymentMethod === 'vnpay' ? 'border-black' : 'border-gray-300 hover:border-gray-400'}`}>
-                  <input type="radio" name="payment" value="vnpay" checked={paymentMethod === 'vnpay'}
-                    onChange={() => setPaymentMethod('vnpay')} />
-                  <div className="flex items-center gap-3">
-                    <div>
-                      <p className="text-sm font-medium">VNPay</p>
-                      <p className="text-xs text-gray-400">Thanh toán qua cổng VNPay (ATM, Visa, QR)</p>
-                    </div>
-                    <span className="ml-auto text-xs font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded">VNPay</span>
-                  </div>
-                </label>
-              </div>
-            </div>
-
-            {error && <p className="text-red-500 text-sm">{error}</p>}
-
-            <button type="submit" disabled={loading}
-              className="w-full bg-black text-white py-4 text-sm font-bold uppercase tracking-wider hover:bg-gray-800 transition disabled:opacity-50">
-              {loading ? 'Đang xử lý...' : paymentMethod === 'vnpay' ? 'Thanh toán qua VNPay' : 'Đặt hàng'}
+        {/* Multi-Step Indicator */}
+        <div className="grid grid-cols-3 gap-3 mb-10">
+          {[
+            { n: 1 as const, label: '01 · Address Book' },
+            { n: 2 as const, label: '02 · Courier & Privilege' },
+            { n: 3 as const, label: '03 · Payment Settlement' },
+          ].map(st => (
+            <button
+              key={st.n}
+              type="button"
+              onClick={() => setStep(st.n)}
+              className={`py-3 px-4 border font-mono text-xs uppercase tracking-[0.2em] text-left transition ${
+                step === st.n
+                  ? 'border-[#cfa156] bg-[#cfa156]/15 text-[#cfa156]'
+                  : step > st.n
+                    ? 'border-[#ece5d8]/30 bg-[#111115] text-[#ece5d8]'
+                    : 'border-[#ece5d8]/10 bg-[#111115]/50 text-[#9a948a]'
+              }`}
+            >
+              {st.label}
             </button>
-          </form>
+          ))}
+        </div>
 
-          {/* Tóm tắt đơn hàng */}
-          <div className="lg:w-72">
-            <div className="border border-gray-200 p-6">
-              <h2 className="text-sm font-bold uppercase tracking-wider mb-4">Đơn hàng ({items.length} sản phẩm)</h2>
-              <div className="space-y-3 mb-4">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+          {/* Left Multi-Step Panels */}
+          <div className="lg:col-span-7 space-y-6">
+            {step === 1 && (
+              <section className="p-6 md:p-8 bg-[#111115] border border-[#ece5d8]/15 space-y-6">
+                <div className="flex items-center gap-2.5">
+                  <MapPin className="w-4 h-4 text-[#cfa156]" />
+                  <h2 className="font-display text-2xl">Collector Address Book</h2>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {SAVED_ADDRESSES.map(addr => (
+                    <button
+                      key={addr.id}
+                      type="button"
+                      onClick={() => selectAddressBook(addr.id)}
+                      className={`text-left p-4 border transition ${
+                        selectedPreset === addr.id
+                          ? 'border-[#cfa156] bg-[#070709]'
+                          : 'border-[#ece5d8]/12 bg-[#070709]/60 hover:border-[#ece5d8]/35'
+                      }`}
+                    >
+                      <span className="block font-mono text-[10px] uppercase tracking-widest text-[#cfa156] mb-1">
+                        {addr.label}
+                      </span>
+                      <span className="block text-xs text-[#ece5d8] font-medium">{addr.name}</span>
+                      <span className="block text-xs text-[#9a948a] mt-1 line-clamp-2">
+                        {addr.address}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                  <div>
+                    <label className="block font-mono text-[10px] uppercase tracking-widest text-[#9a948a] mb-1.5">
+                      Recipient Full Name
+                    </label>
+                    <input
+                      type="text"
+                      value={shippingName}
+                      onChange={e => setShippingName(e.target.value)}
+                      className="w-full bg-[#070709] border border-[#ece5d8]/15 px-3.5 py-2.5 text-xs text-[#ece5d8] focus:outline-none focus:border-[#cfa156]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-mono text-[10px] uppercase tracking-widest text-[#9a948a] mb-1.5">
+                      Direct Phone
+                    </label>
+                    <input
+                      type="tel"
+                      value={shippingPhone}
+                      onChange={e => setShippingPhone(e.target.value)}
+                      className="w-full bg-[#070709] border border-[#ece5d8]/15 px-3.5 py-2.5 font-mono text-xs text-[#ece5d8] focus:outline-none focus:border-[#cfa156]"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block font-mono text-[10px] uppercase tracking-widest text-[#9a948a] mb-1.5">
+                    Vault Delivery Street &amp; District
+                  </label>
+                  <input
+                    type="text"
+                    value={shippingAddress}
+                    onChange={e => setShippingAddress(e.target.value)}
+                    className="w-full bg-[#070709] border border-[#ece5d8]/15 px-3.5 py-2.5 text-xs text-[#ece5d8] focus:outline-none focus:border-[#cfa156]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-mono text-[10px] uppercase tracking-widest text-[#9a948a] mb-1.5">
+                    Courier Hand-off Instructions (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={note}
+                    onChange={e => setNote(e.target.value)}
+                    placeholder="Private concierge desk / signature required..."
+                    className="w-full bg-[#070709] border border-[#ece5d8]/15 px-3.5 py-2.5 text-xs text-[#ece5d8] focus:outline-none focus:border-[#cfa156]"
+                  />
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setStep(2)}
+                  className="w-full py-3.5 bg-[#cfa156] text-[#070709] font-mono text-xs font-semibold uppercase tracking-[0.24em]"
+                >
+                  Continue to Courier &amp; Privilege →
+                </button>
+              </section>
+            )}
+
+            {step === 2 && (
+              <section className="p-6 md:p-8 bg-[#111115] border border-[#ece5d8]/15 space-y-6">
+                <div className="flex items-center gap-2.5">
+                  <Truck className="w-4 h-4 text-[#cfa156]" />
+                  <h2 className="font-display text-2xl">Armored Dispatch Method</h2>
+                </div>
+
+                <div className="space-y-3">
+                  <button
+                    type="button"
+                    onClick={() => setShippingMethod('standard')}
+                    className={`w-full p-4 border flex items-center justify-between text-left ${
+                      shippingMethod === 'standard'
+                        ? 'border-[#cfa156] bg-[#070709]'
+                        : 'border-[#ece5d8]/15 bg-[#070709]/60'
+                    }`}
+                  >
+                    <div>
+                      <p className="text-sm font-medium text-[#ece5d8]">
+                        ENIGMA Insured Vault Courier (2–4 Business Days)
+                      </p>
+                      <p className="text-xs text-[#9a948a] mt-0.5">
+                        Tamper-evident seal + full declared-value insurance
+                      </p>
+                    </div>
+                    <span className="font-mono text-xs text-[#cfa156]">COMPLIMENTARY</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setShippingMethod('armored')}
+                    className={`w-full p-4 border flex items-center justify-between text-left ${
+                      shippingMethod === 'armored'
+                        ? 'border-[#cfa156] bg-[#070709]'
+                        : 'border-[#ece5d8]/15 bg-[#070709]/60'
+                    }`}
+                  >
+                    <div>
+                      <p className="text-sm font-medium text-[#ece5d8]">
+                        Priority 24-Hour White-Glove Hand Delivery
+                      </p>
+                      <p className="text-xs text-[#9a948a] mt-0.5">
+                        Dedicated courier with live NFC handoff verification
+                      </p>
+                    </div>
+                    <span className="font-mono text-xs text-[#ece5d8] tabular-nums">+150.000₫</span>
+                  </button>
+                </div>
+
+                <div className="pt-4 border-t border-[#ece5d8]/10 space-y-3">
+                  <span className="block font-mono text-xs uppercase tracking-widest text-[#cfa156]">
+                    Inner Circle Privilege / Voucher Code
+                  </span>
+                  {appliedVoucher ? (
+                    <div className="p-3.5 bg-[#070709] border border-[#cfa156]/60 flex items-center justify-between font-mono text-xs">
+                      <span className="inline-flex items-center gap-2 text-[#cfa156]">
+                        <Tag className="w-4 h-4" /> {appliedVoucher.code} — {appliedVoucher.description}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={removeVoucher}
+                        className="text-[#9a948a] hover:text-[#ece5d8] uppercase text-[10px]"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ) : (
+                    <form onSubmit={handleApplyCoupon} className="flex gap-2">
+                      <input
+                        id="checkout-coupon-input"
+                        type="text"
+                        value={couponInput}
+                        onChange={e => setCouponInput(e.target.value)}
+                        placeholder="Enter ENIGMA15, CULT10, or VAULT500K"
+                        className="flex-1 bg-[#070709] border border-[#ece5d8]/15 px-3.5 py-2.5 font-mono text-xs text-[#ece5d8] uppercase focus:outline-none focus:border-[#cfa156]"
+                      />
+                      <button
+                        type="submit"
+                        className="px-5 py-2.5 border border-[#cfa156] text-[#cfa156] font-mono text-xs uppercase tracking-widest hover:bg-[#cfa156] hover:text-[#070709]"
+                      >
+                        Validate
+                      </button>
+                    </form>
+                  )}
+                </div>
+
+                <div className="flex gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setStep(1)}
+                    className="px-6 py-3.5 border border-[#ece5d8]/20 font-mono text-xs uppercase tracking-widest"
+                  >
+                    ← Back
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setStep(3)}
+                    className="flex-1 py-3.5 bg-[#cfa156] text-[#070709] font-mono text-xs font-semibold uppercase tracking-[0.24em]"
+                  >
+                    Continue to Payment Settlement →
+                  </button>
+                </div>
+              </section>
+            )}
+
+            {step === 3 && (
+              <section className="p-6 md:p-8 bg-[#111115] border border-[#ece5d8]/15 space-y-6">
+                <div className="flex items-center gap-2.5">
+                  <CreditCard className="w-4 h-4 text-[#cfa156]" />
+                  <h2 className="font-display text-2xl">Settlement Protocol</h2>
+                </div>
+
+                <div className="space-y-3">
+                  {[
+                    {
+                      id: 'vnpay' as const,
+                      title: 'VNPay Instant QR / Bank Settlement',
+                      desc: 'Immediate cryptographic settlement with instant Confirmed status.',
+                    },
+                    {
+                      id: 'card' as const,
+                      title: 'Saved Collector Card · Visa Infinite •••• 8842',
+                      desc: '3D-Secure tokenized vault settlement.',
+                    },
+                    {
+                      id: 'cod' as const,
+                      title: 'Cash on Armored Inspection (COD)',
+                      desc: 'Verify NFC provenance tag at your door before settling.',
+                    },
+                  ].map(pm => (
+                    <button
+                      key={pm.id}
+                      type="button"
+                      onClick={() => setPaymentMethod(pm.id)}
+                      className={`w-full p-4 border text-left flex items-start justify-between gap-4 ${
+                        paymentMethod === pm.id
+                          ? 'border-[#cfa156] bg-[#070709]'
+                          : 'border-[#ece5d8]/15 bg-[#070709]/60'
+                      }`}
+                    >
+                      <div>
+                        <p className="text-sm font-medium text-[#ece5d8]">{pm.title}</p>
+                        <p className="text-xs text-[#9a948a] mt-0.5">{pm.desc}</p>
+                      </div>
+                      <CheckCircle2
+                        className={`w-4 h-4 mt-0.5 ${
+                          paymentMethod === pm.id ? 'text-[#cfa156]' : 'text-[#9a948a]/30'
+                        }`}
+                      />
+                    </button>
+                  ))}
+                </div>
+
+                <div className="flex gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setStep(2)}
+                    className="px-6 py-4 border border-[#ece5d8]/20 font-mono text-xs uppercase tracking-widest"
+                  >
+                    ← Back
+                  </button>
+                  <button
+                    id="place-order-submit-btn"
+                    type="button"
+                    disabled={placing}
+                    onClick={() => void handlePlaceOrder()}
+                    className="flex-1 py-4 bg-[#cfa156] text-[#070709] font-mono text-xs font-semibold uppercase tracking-[0.24em] hover:bg-[#dec37b] transition"
+                  >
+                    {placing
+                      ? 'SEALING PROVENANCE ORDER...'
+                      : `AUTHORIZE & SEAL ORDER · ${formatVnd(grandTotal)}`}
+                  </button>
+                </div>
+              </section>
+            )}
+          </div>
+
+          {/* Right Order Manifest */}
+          <aside className="lg:col-span-5">
+            <div className="bg-[#111115] border border-[#ece5d8]/15 p-6 space-y-5 sticky top-28">
+              <h2 className="font-display text-2xl">Allocation Manifest</h2>
+
+              <div className="space-y-3 max-h-72 overflow-y-auto pr-1">
                 {items.map(item => (
-                  <div key={item.id} className="flex justify-between text-sm">
-                    <span className="text-gray-600">{item.name} × {item.quantity}</span>
-                    <span>{(item.price * item.quantity).toLocaleString('vi-VN')} đ</span>
+                  <div key={item.id} className="flex items-center justify-between gap-3 text-xs">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <img
+                        src={item.imageUrl || '/images/enigma/grail-sneaker-obsidian.jpg'}
+                        alt={item.name}
+                        className="w-12 h-14 object-cover bg-[#070709]"
+                      />
+                      <div className="min-w-0">
+                        <p className="text-[#ece5d8] truncate">{item.name}</p>
+                        <p className="font-mono text-[10px] text-[#9a948a]">
+                          Qty {item.quantity} {item.size ? `· ${item.size}` : ''}
+                        </p>
+                      </div>
+                    </div>
+                    <span className="font-mono text-[#ece5d8] tabular-nums">
+                      {formatVnd(item.price * item.quantity)}
+                    </span>
                   </div>
                 ))}
               </div>
-              <div className="flex justify-between text-sm mb-2">
-                <span className="text-gray-500">Tạm tính</span>
-                <span>{total().toLocaleString('vi-VN')} đ</span>
+
+              <div className="space-y-2 pt-4 border-t border-[#ece5d8]/10 font-mono text-xs">
+                <div className="flex justify-between text-[#9a948a]">
+                  <span>SUBTOTAL</span>
+                  <span className="tabular-nums">{formatVnd(sub)}</span>
+                </div>
+                {disc > 0 && (
+                  <div className="flex justify-between text-[#cfa156]">
+                    <span>PRIVILEGE ({appliedVoucher?.code})</span>
+                    <span className="tabular-nums">-{formatVnd(disc)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between text-[#9a948a]">
+                  <span>COURIER</span>
+                  <span className="tabular-nums">
+                    {shippingFee === 0 ? 'FREE' : formatVnd(shippingFee)}
+                  </span>
+                </div>
+                <div className="flex justify-between text-base font-semibold text-[#ece5d8] pt-3 border-t border-[#ece5d8]/10">
+                  <span>GRAND TOTAL</span>
+                  <span className="text-[#cfa156] tabular-nums">{formatVnd(grandTotal)}</span>
+                </div>
               </div>
-              <div className="flex justify-between text-sm mb-4">
-                <span className="text-gray-500">Vận chuyển</span>
-                <span className="text-green-600">Miễn phí</span>
-              </div>
-              <div className="border-t border-gray-200 pt-4 flex justify-between font-bold">
-                <span>Tổng cộng</span>
-                <span>{total().toLocaleString('vi-VN')} đ</span>
+
+              <div className="p-3.5 bg-[#070709] border border-[#ece5d8]/10 flex items-center gap-2.5 font-mono text-[10px] text-[#9a948a] uppercase">
+                <ShieldCheck className="w-4 h-4 text-[#cfa156] flex-shrink-0" />
+                <span>Includes Engraved NFC Provenance Certificate</span>
               </div>
             </div>
-          </div>
+          </aside>
         </div>
       </div>
     </div>

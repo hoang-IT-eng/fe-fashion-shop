@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { api } from '../api/apiClient'
 
-interface User {
+export interface User {
   id: number
   name: string
   email: string
@@ -22,30 +22,41 @@ export const useAuthStore = create<AuthState>((set) => ({
   user: null,
 
   init: () => {
-    const token = localStorage.getItem('accessToken')
-    const raw = localStorage.getItem('user')
-    if (token && raw) {
-      set({ isAuthenticated: true, user: JSON.parse(raw) })
+    try {
+      const token = localStorage.getItem('accessToken')
+      const raw = localStorage.getItem('user')
+      if (token && raw) {
+        set({ isAuthenticated: true, user: JSON.parse(raw) as User })
+      }
+    } catch {
+      set({ isAuthenticated: false, user: null })
     }
   },
 
   login: async (email, password) => {
-    const data = await api.post<{ accessToken: string; user: User }>('/auth/login', { email, password })
+    const data = await api.post<{ accessToken: string; user: User }>('/auth/login', {
+      email,
+      password,
+    })
     localStorage.setItem('accessToken', data.accessToken)
     localStorage.setItem('user', JSON.stringify(data.user))
     set({ isAuthenticated: true, user: data.user })
   },
 
   register: async (name, email, password) => {
-    const data = await api.post<{ message: string }>('/auth/register', { name, email, password })
+    const data = await api.post<{ message: string }>('/auth/register', {
+      name,
+      email,
+      password,
+    })
     return data.message
   },
 
   logout: () => {
-    // Gọi API logout (fire and forget, không cần await)
     const token = localStorage.getItem('accessToken')
-    if (token) {
-      fetch(`${import.meta.env.VITE_API_URL}/auth/logout`, {
+    const baseUrl = (import.meta.env.VITE_API_URL || '').trim().replace(/\/$/, '')
+    if (token && baseUrl && !token.startsWith('enigma-demo-jwt:')) {
+      fetch(`${baseUrl}/auth/logout`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
       }).catch(() => {})

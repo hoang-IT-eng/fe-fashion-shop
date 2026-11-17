@@ -1,149 +1,356 @@
 import React, { useEffect, useState } from 'react'
+import { Download, AlertTriangle, Flame, TrendingUp, Layers } from 'lucide-react'
 import { api } from '../../api/apiClient'
-import { ShoppingBag, Users, Package, TrendingUp, ArrowUpRight, Clock } from 'lucide-react'
-import { Order, OrderStatus } from '../../types/order'
-
-interface Stats {
-  totalRevenue: number
-  totalOrders: number
-  totalProducts: number
-  totalUsers: number
-}
-
-const STATUS_LABEL: Record<OrderStatus, { label: string; color: string; dot: string }> = {
-  pending:   { label: 'Chờ xác nhận', color: 'bg-amber-50 text-amber-700 ring-amber-200', dot: 'bg-amber-500' },
-  confirmed: { label: 'Đã xác nhận',  color: 'bg-blue-50 text-blue-700 ring-blue-200', dot: 'bg-blue-500' },
-  shipping:  { label: 'Đang giao',    color: 'bg-violet-50 text-violet-700 ring-violet-200', dot: 'bg-violet-500' },
-  delivered: { label: 'Đã giao',      color: 'bg-emerald-50 text-emerald-700 ring-emerald-200', dot: 'bg-emerald-500' },
-  cancelled: { label: 'Đã hủy',       color: 'bg-red-50 text-red-700 ring-red-200', dot: 'bg-red-500' },
-}
-
-const STAT_CARDS = [
-  { key: 'totalRevenue',  label: 'Doanh thu',  icon: TrendingUp, gradient: 'from-emerald-500 to-emerald-600', bg: 'bg-emerald-50' },
-  { key: 'totalOrders',   label: 'Đơn hàng',   icon: ShoppingBag, gradient: 'from-blue-500 to-blue-600', bg: 'bg-blue-50' },
-  { key: 'totalProducts', label: 'Sản phẩm',   icon: Package,     gradient: 'from-violet-500 to-violet-600', bg: 'bg-violet-50' },
-  { key: 'totalUsers',    label: 'Khách hàng',  icon: Users,       gradient: 'from-amber-500 to-amber-600', bg: 'bg-amber-50' },
-] as const
+import { ExecutiveDashboardStats } from '../../types/enigma'
+import { formatVnd } from '../../lib/format'
+import { useToast } from '../../components/Toast'
 
 export default function AdminDashboardPage() {
-  const [stats, setStats] = useState<Stats | null>(null)
-  const [orders, setOrders] = useState<Order[]>([])
-  const [loading, setLoading] = useState(true)
+  const { toast } = useToast()
+  const [stats, setStats] = useState<ExecutiveDashboardStats | null>(null)
+  const [hoverIdx, setHoverIdx] = useState<number | null>(null)
 
   useEffect(() => {
-    Promise.all([
-      api.get<Stats>('/dashboard/stats'),
-      api.get<Order[]>('/dashboard/latest-orders'),
-    ]).then(([s, o]) => {
-      setStats(s)
-      setOrders(o)
-    }).catch(() => {})
-      .finally(() => setLoading(false))
+    void api.get<ExecutiveDashboardStats>('/dashboard/executive').then(setStats)
   }, [])
 
-  const formatValue = (key: string, value: number) => {
-    if (key === 'totalRevenue') return `${value?.toLocaleString('vi-VN')} đ`
-    return value?.toLocaleString('vi-VN') ?? '0'
+  const handleExportCsv = () => {
+    if (!stats) return
+    const rows = [
+      ['Date', 'GMV_VND', 'Orders'],
+      ...stats.gmvTimeSeries.map(pt => [pt.date, String(Math.round(pt.gmv)), String(pt.orders)]),
+      [],
+      ['Category', 'Units_Sold', 'Revenue_VND'],
+      ...stats.categoryVelocity.map(c => [c.category, String(c.units), String(Math.round(c.revenue))]),
+    ]
+    const csv = rows.map(r => r.join(',')).join('\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `enigma-executive-gmv-${new Date().toISOString().slice(0, 10)}.csv`
+    link.click()
+    URL.revokeObjectURL(url)
+    toast('Exported Executive GMV & Velocity CSV.', 'success')
   }
 
-  return (
-    <div className="space-y-8">
-      {/* Stats cards */}
-      {loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-32 bg-white rounded-2xl animate-pulse border border-gray-100" />
-          ))}
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
-          {STAT_CARDS.map(({ key, label, icon: Icon, gradient, bg }) => (
-            <div
-              key={key}
-              className="bg-white rounded-2xl p-6 border border-gray-100 hover:shadow-lg hover:shadow-gray-200/50 transition-all duration-300 group"
-            >
-              <div className="flex items-start justify-between mb-4">
-                <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center shadow-lg shadow-${gradient.split('-')[1]}-500/25`}>
-                  <Icon className="w-5 h-5 text-white" />
-                </div>
-                <div className={`p-1.5 rounded-lg ${bg} opacity-0 group-hover:opacity-100 transition-opacity`}>
-                  <ArrowUpRight className="w-3.5 h-3.5" />
-                </div>
-              </div>
-              <p className="text-2xl font-bold text-gray-900 mb-1">
-                {formatValue(key, stats?.[key as keyof Stats] ?? 0)}
-              </p>
-              <p className="text-sm text-gray-500">{label}</p>
-            </div>
-          ))}
-        </div>
-      )}
+  if (!stats) {
+    return (
+      <div className="py-16 font-mono text-xs tracking-[0.26em] text-[#9a948a] uppercase">
+        AGGREGATING VAULT TELEMETRY...
+      </div>
+    )
+  }
 
-      {/* Recent orders */}
-      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-        <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gray-900 flex items-center justify-center">
-              <Clock className="w-4 h-4 text-white" />
-            </div>
-            <div>
-              <h2 className="text-sm font-bold text-gray-900">Đơn hàng gần đây</h2>
-              <p className="text-xs text-gray-400 mt-0.5">Đơn mới nhất từ hệ thống</p>
-            </div>
-          </div>
+  // Build SVG Area Chart coordinates
+  const series = stats.gmvTimeSeries
+  const maxGmv = Math.max(1, ...series.map(d => d.gmv)) * 1.12
+  const chartW = 720
+  const chartH = 220
+  const padX = 24
+  const padY = 22
+
+  const points = series.map((pt, i) => {
+    const x = padX + (i / Math.max(1, series.length - 1)) * (chartW - padX * 2)
+    const y = chartH - padY - (pt.gmv / maxGmv) * (chartH - padY * 2)
+    return { x, y, ...pt }
+  })
+
+  const linePath = points
+    .map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`)
+    .join(' ')
+  const areaPath = `${linePath} L ${points[points.length - 1]?.x.toFixed(1) || 0} ${
+    chartH - padY
+  } L ${points[0]?.x.toFixed(1) || 0} ${chartH - padY} Z`
+
+  return (
+    <div className="space-y-6">
+      {/* Top Action Header */}
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <p className="font-mono text-[10px] tracking-[0.28em] uppercase text-[#cfa156]">
+            EXECUTIVE ANALYTICS · REAL-TIME LEDGER
+          </p>
+          <h2 className="font-display text-2xl md:text-3xl text-[#ece5d8]">
+            Revenue, Velocity &amp; Vault Risk
+          </h2>
         </div>
-        {loading ? (
-          <div className="p-6 space-y-3">
-            {[...Array(3)].map((_, i) => <div key={i} className="h-12 bg-gray-50 rounded-xl animate-pulse" />)}
+
+        <button
+          id="admin-export-csv-btn"
+          type="button"
+          onClick={handleExportCsv}
+          className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#cfa156] text-[#070709] font-mono text-xs font-semibold uppercase tracking-[0.2em] hover:bg-[#dec37b] transition"
+        >
+          <Download className="w-3.5 h-3.5" /> Export Telemetry CSV
+        </button>
+      </div>
+
+      {/* Row 1: SVG Area GMV Chart + Conversion & Order Status Funnel */}
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+        {/* SVG Area GMV Chart */}
+        <section className="xl:col-span-8 bg-[#111115] border border-[#ece5d8]/12 p-6 space-y-4">
+          <div className="flex flex-wrap items-baseline justify-between gap-4">
+            <div>
+              <span className="font-mono text-[10px] uppercase tracking-[0.24em] text-[#9a948a]">
+                7-DAY GROSS MERCHANDISE VOLUME (GMV)
+              </span>
+              <div className="flex items-baseline gap-3 mt-1">
+                <span className="font-mono text-2xl font-semibold text-[#ece5d8] tabular-nums">
+                  {formatVnd(stats.totalRevenue)}
+                </span>
+                <span className="font-mono text-xs text-[#cfa156] inline-flex items-center gap-1 tabular-nums">
+                  <TrendingUp className="w-3.5 h-3.5" /> AOV {formatVnd(stats.averageOrderValue)}
+                </span>
+              </div>
+            </div>
+            {hoverIdx !== null && points[hoverIdx] && (
+              <div className="px-3 py-1.5 bg-[#070709] border border-[#cfa156]/50 font-mono text-xs tabular-nums">
+                <span className="text-[#9a948a] mr-2">{points[hoverIdx].date}:</span>
+                <span className="text-[#cfa156] font-semibold">
+                  {formatVnd(points[hoverIdx].gmv)}
+                </span>
+                <span className="text-[#9a948a] ml-2">({points[hoverIdx].orders} orders)</span>
+              </div>
+            )}
           </div>
-        ) : orders.length === 0 ? (
-          <div className="px-6 py-16 text-center">
-            <ShoppingBag className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-            <p className="text-sm text-gray-400">Chưa có đơn hàng nào</p>
+
+          <div className="w-full overflow-x-auto">
+            <svg
+              viewBox={`0 0 ${chartW} ${chartH}`}
+              className="w-full h-56 select-none"
+              role="img"
+              aria-label="7-Day GMV Area Chart"
+            >
+              <defs>
+                <linearGradient id="enigmaGmvFill" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#cfa156" stopOpacity="0.36" />
+                  <stop offset="100%" stopColor="#cfa156" stopOpacity="0.0" />
+                </linearGradient>
+              </defs>
+
+              {[0.25, 0.5, 0.75].map(r => (
+                <line
+                  key={r}
+                  x1={padX}
+                  x2={chartW - padX}
+                  y1={chartH - padY - r * (chartH - padY * 2)}
+                  y2={chartH - padY - r * (chartH - padY * 2)}
+                  stroke="#ece5d8"
+                  strokeOpacity="0.07"
+                  strokeDasharray="3 4"
+                />
+              ))}
+
+              <path d={areaPath} fill="url(#enigmaGmvFill)" />
+              <path d={linePath} fill="none" stroke="#cfa156" strokeWidth="2.2" />
+
+              {points.map((p, idx) => (
+                <g
+                  key={p.date}
+                  onMouseEnter={() => setHoverIdx(idx)}
+                  onMouseLeave={() => setHoverIdx(null)}
+                  className="cursor-pointer"
+                >
+                  <circle
+                    cx={p.x}
+                    cy={p.y}
+                    r={hoverIdx === idx ? 5.5 : 3.5}
+                    fill="#070709"
+                    stroke="#cfa156"
+                    strokeWidth="2"
+                  />
+                  <text
+                    x={p.x}
+                    y={chartH - 4}
+                    textAnchor="middle"
+                    fill="#9a948a"
+                    fontSize="10"
+                    fontFamily="JetBrains Mono, monospace"
+                  >
+                    {p.date}
+                  </text>
+                </g>
+              ))}
+            </svg>
           </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead>
-                <tr className="border-b border-gray-100">
-                  <th className="px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-400">Mã đơn</th>
-                  <th className="px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-400">Khách hàng</th>
-                  <th className="px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-400">Tổng tiền</th>
-                  <th className="px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-400">Ngày đặt</th>
-                  <th className="px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-400">Trạng thái</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50">
-                {orders.map(o => {
-                  const s = STATUS_LABEL[o.status]
-                  return (
-                    <tr key={o.id} className="hover:bg-gray-50/50 transition-colors">
-                      <td className="px-6 py-4">
-                        <span className="font-semibold text-gray-900">#{o.id}</span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500">
-                            {(o.shippingName?.[0] || '?').toUpperCase()}
-                          </div>
-                          <span className="text-gray-700">{o.shippingName || '—'}</span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 font-semibold text-gray-900">{o.total?.toLocaleString('vi-VN')} đ</td>
-                      <td className="px-6 py-4 text-gray-400 text-xs">{new Date(o.createdAt).toLocaleDateString('vi-VN')}</td>
-                      <td className="px-6 py-4">
-                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full ring-1 ${s?.color}`}>
-                          <span className={`w-1.5 h-1.5 rounded-full ${s?.dot}`} />
-                          {s?.label}
-                        </span>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
+        </section>
+
+        {/* Conversion & Order Status Funnel */}
+        <section className="xl:col-span-4 bg-[#111115] border border-[#ece5d8]/12 p-6 space-y-5">
+          <div>
+            <span className="font-mono text-[10px] uppercase tracking-[0.24em] text-[#cfa156]">
+              FULFILLMENT &amp; CONVERSION FUNNEL
+            </span>
+            <h3 className="font-display text-xl text-[#ece5d8] mt-1">Pipeline Telemetry</h3>
           </div>
-        )}
+
+          <div className="grid grid-cols-3 gap-2 font-mono text-center">
+            <div className="p-2.5 bg-[#070709] border border-[#ece5d8]/10">
+              <span className="block text-base font-semibold text-[#cfa156] tabular-nums">
+                {stats.conversionBreakdown.fulfillmentRate}%
+              </span>
+              <span className="text-[9px] text-[#9a948a] uppercase">Delivered</span>
+            </div>
+            <div className="p-2.5 bg-[#070709] border border-[#ece5d8]/10">
+              <span className="block text-base font-semibold text-[#ece5d8] tabular-nums">
+                {stats.conversionBreakdown.activePipelineRate}%
+              </span>
+              <span className="text-[9px] text-[#9a948a] uppercase">In Transit</span>
+            </div>
+            <div className="p-2.5 bg-[#070709] border border-[#ece5d8]/10">
+              <span className="block text-base font-semibold text-[#9a948a] tabular-nums">
+                {stats.conversionBreakdown.cancellationRate}%
+              </span>
+              <span className="text-[9px] text-[#9a948a] uppercase">Cancelled</span>
+            </div>
+          </div>
+
+          <div className="space-y-3 pt-1">
+            {[
+              { label: 'Pending Vault Reserve', count: stats.ordersByStatus.pending },
+              { label: 'NFC Confirmed', count: stats.ordersByStatus.confirmed },
+              { label: 'Armored Transit', count: stats.ordersByStatus.shipping },
+              { label: 'Collector Signed', count: stats.ordersByStatus.delivered },
+            ].map(row => {
+              const pct = stats.totalOrders
+                ? Math.max(8, Math.round((row.count / stats.totalOrders) * 100))
+                : 15
+              return (
+                <div key={row.label} className="space-y-1 font-mono text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-[#ece5d8]/85">{row.label}</span>
+                    <span className="text-[#cfa156] tabular-nums">{row.count}</span>
+                  </div>
+                  <div className="h-1.5 bg-[#070709]">
+                    <div className="h-full bg-[#cfa156]" style={{ width: `${pct}%` }} />
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </section>
+      </div>
+
+      {/* Row 2: Top Moving Sizes/Colorways Matrix + Category Velocity + Low-Stock SKU Alerts */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Top Moving Sizes & Colorways Matrix */}
+        <section className="lg:col-span-4 bg-[#111115] border border-[#ece5d8]/12 p-6 space-y-5">
+          <div className="flex items-center gap-2">
+            <Layers className="w-4 h-4 text-[#cfa156]" />
+            <h3 className="font-display text-xl text-[#ece5d8]">Size &amp; Chromatic Velocity</h3>
+          </div>
+
+          <div>
+            <span className="block font-mono text-[10px] uppercase tracking-widest text-[#9a948a] mb-2">
+              Fastest Moving Sizes
+            </span>
+            <div className="grid grid-cols-2 gap-2">
+              {stats.sizeVelocity.slice(0, 6).map(sv => (
+                <div
+                  key={sv.size}
+                  className="p-2.5 bg-[#070709] border border-[#ece5d8]/10 flex items-center justify-between font-mono text-xs"
+                >
+                  <span className="text-[#ece5d8]">Size {sv.size}</span>
+                  <span className="text-[#cfa156] tabular-nums">{sv.units}u</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <span className="block font-mono text-[10px] uppercase tracking-widest text-[#9a948a] mb-2">
+              Dominant Finishes / Colorways
+            </span>
+            <div className="space-y-1.5">
+              {stats.colorVelocity.slice(0, 4).map(cv => (
+                <div
+                  key={cv.color}
+                  className="px-3 py-2 bg-[#070709] border border-[#ece5d8]/10 flex items-center justify-between font-mono text-xs"
+                >
+                  <span className="text-[#ece5d8] truncate">{cv.color}</span>
+                  <span className="text-[#cfa156] tabular-nums">{cv.units} units</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Category Revenue Velocity + Auction Heat */}
+        <section className="lg:col-span-4 bg-[#111115] border border-[#ece5d8]/12 p-6 space-y-5">
+          <div className="flex items-center gap-2">
+            <Flame className="w-4 h-4 text-[#cfa156]" />
+            <h3 className="font-display text-xl text-[#ece5d8]">Capsule &amp; Auction Heat</h3>
+          </div>
+
+          <div className="space-y-2">
+            {stats.categoryVelocity.slice(0, 5).map(cat => (
+              <div
+                key={cat.category}
+                className="p-2.5 bg-[#070709] border border-[#ece5d8]/10 flex items-center justify-between font-mono text-xs"
+              >
+                <div>
+                  <span className="text-[#ece5d8]">{cat.category}</span>
+                  <span className="text-[#9a948a] ml-2">({cat.units}u)</span>
+                </div>
+                <span className="text-[#cfa156] tabular-nums">{formatVnd(cat.revenue)}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="p-3.5 bg-[#070709] border border-[#cfa156]/35 space-y-1.5 font-mono text-xs">
+            <div className="flex justify-between">
+              <span className="text-[#9a948a]">LIVE AUCTION BOOK</span>
+              <span className="text-[#cfa156] tabular-nums">
+                {stats.auctionHeat.liveCount} LOTS · {stats.auctionHeat.totalBids} BIDS
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-[#9a948a]">ACTIVE BID VOLUME</span>
+              <span className="text-[#ece5d8] font-semibold tabular-nums">
+                {formatVnd(stats.auctionHeat.activeAuctionValue)}
+              </span>
+            </div>
+          </div>
+        </section>
+
+        {/* Low-Stock SKU Alerts */}
+        <section className="lg:col-span-4 bg-[#111115] border border-[#ece5d8]/12 p-6 space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-[#cfa156]" />
+              <h3 className="font-display text-xl text-[#ece5d8]">Low-Stock SKU Alerts</h3>
+            </div>
+            <span className="font-mono text-xs text-[#cfa156] tabular-nums">
+              {stats.lowStockSkus.length} SKUS ≤ 3
+            </span>
+          </div>
+
+          <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
+            {stats.lowStockSkus.map(sku => (
+              <div
+                key={sku.variantId}
+                className="p-3 bg-[#070709] border border-[#ece5d8]/10 flex items-center justify-between gap-3"
+              >
+                <div className="min-w-0">
+                  <p className="text-xs text-[#ece5d8] truncate">{sku.productName}</p>
+                  <p className="font-mono text-[10px] text-[#9a948a]">
+                    {sku.sku} · {sku.size || 'OS'}
+                  </p>
+                </div>
+                <span
+                  className={`px-2 py-1 font-mono text-[10px] tabular-nums border ${
+                    sku.stock <= 1
+                      ? 'border-red-500/50 text-red-300 bg-red-950/30'
+                      : 'border-[#cfa156]/50 text-[#cfa156]'
+                  }`}
+                >
+                  {sku.stock} LEFT
+                </span>
+              </div>
+            ))}
+          </div>
+        </section>
       </div>
     </div>
   )

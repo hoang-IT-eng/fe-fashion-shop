@@ -1,63 +1,107 @@
-const BASE_URL = import.meta.env.VITE_API_URL
+import { demoHandleRequest } from './enigmaDemoEngine'
+
+const RAW_BASE_URL = (import.meta.env.VITE_API_URL || '').trim().replace(/\/$/, '')
 
 function handleUnauthorized() {
   localStorage.removeItem('accessToken')
   localStorage.removeItem('user')
-  // Redirect về /auth nếu chưa ở đó
-  if (!window.location.pathname.startsWith('/auth')) {
+  if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/auth')) {
     window.location.href = '/auth'
   }
 }
 
+function isDemoToken(token: string | null): boolean {
+  return Boolean(token && token.startsWith('enigma-demo-jwt:'))
+}
+
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = localStorage.getItem('accessToken')
+  const method = (options.method || 'GET').toUpperCase()
+  const parsedBody =
+    typeof options.body === 'string' && options.body.length > 0
+      ? JSON.parse(options.body)
+      : undefined
 
-  const res = await fetch(`${BASE_URL}${path}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options.headers,
-    },
-  })
-
-  const data = await res.json()
-
-  if (res.status === 401) {
-    handleUnauthorized()
-    throw new Error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.')
+  // If no live backend URL is configured or current session is a local demo session, use resilient demo engine directly
+  if (!RAW_BASE_URL || isDemoToken(token)) {
+    return demoHandleRequest<T>(method, path, parsedBody, token)
   }
 
-  if (!res.ok) {
-    const message = Array.isArray(data.message) ? data.message[0] : data.message
-    throw new Error(message || 'Có lỗi xảy ra')
-  }
+  try {
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 3200)
 
-  return data
+    const res = await fetch(`${RAW_BASE_URL}${path}`, {
+      ...options,
+      signal: controller.signal,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...options.headers,
+      },
+    })
+    clearTimeout(timeoutId)
+
+    const data = await res.json().catch(() => ({}))
+
+    if (res.status === 401) {
+      handleUnauthorized()
+      throw new Error('Session expired. Please sign in again.')
+    }
+
+    if (!res.ok) {
+      const message = Array.isArray(data.message) ? data.message[0] : data.message
+      throw new Error(message || 'Request failed')
+    }
+
+    return data as T
+  } catch (err) {
+    // Preserve explicit 4xx validation errors from live API, but fall back seamlessly on network/offline errors
+    if (
+      err instanceof Error &&
+      !(err.name === 'AbortError' || err instanceof TypeError || /fetch|network|failed to fetch/i.test(err.message))
+    ) {
+      throw err
+    }
+    return demoHandleRequest<T>(method, path, parsedBody, token)
+  }
 }
 
 export const api = {
   get: <T>(path: string) => request<T>(path),
-  post: <T>(path: string, body: unknown) => request<T>(path, { method: 'POST', body: JSON.stringify(body) }),
-  put: <T>(path: string, body: unknown) => request<T>(path, { method: 'PUT', body: JSON.stringify(body) }),
-  patch: <T>(path: string, body: unknown) => request<T>(path, { method: 'PATCH', body: JSON.stringify(body) }),
+  post: <T>(path: string, body: unknown) =>
+    request<T>(path, { method: 'POST', body: JSON.stringify(body) }),
+  put: <T>(path: string, body: unknown) =>
+    request<T>(path, { method: 'PUT', body: JSON.stringify(body) }),
+  patch: <T>(path: string, body: unknown) =>
+    request<T>(path, { method: 'PATCH', body: JSON.stringify(body) }),
   delete: <T>(path: string) => request<T>(path, { method: 'DELETE' }),
 
-  // Upload ảnh — KHÔNG set Content-Type, browser tự xử lý multipart
   upload: async (file: File): Promise<{ url: string; publicId: string }> => {
     const token = localStorage.getItem('accessToken')
-    const formData = new FormData()
-    formData.append('file', file)
+    if (!RAW_BASE_URL || isDemoToken(token)) {
+      const localUrl = URL.createObjectURL(file)
+      return { url: localUrl, publicId: `enigma-local-${Date.now()}` }
+    }
 
-    const res = await fetch(`${BASE_URL}/products/upload`, {
-      method: 'POST',
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-      body: formData,
-    })
-
-    const data = await res.json()
-    if (res.status === 401) { handleUnauthorized(); throw new Error('Phiên đăng nhập đã hết hạn.') }
-    if (!res.ok) throw new Error(data.message || 'Upload thất bại')
-    return data
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      const res = await fetch(`${RAW_BASE_URL}/products/upload`, {
+        method: 'POST',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        body: formData,
+      })
+      const data = await res.json()
+      if (res.status === 401) {
+        handleUnauthorized()
+        throw new Error('Session expired.')
+      }
+      if (!res.ok) throw new Error(data.message || 'Upload failed')
+      return data
+    } catch {
+      const localUrl = URL.createObjectURL(file)
+      return { url: localUrl, publicId: `enigma-local-${Date.now()}` }
+    }
   },
 }

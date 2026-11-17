@@ -1,331 +1,380 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useEffect, useState } from 'react'
+import { Plus, Edit3, Layers, Trash2, X } from 'lucide-react'
 import { api } from '../../api/apiClient'
-import { Product, ProductsResponse, ProductForm } from '../../types/product'
-import { X, ImagePlus, Search, Package, Plus, Filter } from 'lucide-react'
-import { useToast } from '../../components/Toast'
-import { useCategoryStore } from '../../store/useCategoryStore'
-import ConfirmDialog from '../../components/ConfirmDialog'
+import { Product } from '../../types/product'
+import { formatVnd } from '../../lib/format'
 import AdminVariantsModal from './AdminVariantsModal'
-
-const EMPTY_FORM: ProductForm = {
-  name: '', price: '', stock: '', category: '',
-  description: '', imageUrl: '', sizes: '', colors: '', isActive: true,
-}
+import { useToast } from '../../components/Toast'
 
 export default function AdminProductsTab() {
-  const [products, setProducts] = useState<Product[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
-  const [showModal, setShowModal] = useState(false)
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null)
-  const [form, setForm] = useState<ProductForm>(EMPTY_FORM)
-  const [saving, setSaving] = useState(false)
-  const [formError, setFormError] = useState('')
-  const [imageFile, setImageFile] = useState<File | null>(null)
-  const [imagePreview, setImagePreview] = useState('')
-  const [uploading, setUploading] = useState(false)
-  const [confirmId, setConfirmId] = useState<number | null>(null)
-  const [search, setSearch] = useState('')
-  const [filterCategory, setFilterCategory] = useState('')
-  const [variantsProduct, setVariantsProduct] = useState<Product | null>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
-
   const { toast } = useToast()
-  const { categories, fetch: fetchCategories } = useCategoryStore()
+  const [products, setProducts] = useState<Product[]>([])
+  const [drawerOpen, setDrawerOpen] = useState(false)
+  const [editing, setEditing] = useState<Product | null>(null)
+  const [variantProduct, setVariantProduct] = useState<Product | null>(null)
 
-  useEffect(() => { fetchProducts(); fetchCategories() }, [])
+  // Form fields
+  const [name, setName] = useState('')
+  const [brand, setBrand] = useState('ENIGMA ATELIER')
+  const [releaseType, setReleaseType] = useState<'grail' | 'reborn' | 'archive' | 'drop'>('grail')
+  const [condition, setCondition] = useState('Deadstock · Vault Sealed')
+  const [category, setCategory] = useState('Outerwear')
+  const [price, setPrice] = useState(9500000)
+  const [stock, setStock] = useState(12)
+  const [imageUrl, setImageUrl] = useState('/images/enigma/grail-leather-bomber.jpg')
+  const [sizesText, setSizesText] = useState('S, M, L, XL')
+  const [colorsText, setColorsText] = useState('Obsidian')
+  const [description, setDescription] = useState('')
 
-  const fetchProducts = async () => {
-    try {
-      setLoading(true)
-      const res = await api.get<ProductsResponse>('/products?limit=100')
-      setProducts(res.data)
-    } catch (err: any) {
-      setError(err.message)
-    } finally {
-      setLoading(false)
-    }
+  const loadProducts = async () => {
+    const res = await api.get<{ data: Product[] }>('/products?limit=60&includeInactive=true')
+    setProducts(Array.isArray(res?.data) ? res.data : [])
   }
 
+  useEffect(() => {
+    void loadProducts()
+  }, [])
+
   const openCreate = () => {
-    setEditingProduct(null); setForm(EMPTY_FORM)
-    setImageFile(null); setImagePreview(''); setFormError(''); setShowModal(true)
+    setEditing(null)
+    setName('')
+    setBrand('ENIGMA ATELIER')
+    setReleaseType('grail')
+    setCondition('Deadstock · Vault Sealed')
+    setCategory('Outerwear')
+    setPrice(9500000)
+    setStock(12)
+    setImageUrl('/images/enigma/grail-leather-bomber.jpg')
+    setSizesText('S, M, L, XL')
+    setColorsText('Obsidian')
+    setDescription('')
+    setDrawerOpen(true)
   }
 
   const openEdit = (p: Product) => {
-    setEditingProduct(p)
-    setForm({ name: p.name, price: parseFloat(p.price), stock: p.stock, category: p.category,
-      description: p.description || '', imageUrl: p.imageUrl || '',
-      sizes: p.sizes?.join(', ') || '', colors: p.colors?.join(', ') || '', isActive: p.isActive })
-    setImageFile(null); setImagePreview(p.imageUrl || ''); setFormError(''); setShowModal(true)
-  }
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    setImageFile(file)
-    setImagePreview(URL.createObjectURL(file))
+    setEditing(p)
+    setName(p.name)
+    setBrand(p.brand || 'ENIGMA ATELIER')
+    setReleaseType(
+      (p.releaseType as 'grail' | 'reborn' | 'archive' | 'drop') || 'drop'
+    )
+    setCondition(p.condition || 'Deadstock')
+    setCategory(p.category || 'Outerwear')
+    setPrice(Number(p.price))
+    setStock(p.stock)
+    setImageUrl(p.imageUrl || '/images/enigma/grail-leather-bomber.jpg')
+    setSizesText((p.sizes || []).join(', '))
+    setColorsText((p.colors || []).join(', '))
+    setDescription(p.description || '')
+    setDrawerOpen(true)
   }
 
   const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault(); setSaving(true); setFormError('')
+    e.preventDefault()
+    const payload = {
+      name,
+      brand,
+      releaseType,
+      condition,
+      category,
+      price: Number(price),
+      stock: Number(stock),
+      imageUrl,
+      sizes: sizesText
+        .split(',')
+        .map(s => s.trim())
+        .filter(Boolean),
+      colors: colorsText
+        .split(',')
+        .map(s => s.trim())
+        .filter(Boolean),
+      description,
+    }
     try {
-      let imageUrl = form.imageUrl
-      if (imageFile) {
-        setUploading(true)
-        const res = await api.upload(imageFile)
-        imageUrl = res.url
-        setUploading(false)
+      if (editing) {
+        await api.put(`/products/${editing.id}`, payload)
+        toast(`Updated "${name}".`, 'success')
+      } else {
+        await api.post('/products', payload)
+        toast(`Cataloged "${name}" into ENIGMA Vault.`, 'success')
       }
-      const body = { ...form, imageUrl, price: Number(form.price), stock: Number(form.stock),
-        sizes: form.sizes ? form.sizes.split(',').map(s => s.trim()).filter(Boolean) : [],
-        colors: form.colors ? form.colors.split(',').map(s => s.trim()).filter(Boolean) : [] }
-      if (editingProduct) await api.put(`/products/${editingProduct.id}`, body)
-      else await api.post('/products', body)
-      setShowModal(false)
-      fetchProducts()
-      toast(editingProduct ? 'Cập nhật sản phẩm thành công' : 'Thêm sản phẩm thành công')
+      setDrawerOpen(false)
+      await loadProducts()
     } catch (err: any) {
-      setFormError(err.message); setUploading(false)
-    } finally {
-      setSaving(false)
+      toast(err?.message || 'Save failed', 'error')
     }
   }
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (p: Product) => {
     try {
-      await api.delete(`/products/${id}`)
-      setProducts(prev => prev.filter(p => p.id !== id))
-      toast('Đã xóa sản phẩm')
-    } catch (err: any) { toast(err.message, 'error') }
+      await api.delete(`/products/${p.id}`)
+      toast(`Removed "${p.name}".`, 'info')
+      await loadProducts()
+    } catch (err: any) {
+      toast(err?.message || 'Delete failed', 'error')
+    }
   }
-
-  const filtered = products.filter(p => {
-    const matchSearch = !search
-      || p.name.toLowerCase().includes(search.toLowerCase())
-      || String(p.id).includes(search)
-    const matchCategory = !filterCategory || p.category === filterCategory
-    return matchSearch && matchCategory
-  })
 
   return (
     <div className="space-y-6">
-      {/* Header + Actions */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <span className="text-sm text-gray-400">{filtered.length}/{products.length} sản phẩm</span>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <p className="font-mono text-[10px] tracking-[0.28em] uppercase text-[#cfa156]">
+            ARCHIVE CATALOG &amp; SKU MATRIX
+          </p>
+          <h2 className="font-display text-2xl md:text-3xl text-[#ece5d8]">
+            Authenticated Pieces ({products.length})
+          </h2>
         </div>
         <button
+          id="admin-new-product-btn"
+          type="button"
           onClick={openCreate}
-          className="inline-flex items-center gap-2 bg-gray-900 text-white px-5 py-2.5 text-sm font-semibold rounded-xl hover:bg-gray-800 transition-all shadow-lg shadow-gray-900/20"
+          className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#cfa156] text-[#070709] font-mono text-xs font-semibold uppercase tracking-[0.2em]"
         >
-          <Plus className="w-4 h-4" /> Thêm sản phẩm
+          <Plus className="w-4 h-4" /> New Archive Piece
         </button>
       </div>
 
-      {error && <p className="text-red-500 text-sm bg-red-50 px-4 py-3 rounded-xl">{error}</p>}
-
-      {/* Search + Filter */}
-      <div className="flex flex-wrap gap-3">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Tìm theo tên hoặc ID..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:border-gray-900 focus:ring-1 focus:ring-gray-900 focus:outline-none transition"
-          />
-        </div>
-        <div className="relative">
-          <Filter className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-          <select
-            value={filterCategory}
-            onChange={e => setFilterCategory(e.target.value)}
-            className="pl-10 pr-8 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:border-gray-900 focus:ring-1 focus:ring-gray-900 focus:outline-none transition appearance-none cursor-pointer"
-          >
-            <option value="">Tất cả danh mục</option>
-            {categories.map(c => (
-              <option key={c.id} value={c.slug}>{c.name}</option>
-            ))}
-          </select>
-        </div>
-        {(search || filterCategory) && (
-          <button onClick={() => { setSearch(''); setFilterCategory('') }}
-            className="text-xs text-gray-400 hover:text-gray-900 transition px-3 py-2.5 rounded-xl hover:bg-gray-100">
-            Xóa bộ lọc
-          </button>
-        )}
-      </div>
-
-      {/* Table */}
-      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr className="border-b border-gray-100">
-                <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-gray-400">ID</th>
-                <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-gray-400">Sản phẩm</th>
-                <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-gray-400">Danh mục</th>
-                <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-gray-400">Giá bán</th>
-                <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-gray-400">Trạng thái</th>
-                <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-gray-400 text-right">Thao tác</th>
+      {/* High-Density Product Table */}
+      <div className="bg-[#111115] border border-[#ece5d8]/12 overflow-x-auto">
+        <table className="w-full text-left border-collapse">
+          <thead>
+            <tr className="border-b border-[#ece5d8]/10 font-mono text-[10px] uppercase tracking-[0.22em] text-[#9a948a]">
+              <th className="py-3.5 px-4">Piece</th>
+              <th className="py-3.5 px-4">Tier / House</th>
+              <th className="py-3.5 px-4">Price</th>
+              <th className="py-3.5 px-4">SKU Variants</th>
+              <th className="py-3.5 px-4 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-[#ece5d8]/10 text-xs">
+            {products.map(p => (
+              <tr key={p.id} className="hover:bg-[#1c1d24]/40 transition">
+                <td className="py-3 px-4">
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={p.imageUrl || '/images/enigma/grail-sneaker-obsidian.jpg'}
+                      alt={p.name}
+                      className="w-11 h-14 object-cover bg-[#070709] border border-[#ece5d8]/10"
+                    />
+                    <div>
+                      <p className="font-medium text-[#ece5d8]">{p.name}</p>
+                      <p className="font-mono text-[10px] text-[#9a948a]">
+                        {p.authenticityCode || `ENG-00${p.id}`} · {p.category}
+                      </p>
+                    </div>
+                  </div>
+                </td>
+                <td className="py-3 px-4 font-mono">
+                  <span className="px-2 py-0.5 bg-[#070709] border border-[#cfa156]/40 text-[#cfa156] text-[10px] uppercase">
+                    {p.releaseType || 'drop'}
+                  </span>
+                  <span className="block text-[10px] text-[#9a948a] mt-1">{p.brand}</span>
+                </td>
+                <td className="py-3 px-4 font-mono text-[#ece5d8] tabular-nums">
+                  {formatVnd(p.price)}
+                </td>
+                <td className="py-3 px-4 font-mono">
+                  <button
+                    type="button"
+                    onClick={() => setVariantProduct(p)}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#070709] border border-[#ece5d8]/15 hover:border-[#cfa156] text-[#ece5d8] tabular-nums"
+                  >
+                    <Layers className="w-3 h-3 text-[#cfa156]" />
+                    {(p.variants || []).length} SKUs · {p.stock}u
+                  </button>
+                </td>
+                <td className="py-3 px-4 text-right space-x-2">
+                  <button
+                    type="button"
+                    onClick={() => openEdit(p)}
+                    className="p-2 border border-[#ece5d8]/15 hover:border-[#cfa156] text-[#ece5d8]"
+                    title="Edit Piece"
+                  >
+                    <Edit3 className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => void handleDelete(p)}
+                    className="p-2 border border-[#ece5d8]/15 hover:border-red-400 text-[#9a948a] hover:text-red-300"
+                    title="Delete Piece"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </td>
               </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50">
-              {loading ? (
-                <tr><td colSpan={6} className="px-6 py-16 text-center text-gray-400">Đang tải...</td></tr>
-              ) : filtered.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="px-6 py-16 text-center">
-                    <Package className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-                    <p className="text-sm text-gray-400">
-                      {(search || filterCategory) ? 'Không tìm thấy sản phẩm nào' : 'Chưa có sản phẩm nào'}
-                    </p>
-                  </td>
-                </tr>
-              ) : filtered.map(p => (
-                <tr key={p.id} className="hover:bg-gray-50/50 transition-colors group">
-                  <td className="px-6 py-4 font-semibold text-gray-400">#{p.id}</td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      {p.imageUrl
-                        ? <img src={p.imageUrl} alt={p.name} className="w-10 h-10 object-cover rounded-lg bg-gray-100 flex-shrink-0" />
-                        : <div className="w-10 h-10 bg-gray-100 rounded-lg flex-shrink-0" />}
-                      <span className="font-medium text-gray-900">{p.name}</span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    {p.category
-                      ? <span className="px-2.5 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded-lg">{p.category}</span>
-                      : <span className="text-gray-400">—</span>}
-                  </td>
-                  <td className="px-6 py-4 font-semibold text-gray-900">{Number(p.price).toLocaleString('vi-VN')} đ</td>
-                  <td className="px-6 py-4">
-                    {p.stock > 5
-                      ? <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 text-emerald-700 text-xs font-semibold rounded-full ring-1 ring-emerald-200"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />Còn hàng</span>
-                      : p.stock > 0
-                      ? <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-amber-50 text-amber-700 text-xs font-semibold rounded-full ring-1 ring-amber-200"><span className="w-1.5 h-1.5 rounded-full bg-amber-500" />Sắp hết</span>
-                      : <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-red-50 text-red-700 text-xs font-semibold rounded-full ring-1 ring-red-200"><span className="w-1.5 h-1.5 rounded-full bg-red-500" />Hết hàng</span>}
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex items-center justify-end gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
-                      <button onClick={() => openEdit(p)} className="px-3 py-1.5 text-xs font-semibold text-blue-600 hover:bg-blue-50 rounded-lg transition">Sửa</button>
-                      <button onClick={() => setVariantsProduct(p)} className="px-3 py-1.5 text-xs font-semibold text-violet-600 hover:bg-violet-50 rounded-lg transition">Biến thể</button>
-                      <button onClick={() => setConfirmId(p.id)} className="px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50 rounded-lg transition">Xóa</button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </table>
       </div>
 
-      {/* Create/Edit Modal */}
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white flex items-center justify-between px-6 py-5 border-b border-gray-100 z-10">
-              <h2 className="text-lg font-bold text-gray-900">{editingProduct ? 'Sửa sản phẩm' : 'Thêm sản phẩm mới'}</h2>
-              <button onClick={() => setShowModal(false)} className="p-2 hover:bg-gray-100 rounded-xl transition">
-                <X className="w-5 h-5 text-gray-400" />
+      {/* Slide-Over Drawer Editor */}
+      {drawerOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-[110] flex justify-end bg-black/75 backdrop-blur-sm"
+          onClick={() => setDrawerOpen(false)}
+        >
+          <form
+            onClick={e => e.stopPropagation()}
+            onSubmit={handleSave}
+            className="w-full max-w-lg bg-[#111115] border-l border-[#cfa156]/40 h-full overflow-y-auto p-6 md:p-8 space-y-5 text-[#ece5d8]"
+          >
+            <div className="flex items-center justify-between pb-4 border-b border-[#ece5d8]/10">
+              <h3 className="font-display text-2xl">
+                {editing ? 'Edit Archive Dossier' : 'Catalog New Archive Piece'}
+              </h3>
+              <button
+                type="button"
+                onClick={() => setDrawerOpen(false)}
+                className="text-[#9a948a] hover:text-[#ece5d8]"
+              >
+                <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="p-6">
-              {formError && <p className="text-red-500 text-sm bg-red-50 px-4 py-3 rounded-xl mb-4">{formError}</p>}
-              <form onSubmit={handleSave} className="space-y-5">
-                {/* Image upload */}
-                <div>
-                  <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-gray-400">Hình ảnh</label>
-                  <div onClick={() => fileInputRef.current?.click()}
-                    className="relative w-full h-44 border-2 border-dashed border-gray-200 rounded-2xl flex items-center justify-center cursor-pointer hover:border-gray-400 transition overflow-hidden group">
-                    {imagePreview
-                      ? <img src={imagePreview} alt="preview" className="w-full h-full object-cover group-hover:opacity-90 transition" />
-                      : <div className="flex flex-col items-center gap-2 text-gray-400"><ImagePlus className="w-8 h-8" /><span className="text-xs">Nhấn để chọn ảnh</span></div>}
-                    {uploading && <div className="absolute inset-0 bg-black/40 flex items-center justify-center rounded-2xl"><span className="text-white text-sm font-medium">Đang upload...</span></div>}
-                  </div>
-                  <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
-                  {imagePreview && (
-                    <button type="button" onClick={() => { setImageFile(null); setImagePreview(''); setForm(p => ({ ...p, imageUrl: '' })) }}
-                      className="mt-2 text-xs text-red-500 hover:text-red-700 transition">
-                      Xóa ảnh
-                    </button>
-                  )}
-                </div>
+            {imageUrl && (
+              <img
+                src={imageUrl}
+                alt="Preview"
+                className="w-full h-48 object-cover border border-[#ece5d8]/15 bg-[#070709]"
+              />
+            )}
 
-                {[
-                  { label: 'Tên sản phẩm *', key: 'name', type: 'text', required: true },
-                  { label: 'Giá (VNĐ) *', key: 'price', type: 'number', required: true },
-                  { label: 'Tồn kho', key: 'stock', type: 'number' },
-                  { label: 'Sizes (cách nhau bằng dấu phẩy)', key: 'sizes', type: 'text' },
-                  { label: 'Màu sắc (cách nhau bằng dấu phẩy)', key: 'colors', type: 'text' },
-                ].map(({ label, key, type, required }) => (
-                  <div key={key}>
-                    <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-gray-400">{label}</label>
-                    <input type={type} value={form[key as keyof ProductForm] as string}
-                      onChange={e => setForm(prev => ({ ...prev, [key]: e.target.value }))}
-                      required={required}
-                      className="w-full border border-gray-200 p-3 text-sm rounded-xl focus:border-gray-900 focus:ring-1 focus:ring-gray-900 focus:outline-none transition" />
-                  </div>
-                ))}
-
-                <div>
-                  <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-gray-400">Danh mục</label>
-                  <select value={form.category} onChange={e => setForm(prev => ({ ...prev, category: e.target.value }))}
-                    className="w-full border border-gray-200 p-3 text-sm rounded-xl focus:border-gray-900 focus:ring-1 focus:ring-gray-900 focus:outline-none transition appearance-none cursor-pointer">
-                    <option value="">-- Chọn danh mục --</option>
-                    {categories.map(c => (
-                      <option key={c.id} value={c.slug}>{c.name}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-gray-400">Mô tả</label>
-                  <textarea value={form.description} onChange={e => setForm(prev => ({ ...prev, description: e.target.value }))}
-                    rows={3} className="w-full border border-gray-200 p-3 text-sm rounded-xl focus:border-gray-900 focus:ring-1 focus:ring-gray-900 focus:outline-none transition resize-none" />
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <input type="checkbox" id="isActive" checked={form.isActive} onChange={e => setForm(prev => ({ ...prev, isActive: e.target.checked }))}
-                    className="w-4 h-4 rounded border-gray-300 text-gray-900 focus:ring-gray-900" />
-                  <label htmlFor="isActive" className="text-sm text-gray-700">Đang bán</label>
-                </div>
-
-                <div className="flex gap-3 pt-2">
-                  <button type="button" onClick={() => setShowModal(false)}
-                    className="flex-1 border border-gray-200 py-3 text-sm font-semibold rounded-xl hover:bg-gray-50 transition">
-                    Hủy
-                  </button>
-                  <button type="submit" disabled={saving || uploading}
-                    className="flex-1 bg-gray-900 text-white py-3 text-sm font-semibold rounded-xl hover:bg-gray-800 transition disabled:opacity-50 shadow-lg shadow-gray-900/20">
-                    {uploading ? 'Đang upload...' : saving ? 'Đang lưu...' : 'Lưu'}
-                  </button>
-                </div>
-              </form>
+            <div>
+              <label className="block font-mono text-[10px] uppercase tracking-widest text-[#9a948a] mb-1">
+                Title
+              </label>
+              <input
+                type="text"
+                required
+                value={name}
+                onChange={e => setName(e.target.value)}
+                className="w-full bg-[#070709] border border-[#ece5d8]/15 px-3 py-2 text-xs text-[#ece5d8]"
+              />
             </div>
-          </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block font-mono text-[10px] uppercase tracking-widest text-[#9a948a] mb-1">
+                  Atelier / Brand
+                </label>
+                <input
+                  type="text"
+                  value={brand}
+                  onChange={e => setBrand(e.target.value)}
+                  className="w-full bg-[#070709] border border-[#ece5d8]/15 px-3 py-2 text-xs text-[#ece5d8]"
+                />
+              </div>
+              <div>
+                <label className="block font-mono text-[10px] uppercase tracking-widest text-[#9a948a] mb-1">
+                  Release Tier
+                </label>
+                <select
+                  value={releaseType}
+                  onChange={e => setReleaseType(e.target.value as any)}
+                  className="w-full bg-[#070709] border border-[#ece5d8]/15 px-3 py-2 font-mono text-xs text-[#ece5d8]"
+                >
+                  <option value="grail">Grail Allocation</option>
+                  <option value="reborn">Reborn 1-of-12</option>
+                  <option value="archive">Vault Archive</option>
+                  <option value="drop">Limited Drop</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block font-mono text-[10px] uppercase tracking-widest text-[#9a948a] mb-1">
+                  Price (VND)
+                </label>
+                <input
+                  type="number"
+                  required
+                  value={price}
+                  onChange={e => setPrice(Number(e.target.value))}
+                  className="w-full bg-[#070709] border border-[#ece5d8]/15 px-3 py-2 font-mono text-xs text-[#ece5d8] tabular-nums"
+                />
+              </div>
+              <div>
+                <label className="block font-mono text-[10px] uppercase tracking-widest text-[#9a948a] mb-1">
+                  Category
+                </label>
+                <input
+                  type="text"
+                  value={category}
+                  onChange={e => setCategory(e.target.value)}
+                  className="w-full bg-[#070709] border border-[#ece5d8]/15 px-3 py-2 text-xs text-[#ece5d8]"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block font-mono text-[10px] uppercase tracking-widest text-[#9a948a] mb-1">
+                Image URL
+              </label>
+              <input
+                type="text"
+                value={imageUrl}
+                onChange={e => setImageUrl(e.target.value)}
+                className="w-full bg-[#070709] border border-[#ece5d8]/15 px-3 py-2 font-mono text-xs text-[#ece5d8]"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block font-mono text-[10px] uppercase tracking-widest text-[#9a948a] mb-1">
+                  Sizes (comma-separated)
+                </label>
+                <input
+                  type="text"
+                  value={sizesText}
+                  onChange={e => setSizesText(e.target.value)}
+                  className="w-full bg-[#070709] border border-[#ece5d8]/15 px-3 py-2 font-mono text-xs text-[#ece5d8]"
+                />
+              </div>
+              <div>
+                <label className="block font-mono text-[10px] uppercase tracking-widest text-[#9a948a] mb-1">
+                  Colorways
+                </label>
+                <input
+                  type="text"
+                  value={colorsText}
+                  onChange={e => setColorsText(e.target.value)}
+                  className="w-full bg-[#070709] border border-[#ece5d8]/15 px-3 py-2 font-mono text-xs text-[#ece5d8]"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block font-mono text-[10px] uppercase tracking-widest text-[#9a948a] mb-1">
+                Provenance Description
+              </label>
+              <textarea
+                rows={4}
+                value={description}
+                onChange={e => setDescription(e.target.value)}
+                className="w-full bg-[#070709] border border-[#ece5d8]/15 p-3 text-xs text-[#ece5d8]"
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="w-full py-3.5 bg-[#cfa156] text-[#070709] font-mono text-xs font-semibold uppercase tracking-[0.22em]"
+            >
+              {editing ? 'Save Changes' : 'Publish Archive Piece'}
+            </button>
+          </form>
         </div>
       )}
 
-      <ConfirmDialog
-        open={confirmId !== null}
-        title="Xóa sản phẩm"
-        message="Bạn có chắc muốn xóa sản phẩm này? Hành động này không thể hoàn tác."
-        confirmLabel="Xóa"
-        onConfirm={() => { if (confirmId) handleDelete(confirmId); setConfirmId(null) }}
-        onCancel={() => setConfirmId(null)}
+      <AdminVariantsModal
+        product={variantProduct}
+        onClose={() => setVariantProduct(null)}
+        onUpdated={() => void loadProducts()}
       />
-
-      {variantsProduct && (
-        <AdminVariantsModal
-          productId={variantsProduct.id}
-          productName={variantsProduct.name}
-          onClose={() => setVariantsProduct(null)}
-        />
-      )}
     </div>
   )
 }

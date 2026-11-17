@@ -1,343 +1,660 @@
-import React, { useEffect, useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
-import { Star } from 'lucide-react'
-import { useCartStore } from '../store/useCartStore'
-import { useAuthStore } from '../store/useAuthStore'
+import React, { useEffect, useMemo, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
+import {
+  ShieldCheck,
+  Ruler,
+  Heart,
+  ShoppingBag,
+  Star,
+  X,
+  Check,
+  Plus,
+  Minus,
+} from 'lucide-react'
 import { api } from '../api/apiClient'
-import { Product, ProductsResponse } from '../types/product'
-import { ProductVariant } from '../types/variant'
+import { Product } from '../types/product'
+import { ReviewItem } from '../types/enigma'
+import { formatVnd } from '../lib/format'
+import { useCartStore } from '../store/useCartStore'
+import { useWishlistStore } from '../store/useWishlistStore'
+import { useAuthStore } from '../store/useAuthStore'
 import Breadcrumb from '../components/Breadcrumb'
-import Footer from '../components/Footer'
 import ProductCard from '../components/ProductCard'
 import { useToast } from '../components/Toast'
 
-interface Review {
-  id: number
-  rating: number
-  comment: string
-  user: { name: string }
-  createdAt: string
-}
-
-interface ReviewsResponse {
-  reviews: Review[]
-  averageRating: number
-  total: number
-}
-
 export default function ProductDetailPage() {
-  const { id } = useParams()
+  const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const addItem = useCartStore(s => s.addItem)
+  const wished = useWishlistStore(s => s.ids.includes(Number(id)))
+  const toggleWishlist = useWishlistStore(s => s.toggle)
   const { isAuthenticated } = useAuthStore()
-  const { addItem } = useCartStore()
   const { toast } = useToast()
 
   const [product, setProduct] = useState<Product | null>(null)
-  const [variants, setVariants] = useState<ProductVariant[]>([])
-  const [reviews, setReviews] = useState<Review[]>([])
-  const [avgRating, setAvgRating] = useState(0)
-  const [loading, setLoading] = useState(true)
-  const [adding, setAdding] = useState(false)
   const [related, setRelated] = useState<Product[]>([])
+  const [reviews, setReviews] = useState<ReviewItem[]>([])
+  const [loading, setLoading] = useState(true)
 
-  // Variant selection
-  const [selectedSize, setSelectedSize] = useState('')
-  const [selectedColor, setSelectedColor] = useState('')
+  const [selectedSize, setSelectedSize] = useState<string>('')
+  const [selectedColor, setSelectedColor] = useState<string>('')
+  const [quantity, setQuantity] = useState(1)
+  const [adding, setAdding] = useState(false)
 
+  // Interactive Size & Fit Calculator Modal State
+  const [fitModalOpen, setFitModalOpen] = useState(false)
+  const [heightCm, setHeightCm] = useState(175)
+  const [weightKg, setWeightKg] = useState(68)
+  const [footCm, setFootCm] = useState(26.5)
+  const [fitPref, setFitPref] = useState<'tailored' | 'standard' | 'oversized'>('standard')
+
+  // Review Form State
   const [rating, setRating] = useState(5)
   const [comment, setComment] = useState('')
-  const [submitting, setSubmitting] = useState(false)
-  const [reviewError, setReviewError] = useState('')
+  const [submittingReview, setSubmittingReview] = useState(false)
 
   useEffect(() => {
+    if (!id) return
     setLoading(true)
-    setRelated([])
-    Promise.all([
+    void Promise.all([
       api.get<Product>(`/products/${id}`),
-      api.get<ReviewsResponse>(`/products/${id}/reviews`),
-      api.get<ProductVariant[]>(`/products/${id}/variants`).catch(() => []),
-    ]).then(([p, r, v]) => {
-      setProduct(p)
-      setReviews(r.reviews || [])
-      setAvgRating(r.averageRating || 0)
-      setVariants(Array.isArray(v) ? v : [])
-    }).catch(() => navigate('/products'))
-      .finally(() => setLoading(false))
-  }, [id])
-
-  // Fetch sản phẩm liên quan theo category, loại bỏ sản phẩm đang xem
-  useEffect(() => {
-    if (!product?.category || !product?.id) return
-    const params = new URLSearchParams()
-    params.set('category', product.category)
-    params.set('limit', '8')
-    api.get<ProductsResponse>(`/products?${params}`)
-      .then(res => {
-        const filtered = (res.data || []).filter(p => p.id !== product.id).slice(0, 4)
-        setRelated(filtered)
+      api.get<Product[]>(`/products/${id}/related`).catch(() => []),
+      api.get<ReviewItem[]>(`/products/${id}/reviews`).catch(() => []),
+    ])
+      .then(([prod, rel, revs]) => {
+        setProduct(prod)
+        setSelectedSize(prod.sizes?.[0] || 'One Size')
+        setSelectedColor(prod.colors?.[0] || 'Obsidian')
+        setRelated(Array.isArray(rel) ? rel : [])
+        setReviews(Array.isArray(revs) ? revs : [])
       })
-      .catch(() => setRelated([]))
-  }, [product?.id, product?.category])
+      .catch(() => {
+        navigate('/products')
+      })
+      .finally(() => setLoading(false))
+  }, [id, navigate])
 
-  // Tìm variant tương ứng với size + màu đã chọn
-  const selectedVariant = variants.find(
-    v => v.size === selectedSize && v.color === selectedColor
-  )
+  const activeVariant = useMemo(() => {
+    if (!product?.variants?.length) return undefined
+    return (
+      product.variants.find(
+        v =>
+          (!v.size || v.size === selectedSize) &&
+          (!v.color || v.color === selectedColor)
+      ) || product.variants.find(v => v.size === selectedSize)
+    )
+  }, [product, selectedSize, selectedColor])
 
-  // Lấy danh sách size unique từ variants
-  const availableSizes = [...new Set(variants.map(v => v.size))]
+  const unitPrice = activeVariant?.priceOverride || product?.price || 0
+  const availableStock = activeVariant ? activeVariant.stock : product?.stock || 0
 
-  // Lấy màu available cho size đang chọn
-  const availableColors = selectedSize
-    ? variants.filter(v => v.size === selectedSize).map(v => v.color)
-    : [...new Set(variants.map(v => v.color))]
+  // Compute recommended size based on product category + body specs
+  const recommendedSize = useMemo(() => {
+    if (!product) return 'M'
+    const sizes = product.sizes || []
+    if (sizes.includes('One Size')) return 'One Size'
 
-  // Kiểm tra stock
-  const hasVariants = variants.length > 0
-  const currentStock = hasVariants
-    ? (selectedVariant?.stock ?? null)
-    : product?.stock ?? 0
-
-  const isOutOfStock = hasVariants
-    ? (selectedVariant ? selectedVariant.stock === 0 : false)
-    : (product?.stock === 0)
-
-  const canAddToCart = hasVariants
-    ? (!!selectedVariant && selectedVariant.stock > 0)
-    : (product?.stock ?? 0) > 0
-
-  const handleAddToCart = async () => {
-    if (!isAuthenticated) { navigate('/auth'); return }
-    if (!product) return
-
-    if (hasVariants) {
-      if (!selectedSize) { toast('Vui lòng chọn size', 'error'); return }
-      if (!selectedColor) { toast('Vui lòng chọn màu sắc', 'error'); return }
-      if (!selectedVariant) { toast('Không tìm thấy biến thể này', 'error'); return }
-      if (selectedVariant.stock === 0) { toast('Biến thể này đã hết hàng', 'error'); return }
+    const isFootwear = sizes.some(s => ['40', '41', '42', '43', '44'].includes(s))
+    if (isFootwear) {
+      const adj = fitPref === 'oversized' ? 0.4 : fitPref === 'tailored' ? -0.2 : 0
+      const target = footCm + adj
+      if (target < 25.4) return '40'
+      if (target < 26.1) return '41'
+      if (target < 26.9) return '42'
+      if (target < 27.6) return '43'
+      return '44'
     }
 
-    setAdding(true)
+    const isWaist = sizes.some(s => ['28', '30', '32', '34'].includes(s))
+    if (isWaist) {
+      const bmiIndex = weightKg / Math.pow(heightCm / 100, 2)
+      const shift = fitPref === 'oversized' ? 1 : fitPref === 'tailored' ? -0.5 : 0
+      const score = bmiIndex + shift
+      if (score < 20.5) return '28'
+      if (score < 22.8) return '30'
+      if (score < 25.2) return '32'
+      return '34'
+    }
+
+    // Apparel S / M / L / XL
+    let idx = 1 // M
+    if (heightCm < 168 && weightKg < 60) idx = 0
+    else if (heightCm < 176 && weightKg < 72) idx = 1
+    else if (heightCm < 183 && weightKg < 84) idx = 2
+    else idx = 3
+
+    if (fitPref === 'oversized') idx = Math.min(3, idx + 1)
+    if (fitPref === 'tailored') idx = Math.max(0, idx - 1)
+    const map = ['S', 'M', 'L', 'XL']
+    const candidate = map[idx]
+    return sizes.includes(candidate) ? candidate : sizes[0] || 'M'
+  }, [product, heightCm, weightKg, footCm, fitPref])
+
+  const ratingStats = useMemo(() => {
+    const total = reviews.length
+    const avg = total
+      ? (reviews.reduce((s, r) => s + Number(r.rating), 0) / total).toFixed(1)
+      : '5.0'
+    const counts = [5, 4, 3, 2, 1].map(star => ({
+      star,
+      count: reviews.filter(r => Math.round(r.rating) === star).length,
+    }))
+    return { total, avg, counts }
+  }, [reviews])
+
+  const handleAddToCart = async () => {
+    if (!product || availableStock <= 0) return
     try {
+      setAdding(true)
       await addItem({
         productId: product.id,
+        variantId: activeVariant?.id,
         name: product.name,
-        price: Number(product.price),
-        quantity: 1,
-        ...(hasVariants && selectedVariant ? {
-          variantId: selectedVariant.id,
-          size: selectedVariant.size,
-          color: selectedVariant.color,
-        } : {}),
+        price: unitPrice,
+        quantity,
+        size: selectedSize,
+        color: selectedColor,
+        imageUrl: product.imageUrl,
       })
-      toast('Đã thêm vào giỏ hàng')
+      toast(`Reserved "${product.name}" (${selectedSize}) in Vault Bag.`, 'success')
     } catch (err: any) {
-      toast(err.message, 'error')
+      toast(err?.message || 'Unable to reserve piece.', 'error')
     } finally {
       setAdding(false)
     }
   }
 
-  const handleReview = async (e: React.FormEvent) => {
+  const handleSubmitReview = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!isAuthenticated) { navigate('/auth'); return }
-    setSubmitting(true); setReviewError('')
+    if (!product || !comment.trim()) return
     try {
-      await api.post(`/products/${id}/reviews`, { rating, comment })
-      const r = await api.get<ReviewsResponse>(`/products/${id}/reviews`)
-      setReviews(r.reviews || [])
-      setAvgRating(r.averageRating || 0)
-      setComment(''); setRating(5)
-      toast('Đã gửi đánh giá')
+      setSubmittingReview(true)
+      const created = await api.post<ReviewItem>(`/products/${product.id}/reviews`, {
+        rating,
+        comment: comment.trim(),
+      })
+      setReviews(prev => [created, ...prev])
+      setComment('')
+      toast('Provenance review recorded in the Archive.', 'success')
     } catch (err: any) {
-      setReviewError(err.message)
+      toast(err?.message || 'Sign in to record a verified review.', 'error')
     } finally {
-      setSubmitting(false)
+      setSubmittingReview(false)
     }
   }
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center text-muted">Đang tải...</div>
-  if (!product) return null
+  if (loading || !product) {
+    return (
+      <div className="min-h-screen bg-[#070709] flex items-center justify-center font-mono text-xs tracking-[0.3em] text-[#9a948a]">
+        LOADING PROVENANCE DOSSIER...
+      </div>
+    )
+  }
+
+  const isFootwear = (product.sizes || []).some(s => ['40', '41', '42', '43', '44'].includes(s))
 
   return (
-    <div className="min-h-screen bg-paper">
-      <div className="tb-container py-12 md:py-16">
+    <div className="min-h-screen bg-[#070709] text-[#ece5d8] py-10 md:py-14">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <Breadcrumb
+          items={[
+            { label: 'Archive', path: '/' },
+            { label: 'Drops', path: '/products' },
+            { label: product.name },
+          ]}
+        />
 
-        <Breadcrumb items={[
-          { label: 'Trang chủ', path: '/' },
-          { label: 'Sản phẩm', path: '/products' },
-          ...(product.category ? [{ label: product.category, path: `/products?category=${product.category}` }] : []),
-          { label: product.name },
-        ]} />
-
-        <div className="mb-16 flex flex-col gap-12 md:flex-row">
-          <div className="aspect-[3/4] bg-sand md:w-1/2 md:aspect-square">
-            {product.imageUrl && <img src={product.imageUrl} alt={product.name} className="h-full w-full object-cover animate-tb-fade" />}
-          </div>
-          <div className="flex flex-col justify-center md:w-1/2">
-            <p className="tb-eyebrow mb-3">{product.category}</p>
-            <h1 className="font-display mb-3 text-3xl font-medium tracking-[0.06em] text-ink md:text-4xl">{product.name}</h1>
-            <div className="flex items-center gap-2 mb-4">
-              <div className="flex">
-                {[1,2,3,4,5].map(s => <Star key={s} className={`w-4 h-4 ${s <= Math.round(avgRating) ? 'fill-black text-black' : 'text-gray-300'}`} />)}
+        {/* TOP PRODUCT DOSSIER */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 pb-20 border-b border-[#ece5d8]/10">
+          {/* High-Res Gallery */}
+          <div className="lg:col-span-7 space-y-4">
+            <div className="relative aspect-[4/5] bg-[#111115] border border-[#ece5d8]/12 overflow-hidden">
+              {product.imageUrl && (
+                <img
+                  src={product.imageUrl}
+                  alt={product.name}
+                  className="w-full h-full object-cover"
+                />
+              )}
+              <div className="absolute top-4 left-4 px-3 py-1.5 bg-[#070709]/90 border border-[#cfa156]/50 font-mono text-[10px] tracking-[0.24em] uppercase text-[#cfa156]">
+                {(product.releaseType || 'ARCHIVE').toUpperCase()} · {product.condition || 'DEADSTOCK'}
               </div>
-              <span className="text-xs text-gray-400">({reviews.length} đánh giá)</span>
             </div>
-            <p className="text-2xl font-medium mb-4">{Number(product.price).toLocaleString('vi-VN')} đ</p>
-            {product.description && <p className="text-sm text-gray-500 mb-6 leading-relaxed">{product.description}</p>}
+          </div>
 
-            {/* Variant selection */}
-            {hasVariants ? (
-              <>
-                {/* Chọn Size */}
-                {availableSizes.length > 0 && (
-                  <div className="mb-4">
-                    <p className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">
-                      Size {selectedSize && <span className="text-black">— {selectedSize}</span>}
-                    </p>
-                    <div className="flex gap-2 flex-wrap">
-                      {availableSizes.map(s => {
-                        const hasStock = variants.some(v => v.size === s && v.stock > 0)
-                        return (
-                          <button key={s} onClick={() => { setSelectedSize(s); setSelectedColor('') }}
-                            disabled={!hasStock}
-                            className={`px-3 py-1.5 text-sm border transition ${
-                              selectedSize === s ? 'border-black bg-black text-white'
-                              : hasStock ? 'border-gray-300 hover:border-black'
-                              : 'border-gray-200 text-gray-300 cursor-not-allowed line-through'
-                            }`}>
-                            {s}
-                          </button>
-                        )
-                      })}
-                    </div>
-                  </div>
-                )}
+          {/* Specification & SKU Matrix */}
+          <div className="lg:col-span-5 space-y-7">
+            <div>
+              <p className="font-mono text-xs tracking-[0.28em] uppercase text-[#cfa156] mb-2">
+                {product.brand || 'ENIGMA ATELIER'} · {product.authenticityCode || `ENG-2026-00${product.id}`}
+              </p>
+              <h1 className="font-display text-3xl md:text-5xl text-[#ece5d8] leading-tight mb-4">
+                {product.name}
+              </h1>
+              <div className="flex items-baseline gap-4">
+                <span className="font-mono text-2xl md:text-3xl font-semibold text-[#ece5d8] tabular-nums">
+                  {formatVnd(unitPrice)}
+                </span>
+                <span className="font-mono text-xs text-[#9a948a] inline-flex items-center gap-1">
+                  <Star className="w-3.5 h-3.5 text-[#cfa156] fill-current" />
+                  {ratingStats.avg} ({ratingStats.total} verified)
+                </span>
+              </div>
+            </div>
 
-                {/* Chọn Màu */}
-                {availableColors.length > 0 && (
-                  <div className="mb-6">
-                    <p className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">
-                      Màu sắc {selectedColor && <span className="text-black">— {selectedColor}</span>}
-                    </p>
-                    <div className="flex gap-2 flex-wrap">
-                      {availableColors.map(c => {
-                        const variant = variants.find(v => v.size === selectedSize && v.color === c)
-                        const hasStock = variant ? variant.stock > 0 : true
-                        return (
-                          <button key={c} onClick={() => setSelectedColor(c)}
-                            disabled={!hasStock}
-                            className={`px-3 py-1.5 text-sm border transition ${
-                              selectedColor === c ? 'border-black bg-black text-white'
-                              : hasStock ? 'border-gray-300 hover:border-black'
-                              : 'border-gray-200 text-gray-300 cursor-not-allowed line-through'
-                            }`}>
-                            {c}
-                          </button>
-                        )
-                      })}
-                    </div>
-                  </div>
-                )}
+            <p className="text-sm text-[#9a948a] leading-relaxed border-y border-[#ece5d8]/10 py-5">
+              {product.description}
+            </p>
 
-                {/* Hiển thị stock của variant đã chọn */}
-                {selectedVariant && (
-                  <p className={`text-xs mb-4 ${selectedVariant.stock > 0 ? 'text-green-600' : 'text-red-500'}`}>
-                    {selectedVariant.stock > 0 ? `Còn ${selectedVariant.stock} sản phẩm` : 'Hết hàng'}
-                  </p>
-                )}
-              </>
-            ) : (
-              <>
-                {/* Fallback: hiển thị sizes/colors từ product nếu không có variants */}
-                {product.sizes && product.sizes.length > 0 && (
-                  <div className="mb-4">
-                    <p className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Size</p>
-                    <div className="flex gap-2 flex-wrap">
-                      {product.sizes.map(s => <span key={s} className="border border-gray-300 px-3 py-1 text-sm">{s}</span>)}
-                    </div>
-                  </div>
-                )}
-                {product.colors && product.colors.length > 0 && (
-                  <div className="mb-6">
-                    <p className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Màu sắc</p>
-                    <div className="flex gap-2 flex-wrap">
-                      {product.colors.map(c => <span key={c} className="border border-gray-300 px-3 py-1 text-sm">{c}</span>)}
-                    </div>
-                  </div>
-                )}
-              </>
+            {/* SKU Size Selector + Fit Calculator Trigger */}
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <span className="font-mono text-xs uppercase tracking-[0.22em] text-[#ece5d8]">
+                  Select Size{' '}
+                  {activeVariant?.sku && (
+                    <span className="text-[#9a948a] ml-2">({activeVariant.sku})</span>
+                  )}
+                </span>
+                <button
+                  id="open-size-calculator-btn"
+                  type="button"
+                  onClick={() => setFitModalOpen(true)}
+                  className="inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-wider text-[#cfa156] hover:underline"
+                >
+                  <Ruler className="w-3.5 h-3.5" />
+                  Size &amp; Fit Calculator
+                </button>
+              </div>
+
+              <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
+                {(product.sizes?.length ? product.sizes : ['One Size']).map(sz => {
+                  const v = product.variants?.find(vr => vr.size === sz)
+                  const out = v ? v.stock <= 0 : false
+                  return (
+                    <button
+                      key={sz}
+                      type="button"
+                      disabled={out}
+                      onClick={() => setSelectedSize(sz)}
+                      className={`py-2.5 font-mono text-xs border transition tabular-nums ${
+                        selectedSize === sz
+                          ? 'border-[#cfa156] bg-[#cfa156]/15 text-[#cfa156] font-semibold'
+                          : out
+                            ? 'border-[#ece5d8]/10 text-[#9a948a]/40 line-through'
+                            : 'border-[#ece5d8]/15 text-[#ece5d8] hover:border-[#ece5d8]/45'
+                      }`}
+                    >
+                      {sz}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* Colorway Selector */}
+            {(product.colors?.length || 0) > 0 && (
+              <div>
+                <span className="block font-mono text-xs uppercase tracking-[0.22em] text-[#ece5d8] mb-2.5">
+                  Finish / Colorway: <span className="text-[#9a948a]">{selectedColor}</span>
+                </span>
+                <div className="flex flex-wrap gap-2">
+                  {(product.colors || []).map(cl => (
+                    <button
+                      key={cl}
+                      type="button"
+                      onClick={() => setSelectedColor(cl)}
+                      className={`px-3.5 py-2 font-mono text-xs border transition ${
+                        selectedColor === cl
+                          ? 'border-[#cfa156] text-[#cfa156] bg-[#cfa156]/10'
+                          : 'border-[#ece5d8]/15 text-[#9a948a] hover:text-[#ece5d8]'
+                      }`}
+                    >
+                      {cl}
+                    </button>
+                  ))}
+                </div>
+              </div>
             )}
 
-            <button onClick={handleAddToCart} disabled={adding || !canAddToCart}
-              className="w-full bg-black text-white py-4 text-sm font-bold uppercase tracking-wider hover:bg-gray-800 transition disabled:opacity-50">
-              {adding ? 'Đang thêm...'
-                : isOutOfStock ? 'Hết hàng'
-                : hasVariants && (!selectedSize || !selectedColor) ? 'Chọn size và màu'
-                : 'Thêm vào giỏ hàng'}
-            </button>
+            {/* Live Stock + Quantity + Actions */}
+            <div className="space-y-4 pt-2">
+              <div className="flex items-center justify-between font-mono text-xs">
+                <span className="text-[#9a948a] uppercase tracking-widest">Vault Allocation</span>
+                <span
+                  className={`tabular-nums ${
+                    availableStock > 0 ? 'text-[#cfa156]' : 'text-red-400'
+                  }`}
+                >
+                  {availableStock > 0
+                    ? `${availableStock} AUTHENTICATED UNITS READY`
+                    : 'VAULT EXHAUSTED'}
+                </span>
+              </div>
+
+              <div className="flex gap-3">
+                <div className="inline-flex items-center border border-[#ece5d8]/20 bg-[#111115]">
+                  <button
+                    type="button"
+                    onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                    className="px-3.5 py-3.5 text-[#9a948a] hover:text-[#ece5d8]"
+                  >
+                    <Minus className="w-3.5 h-3.5" />
+                  </button>
+                  <span className="px-4 font-mono text-sm tabular-nums">{quantity}</span>
+                  <button
+                    type="button"
+                    onClick={() => setQuantity(q => Math.min(Math.max(1, availableStock), q + 1))}
+                    className="px-3.5 py-3.5 text-[#9a948a] hover:text-[#ece5d8]"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+
+                <button
+                  id="pdp-add-to-bag-btn"
+                  type="button"
+                  disabled={availableStock <= 0 || adding}
+                  onClick={() => void handleAddToCart()}
+                  className="flex-1 py-4 bg-[#cfa156] text-[#070709] font-mono text-xs font-semibold uppercase tracking-[0.24em] hover:bg-[#dec37b] disabled:opacity-40 transition flex items-center justify-center gap-2"
+                >
+                  <ShoppingBag className="w-4 h-4" />
+                  {availableStock <= 0 ? 'Sold Out' : adding ? 'Reserving...' : 'Reserve in Vault Bag'}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    const added = toggleWishlist(product.id)
+                    toast(added ? 'Saved to Collector Wishlist.' : 'Removed from Wishlist.', 'info')
+                  }}
+                  aria-label="Toggle Wishlist"
+                  className={`px-4 border transition flex items-center justify-center ${
+                    wished
+                      ? 'border-[#cfa156] bg-[#cfa156] text-[#070709]'
+                      : 'border-[#ece5d8]/20 text-[#ece5d8] hover:border-[#cfa156]'
+                  }`}
+                >
+                  <Heart className={`w-4 h-4 ${wished ? 'fill-current' : ''}`} />
+                </button>
+              </div>
+            </div>
+
+            {/* Authentication Guarantee Seal */}
+            <div className="p-4 bg-[#111115] border border-[#cfa156]/35 flex items-start gap-3.5">
+              <ShieldCheck className="w-5 h-5 text-[#cfa156] flex-shrink-0 mt-0.5" />
+              <div className="space-y-1">
+                <p className="font-mono text-xs uppercase tracking-[0.2em] text-[#ece5d8]">
+                  ENIGMA Multi-Stage Authentication Guarantee
+                </p>
+                <p className="text-xs text-[#9a948a] leading-relaxed">
+                  Verified for textile weight, hardware metallurgy, stitch cadence, and cryptographic
+                  NFC tag ({product.authenticityCode || `ENG-2026-00${product.id}`}) prior to armored dispatch.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Sản phẩm liên quan */}
-        {related.length > 0 && (
-          <div className="mb-16">
-            <h2 className="font-display mb-8 border-b border-line pb-4 text-2xl font-medium uppercase tracking-[0.12em]">
-              Sản phẩm liên quan
-            </h2>
-            <div className="grid grid-cols-2 gap-6 md:grid-cols-4 md:gap-8">
-              {related.map(p => (
-                <ProductCard key={p.id} product={p} />
-              ))}
+        {/* VERIFIED BUYER REVIEWS */}
+        <section className="py-16 border-b border-[#ece5d8]/10 grid grid-cols-1 lg:grid-cols-12 gap-12">
+          <div className="lg:col-span-4 space-y-6">
+            <div>
+              <p className="font-mono text-xs tracking-[0.28em] uppercase text-[#cfa156] mb-2">
+                PROVENANCE LEDGER
+              </p>
+              <h2 className="font-display text-3xl text-[#ece5d8]">
+                Verified Collector Reviews
+              </h2>
             </div>
-          </div>
-        )}
 
-        {/* Reviews */}
-        <div>
-          <h2 className="font-display mb-8 border-b border-line pb-4 text-2xl font-medium uppercase tracking-[0.12em]">Đánh giá</h2>
-          {isAuthenticated && (
-            <form onSubmit={handleReview} className="mb-8 p-6 border border-gray-200">
-              <p className="text-sm font-bold uppercase tracking-wider mb-4">Viết đánh giá</p>
-              <div className="flex gap-1 mb-4">
-                {[1,2,3,4,5].map(s => (
-                  <button key={s} type="button" onClick={() => setRating(s)}>
-                    <Star className={`w-5 h-5 ${s <= rating ? 'fill-black text-black' : 'text-gray-300'}`} />
+            <div className="p-6 bg-[#111115] border border-[#ece5d8]/10 space-y-4">
+              <div className="flex items-baseline gap-3">
+                <span className="font-mono text-4xl font-semibold text-[#cfa156] tabular-nums">
+                  {ratingStats.avg}
+                </span>
+                <span className="font-mono text-xs text-[#9a948a] uppercase tracking-widest">
+                  / 5.0 ({ratingStats.total} REVIEWS)
+                </span>
+              </div>
+              <div className="space-y-2">
+                {ratingStats.counts.map(row => {
+                  const pct = ratingStats.total
+                    ? Math.round((row.count / ratingStats.total) * 100)
+                    : row.star === 5
+                      ? 100
+                      : 0
+                  return (
+                    <div key={row.star} className="flex items-center gap-3 font-mono text-xs">
+                      <span className="w-8 text-[#9a948a] tabular-nums">{row.star}★</span>
+                      <div className="flex-1 h-1.5 bg-[#070709] overflow-hidden">
+                        <div className="h-full bg-[#cfa156]" style={{ width: `${pct}%` }} />
+                      </div>
+                      <span className="w-8 text-right text-[#9a948a] tabular-nums">{row.count}</span>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* Write Review Form */}
+            <form
+              onSubmit={handleSubmitReview}
+              className="p-6 bg-[#111115] border border-[#ece5d8]/10 space-y-4"
+            >
+              <h3 className="font-mono text-xs uppercase tracking-[0.22em] text-[#ece5d8]">
+                Record Collector Note
+              </h3>
+              <div className="flex gap-1.5">
+                {[1, 2, 3, 4, 5].map(st => (
+                  <button
+                    key={st}
+                    type="button"
+                    onClick={() => setRating(st)}
+                    className={`p-1.5 border ${
+                      st <= rating
+                        ? 'border-[#cfa156] text-[#cfa156]'
+                        : 'border-[#ece5d8]/15 text-[#9a948a]'
+                    }`}
+                  >
+                    <Star className="w-3.5 h-3.5 fill-current" />
                   </button>
                 ))}
               </div>
-              <textarea value={comment} onChange={e => setComment(e.target.value)} rows={3} placeholder="Nhận xét của bạn..."
-                className="w-full border border-gray-300 p-3 text-sm focus:border-black focus:outline-none mb-3" />
-              {reviewError && <p className="text-red-500 text-sm mb-3">{reviewError}</p>}
-              <button type="submit" disabled={submitting}
-                className="bg-black text-white px-6 py-2.5 text-sm font-bold uppercase tracking-wider hover:bg-gray-800 transition disabled:opacity-50">
-                {submitting ? 'Đang gửi...' : 'Gửi đánh giá'}
+              <textarea
+                rows={3}
+                required
+                value={comment}
+                onChange={e => setComment(e.target.value)}
+                placeholder={
+                  isAuthenticated
+                    ? 'Document fit, leather grain, or packaging provenance...'
+                    : 'Share your collector note...'
+                }
+                className="w-full bg-[#070709] border border-[#ece5d8]/15 p-3 text-xs text-[#ece5d8] placeholder-[#9a948a] focus:outline-none focus:border-[#cfa156]"
+              />
+              <button
+                type="submit"
+                disabled={submittingReview}
+                className="w-full py-2.5 bg-[#cfa156] text-[#070709] font-mono text-xs font-semibold uppercase tracking-widest"
+              >
+                {submittingReview ? 'Submitting...' : 'Publish Provenance Note'}
               </button>
             </form>
-          )}
-          {reviews.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-sm text-muted">Chưa có đánh giá nào. Hãy là người đầu tiên!</p>
-            </div>
-          ) : (
-            <div className="space-y-6">
-              {reviews.map(r => (
-                <div key={r.id} className="border-b border-line pb-6">
-                  <div className="mb-2 flex items-center justify-between">
-                    <p className="text-sm font-medium">{r.user?.name || 'Ẩn danh'}</p>
-                    <p className="text-xs text-muted">{new Date(r.createdAt).toLocaleDateString('vi-VN')}</p>
+          </div>
+
+          <div className="lg:col-span-8 space-y-4">
+            {reviews.length === 0 ? (
+              <div className="p-10 bg-[#111115] border border-[#ece5d8]/10 text-center text-sm text-[#9a948a]">
+                No collector notes logged yet for this drop. Be the first to document fit &amp; finish.
+              </div>
+            ) : (
+              reviews.map(rev => (
+                <article
+                  key={rev.id}
+                  className="p-6 bg-[#111115] border border-[#ece5d8]/10 space-y-2.5"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <span className="font-medium text-sm text-[#ece5d8]">
+                        {rev.userName || `Collector #${rev.userId}`}
+                      </span>
+                      <span className="px-2 py-0.5 bg-[#cfa156]/15 border border-[#cfa156]/40 font-mono text-[9px] uppercase tracking-widest text-[#cfa156]">
+                        Verified Collector
+                      </span>
+                    </div>
+                    <span className="font-mono text-xs text-[#cfa156]">
+                      {'★'.repeat(rev.rating)}
+                    </span>
                   </div>
-                  <div className="mb-2 flex">
-                    {[1,2,3,4,5].map(s => <Star key={s} className={`w-3.5 h-3.5 ${s <= r.rating ? 'fill-ink text-ink' : 'text-line'}`} />)}
-                  </div>
-                  {r.comment && <p className="text-sm text-muted">{r.comment}</p>}
-                </div>
+                  <p className="text-sm text-[#9a948a] leading-relaxed">{rev.comment}</p>
+                </article>
+              ))
+            )}
+          </div>
+        </section>
+
+        {/* RELATED GRAILS */}
+        {related.length > 0 && (
+          <section className="pt-16">
+            <p className="font-mono text-xs tracking-[0.3em] uppercase text-[#cfa156] mb-2">
+              COMPLEMENTARY ROTATION
+            </p>
+            <h2 className="font-display text-3xl md:text-4xl text-[#ece5d8] mb-8">
+              Related Archive Grails
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {related.map(rp => (
+                <ProductCard key={rp.id} product={rp} />
               ))}
             </div>
-          )}
-        </div>
+          </section>
+        )}
       </div>
-      <Footer />
+
+      {/* INTERACTIVE SIZE & FIT CALCULATOR MODAL */}
+      {fitModalOpen && (
+        <div
+          id="size-fit-calculator-modal"
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-[115] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md"
+          onClick={() => setFitModalOpen(false)}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            className="w-full max-w-lg bg-[#111115] border border-[#cfa156]/50 p-6 md:p-8 space-y-6 text-[#ece5d8]"
+          >
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="font-mono text-[10px] tracking-[0.28em] uppercase text-[#cfa156]">
+                  ATELIER PROPORTION ENGINE
+                </p>
+                <h2 className="font-display text-2xl md:text-3xl mt-1">
+                  Interactive Size &amp; Fit Calculator
+                </h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => setFitModalOpen(false)}
+                className="text-[#9a948a] hover:text-[#ece5d8]"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {isFootwear ? (
+              <div>
+                <div className="flex justify-between font-mono text-xs mb-2">
+                  <span className="text-[#9a948a] uppercase">Foot Length (cm)</span>
+                  <span className="text-[#cfa156] tabular-nums">{footCm.toFixed(1)} cm</span>
+                </div>
+                <input
+                  type="range"
+                  min={24.0}
+                  max={29.0}
+                  step={0.2}
+                  value={footCm}
+                  onChange={e => setFootCm(Number(e.target.value))}
+                  className="w-full accent-[#cfa156]"
+                />
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div>
+                  <div className="flex justify-between font-mono text-xs mb-1.5">
+                    <span className="text-[#9a948a] uppercase">Height</span>
+                    <span className="text-[#cfa156] tabular-nums">{heightCm} cm</span>
+                  </div>
+                  <input
+                    type="range"
+                    min={155}
+                    max={198}
+                    value={heightCm}
+                    onChange={e => setHeightCm(Number(e.target.value))}
+                    className="w-full accent-[#cfa156]"
+                  />
+                </div>
+                <div>
+                  <div className="flex justify-between font-mono text-xs mb-1.5">
+                    <span className="text-[#9a948a] uppercase">Weight</span>
+                    <span className="text-[#cfa156] tabular-nums">{weightKg} kg</span>
+                  </div>
+                  <input
+                    type="range"
+                    min={45}
+                    max={110}
+                    value={weightKg}
+                    onChange={e => setWeightKg(Number(e.target.value))}
+                    className="w-full accent-[#cfa156]"
+                  />
+                </div>
+              </div>
+            )}
+
+            <div>
+              <span className="block font-mono text-[10px] uppercase tracking-widest text-[#9a948a] mb-2">
+                Desired Silhouette Drape
+              </span>
+              <div className="grid grid-cols-3 gap-2">
+                {(['tailored', 'standard', 'oversized'] as const).map(pref => (
+                  <button
+                    key={pref}
+                    type="button"
+                    onClick={() => setFitPref(pref)}
+                    className={`py-2.5 font-mono text-xs uppercase border ${
+                      fitPref === pref
+                        ? 'border-[#cfa156] bg-[#cfa156]/15 text-[#cfa156]'
+                        : 'border-[#ece5d8]/15 text-[#9a948a]'
+                    }`}
+                  >
+                    {pref}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="p-4 bg-[#070709] border border-[#cfa156]/40 flex items-center justify-between">
+              <div>
+                <span className="block font-mono text-[10px] uppercase tracking-widest text-[#9a948a]">
+                  Recommended Atelier Spec
+                </span>
+                <span className="font-display text-3xl text-[#cfa156]">Size {recommendedSize}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedSize(recommendedSize)
+                  setFitModalOpen(false)
+                  toast(`Applied recommended Size ${recommendedSize}.`, 'success')
+                }}
+                className="px-5 py-3 bg-[#cfa156] text-[#070709] font-mono text-xs font-semibold uppercase tracking-widest inline-flex items-center gap-1.5"
+              >
+                <Check className="w-4 h-4" /> Apply Size
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
