@@ -1,141 +1,153 @@
 import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useAuthStore } from '../store/useAuthStore'
+import { Link } from 'react-router-dom'
+import { ShieldCheck, Compass } from 'lucide-react'
 import { api } from '../api/apiClient'
-
-interface UserProfile {
-  id: number
-  name: string
-  email: string
-  role: string
-  isVerified: boolean
-}
+import { TasteCodexResult } from '../types/enigma'
+import Breadcrumb from '../components/Breadcrumb'
+import { useToast } from '../components/Toast'
 
 export default function ProfilePage() {
-  const navigate = useNavigate()
-  const { isAuthenticated, logout, user } = useAuthStore()
-  const [profile, setProfile] = useState<UserProfile | null>(null)
+  const { toast } = useToast()
   const [name, setName] = useState('')
-  const [loading, setLoading] = useState(true)
+  const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
+  const [address, setAddress] = useState('')
+  const [codex, setCodex] = useState<TasteCodexResult | null>(null)
   const [saving, setSaving] = useState(false)
-  const [success, setSuccess] = useState('')
-  const [error, setError] = useState('')
 
   useEffect(() => {
-    if (!isAuthenticated) { navigate('/auth'); return }
-    api.get<UserProfile>('/users/me')
-      .then(data => { setProfile(data); setName(data.name) })
+    void api
+      .get<{ name: string; email: string; phone?: string; address?: string }>('/users/me')
+      .then(u => {
+        setName(u.name || '')
+        setEmail(u.email || '')
+        setPhone(u.phone || '')
+        setAddress(u.address || '')
+      })
+    void api
+      .get<TasteCodexResult | null>('/mystery-boxes/my-codex')
+      .then(setCodex)
       .catch(() => {})
-      .finally(() => setLoading(false))
   }, [])
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
-    setSaving(true)
-    setError('')
-    setSuccess('')
     try {
-      await api.put('/users/me', { name })
-      setSuccess('Cập nhật thành công')
-      setProfile(prev => prev ? { ...prev, name } : prev)
+      setSaving(true)
+      await api.put('/users/me', { name, phone, address })
+      toast('Collector Dossier updated.', 'success')
     } catch (err: any) {
-      setError(err.message)
+      toast(err?.message || 'Update failed', 'error')
     } finally {
       setSaving(false)
     }
   }
 
-  const handleLogout = () => {
-    logout()
-    navigate('/')
-  }
-
-  if (loading) return <div className="min-h-screen flex items-center justify-center text-gray-400">Đang tải...</div>
-
   return (
-    <div className="min-h-screen bg-white font-sans">
-      <div className="max-w-lg mx-auto px-6 py-12">
+    <div className="min-h-screen bg-[#070709] text-[#ece5d8] py-10 md:py-14">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <Breadcrumb items={[{ label: 'Archive', path: '/' }, { label: 'Collector Dossier' }]} />
 
-        {/* Header */}
-        <div className="flex items-center justify-between mb-10">
-          <h1 className="text-2xl font-light uppercase tracking-widest">Tài khoản</h1>
-          <button onClick={() => navigate('/')} className="text-xs text-gray-400 hover:text-black transition uppercase tracking-wider">
-            ← Trang chủ
-          </button>
-        </div>
+        <h1 className="font-display text-4xl md:text-5xl text-[#ece5d8] pb-8 border-b border-[#ece5d8]/10 mb-10">
+          Collector Identity &amp; Codex
+        </h1>
 
-        {/* Avatar + tên */}
-        <div className="flex items-center gap-4 mb-10 p-6 bg-gray-50">
-          <div className="w-14 h-14 rounded-full bg-black flex items-center justify-center text-white text-xl font-bold">
-            {profile?.name?.charAt(0).toUpperCase()}
-          </div>
-          <div>
-            <p className="font-medium text-gray-900">{profile?.name}</p>
-            <p className="text-sm text-gray-400">{profile?.email}</p>
-            <span className="text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded-sm uppercase tracking-wider mt-1 inline-block">
-              {profile?.role === 'admin' ? 'Quản trị viên' : 'Khách hàng'}
-            </span>
-          </div>
-        </div>
-
-        {/* Form cập nhật */}
-        <form onSubmit={handleSave} className="space-y-5 mb-8">
-          <h2 className="text-sm font-bold uppercase tracking-wider text-gray-700">Thông tin cá nhân</h2>
-
-          <div>
-            <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-500">Họ và tên</label>
-            <input
-              type="text"
-              value={name}
-              onChange={e => setName(e.target.value)}
-              required
-              className="w-full border border-gray-300 p-3 text-sm focus:border-black focus:outline-none transition"
-            />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-500">Email</label>
-            <input
-              type="email"
-              value={profile?.email || ''}
-              disabled
-              className="w-full border border-gray-200 p-3 text-sm bg-gray-50 text-gray-400 cursor-not-allowed"
-            />
-          </div>
-
-          {error && <p className="text-red-500 text-sm">{error}</p>}
-          {success && <p className="text-green-600 text-sm">{success}</p>}
-
-          <button type="submit" disabled={saving}
-            className="w-full bg-black text-white py-3 text-sm font-bold uppercase tracking-wider hover:bg-gray-800 transition disabled:opacity-50">
-            {saving ? 'Đang lưu...' : 'Lưu thay đổi'}
-          </button>
-        </form>
-
-        {/* Các liên kết */}
-        <div className="space-y-2 border-t border-gray-100 pt-6">
-          <button onClick={() => navigate('/orders')}
-            className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition flex items-center justify-between">
-            <span>Đơn hàng của tôi</span>
-            <span className="text-gray-400">→</span>
-          </button>
-          <button onClick={() => navigate('/forgot-password')}
-            className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition flex items-center justify-between">
-            <span>Đổi mật khẩu</span>
-            <span className="text-gray-400">→</span>
-          </button>
-          {user?.role === 'admin' && (
-            <button onClick={() => navigate('/admin')}
-              className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition flex items-center justify-between">
-              <span>Trang quản trị</span>
-              <span className="text-gray-400">→</span>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          <form
+            onSubmit={handleSave}
+            className="lg:col-span-7 bg-[#111115] border border-[#ece5d8]/15 p-6 md:p-8 space-y-5"
+          >
+            <h2 className="font-display text-2xl">Vault Dispatch Credentials</h2>
+            <div>
+              <label className="block font-mono text-[10px] uppercase tracking-widest text-[#9a948a] mb-1.5">
+                Full Name
+              </label>
+              <input
+                type="text"
+                value={name}
+                onChange={e => setName(e.target.value)}
+                className="w-full bg-[#070709] border border-[#ece5d8]/15 px-3.5 py-2.5 text-sm text-[#ece5d8] focus:outline-none focus:border-[#cfa156]"
+              />
+            </div>
+            <div>
+              <label className="block font-mono text-[10px] uppercase tracking-widest text-[#9a948a] mb-1.5">
+                Registered Email
+              </label>
+              <input
+                type="email"
+                disabled
+                value={email}
+                className="w-full bg-[#070709]/60 border border-[#ece5d8]/10 px-3.5 py-2.5 text-sm text-[#9a948a]"
+              />
+            </div>
+            <div>
+              <label className="block font-mono text-[10px] uppercase tracking-widest text-[#9a948a] mb-1.5">
+                Courier Phone
+              </label>
+              <input
+                type="tel"
+                value={phone}
+                onChange={e => setPhone(e.target.value)}
+                className="w-full bg-[#070709] border border-[#ece5d8]/15 px-3.5 py-2.5 font-mono text-sm text-[#ece5d8] focus:outline-none focus:border-[#cfa156]"
+              />
+            </div>
+            <div>
+              <label className="block font-mono text-[10px] uppercase tracking-widest text-[#9a948a] mb-1.5">
+                Primary Vault Delivery Address
+              </label>
+              <input
+                type="text"
+                value={address}
+                onChange={e => setAddress(e.target.value)}
+                className="w-full bg-[#070709] border border-[#ece5d8]/15 px-3.5 py-2.5 text-sm text-[#ece5d8] focus:outline-none focus:border-[#cfa156]"
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={saving}
+              className="px-7 py-3.5 bg-[#cfa156] text-[#070709] font-mono text-xs font-semibold uppercase tracking-[0.24em]"
+            >
+              {saving ? 'Saving...' : 'Save Dossier'}
             </button>
-          )}
-          <button onClick={handleLogout}
-            className="w-full text-left px-4 py-3 text-sm text-red-500 hover:bg-red-50 transition flex items-center justify-between">
-            <span>Đăng xuất</span>
-            <span>→</span>
-          </button>
+          </form>
+
+          <div className="lg:col-span-5 space-y-6">
+            <div className="p-6 bg-[#111115] border border-[#cfa156]/45 space-y-4">
+              <div className="flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-[#cfa156]">
+                <Compass className="w-4 h-4" />
+                <span>Taste Codex Archetype</span>
+              </div>
+              {codex ? (
+                <>
+                  <h3 className="font-display text-3xl text-[#ece5d8]">{codex.archetype}</h3>
+                  <p className="text-xs text-[#9a948a] leading-relaxed">{codex.description}</p>
+                  <Link
+                    to="/mystery-boxes"
+                    className="inline-block font-mono text-xs uppercase tracking-widest text-[#cfa156] hover:underline"
+                  >
+                    Recalibrate 8-Step Codex →
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <p className="text-xs text-[#9a948a]">
+                    Complete the 8-step Style Decoder to bind your Taste Codex to your profile.
+                  </p>
+                  <Link
+                    to="/mystery-boxes"
+                    className="inline-block px-5 py-2.5 bg-[#cfa156] text-[#070709] font-mono text-xs font-semibold uppercase tracking-widest"
+                  >
+                    Start Quiz
+                  </Link>
+                </>
+              )}
+            </div>
+
+            <div className="p-5 bg-[#111115] border border-[#ece5d8]/12 flex items-center gap-3 font-mono text-xs text-[#9a948a]">
+              <ShieldCheck className="w-5 h-5 text-[#cfa156]" />
+              <span>Inner Circle Standing: VERIFIED COLLECTOR</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>

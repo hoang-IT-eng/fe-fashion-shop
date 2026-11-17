@@ -1,82 +1,63 @@
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { api } from '../../api/apiClient'
+import { EnigmaCrest } from '../../components/EnigmaCrest'
+import { useToast } from '../../components/Toast'
 
 export default function ForgotPasswordPage() {
-  const navigate = useNavigate()
+  const { toast } = useToast()
   const [email, setEmail] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [success, setSuccess] = useState('')
-  const [error, setError] = useState('')
+  const [sent, setSent] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
-    setError('')
-    setSuccess('')
     try {
-      const data = await api.post<{ message: string }>('/auth/forgot-password', { email })
-      setSuccess(data.message || 'Email đặt lại mật khẩu đã được gửi. Vui lòng kiểm tra hộp thư.')
+      await api.post('/auth/forgot-password', { email })
+      setSent(true)
+      toast('Recovery cipher dispatched to your email.', 'success')
     } catch (err: any) {
-      setError(err.message)
-    } finally {
-      setLoading(false)
+      toast(err?.message || 'Request failed', 'error')
     }
   }
 
   return (
-    <div className="flex min-h-screen bg-white font-sans">
-      <div className="flex w-full flex-col justify-center px-8 md:w-1/2 md:px-24">
-        <div className="mb-12">
-          <h1 className="cursor-pointer text-2xl font-black text-red-600 tracking-tighter" onClick={() => navigate('/')}>
-            THEBASIC
-          </h1>
-        </div>
-
-        <h2 className="mb-3 text-3xl font-light uppercase tracking-widest text-gray-900">Quên mật khẩu</h2>
-        <p className="text-sm text-gray-500 mb-8">Nhập email của bạn, chúng tôi sẽ gửi link đặt lại mật khẩu.</p>
-
-        {success ? (
-          <div className="space-y-6">
-            <div className="rounded bg-green-50 border border-green-200 px-4 py-4 text-sm text-green-700">
-              {success}
-            </div>
-            <button onClick={() => navigate('/auth')}
-              className="w-full bg-black py-4 text-sm font-bold uppercase tracking-wider text-white hover:bg-gray-800 transition">
-              Quay lại đăng nhập
-            </button>
-          </div>
+    <div className="min-h-[75vh] bg-[#070709] text-[#ece5d8] flex items-center justify-center px-4">
+      <div className="w-full max-w-md bg-[#111115] border border-[#ece5d8]/15 p-8 space-y-6 text-center">
+        <EnigmaCrest className="w-10 h-10 mx-auto" />
+        <h1 className="font-display text-3xl">Passkey Recovery</h1>
+        {sent ? (
+          <p className="text-xs text-[#9a948a] leading-relaxed">
+            If <strong className="text-[#ece5d8]">{email}</strong> is registered in the ENIGMA
+            Vault, a recovery link has been dispatched.
+          </p>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-4 text-left">
             <div>
-              <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-gray-500">Địa chỉ Email</label>
+              <label className="block font-mono text-[10px] uppercase tracking-widest text-[#9a948a] mb-1.5">
+                Registered Collector Email
+              </label>
               <input
                 type="email"
+                required
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                required
-                className="w-full border border-gray-300 p-3 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black transition"
+                className="w-full bg-[#070709] border border-[#ece5d8]/15 px-3.5 py-2.5 text-sm text-[#ece5d8] focus:outline-none focus:border-[#cfa156]"
               />
             </div>
-
-            {error && <p className="text-red-500 text-sm">{error}</p>}
-
-            <button type="submit" disabled={loading}
-              className="w-full bg-black py-4 text-sm font-bold uppercase tracking-wider text-white hover:bg-gray-800 transition disabled:opacity-50">
-              {loading ? 'Đang gửi...' : 'Gửi link đặt lại mật khẩu'}
-            </button>
-
-            <button type="button" onClick={() => navigate('/auth')}
-              className="w-full text-sm text-gray-500 hover:text-black transition underline">
-              Quay lại đăng nhập
+            <button
+              type="submit"
+              className="w-full py-3 bg-[#cfa156] text-[#070709] font-mono text-xs font-semibold uppercase tracking-widest"
+            >
+              Send Recovery Cipher
             </button>
           </form>
         )}
-      </div>
-
-      <div className="hidden w-1/2 bg-gray-100 md:block">
-        <img src="https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?auto=format&fit=crop&w=1000&q=80"
-          alt="" className="h-full w-full object-cover" />
+        <Link
+          to="/auth"
+          className="inline-block font-mono text-xs uppercase tracking-widest text-[#cfa156]"
+        >
+          ← Back to Sign In
+        </Link>
       </div>
     </div>
   )

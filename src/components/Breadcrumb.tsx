@@ -14,17 +14,19 @@ interface Props {
 export default function Breadcrumb({ items }: Props) {
   const navigate = useNavigate()
   return (
-    <nav className="flex items-center gap-1 text-xs text-gray-400 mb-6">
+    <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.2em] text-[#9a948a] mb-8">
       {items.map((item, i) => (
         <React.Fragment key={i}>
-          {i > 0 && <ChevronRight className="w-3 h-3 flex-shrink-0" />}
+          {i > 0 && <ChevronRight className="w-3.5 h-3.5 flex-shrink-0 opacity-60" />}
           {item.path ? (
-            <button onClick={() => navigate(item.path!)}
-              className="hover:text-black transition truncate max-w-[120px]">
+            <button
+              onClick={() => navigate(item.path!)}
+              className="hover:text-[#cfa156] transition truncate max-w-[160px]"
+            >
               {item.label}
             </button>
           ) : (
-            <span className="text-gray-700 font-medium truncate max-w-[200px]">{item.label}</span>
+            <span className="text-[#ece5d8] truncate max-w-[260px]">{item.label}</span>
           )}
         </React.Fragment>
       ))}

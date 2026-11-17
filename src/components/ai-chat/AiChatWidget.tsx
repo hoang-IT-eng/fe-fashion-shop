@@ -1,291 +1,473 @@
-import React, { useEffect, useRef, useState } from 'react'
-import { MessageCircle, X, Send, RotateCcw, Sparkles, Wifi, WifiOff } from 'lucide-react'
-import { useAiChat } from '../../hooks/useAiChat'
-import type { AiChatFilters } from '../../types/ai-chat'
-import ProductRecommendationCards from './ProductRecommendationCards'
+import React, { useState, useRef, useEffect } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
+import {
+  MessageSquare,
+  X,
+  Send,
+  ShoppingBag,
+  Clock,
+  ArrowUpRight,
+  CheckCircle2,
+  Compass,
+} from 'lucide-react'
+import { api } from '../../api/apiClient'
+import { AiChatResponsePayload, GenerativeUiBlock } from '../../types/enigma'
+import { formatCountdown, formatVnd } from '../../lib/format'
+import { useCartStore } from '../../store/useCartStore'
+import { useToast } from '../Toast'
+import { EnigmaCrest } from '../EnigmaCrest'
 
-function FilterChips({ filters }: { filters?: AiChatFilters }) {
-  if (!filters) return null
-
-  const chips: string[] = []
-  if (filters.category) chips.push(`🏷️ ${filters.category}`)
-  if (filters.color) chips.push(`🎨 ${filters.color}`)
-  if (filters.style) chips.push(`✨ ${filters.style}`)
-  if (filters.keywords?.length) chips.push(...filters.keywords.map(k => `#${k}`))
-  if (filters.minPrice != null || filters.maxPrice != null) {
-    const min = filters.minPrice != null ? `${filters.minPrice.toLocaleString('vi-VN')}` : '0'
-    const max = filters.maxPrice != null ? `${filters.maxPrice.toLocaleString('vi-VN')}` : '∞'
-    chips.push(`💰 ${min}–${max} đ`)
-  }
-
-  if (chips.length === 0) return null
-
-  return (
-    <div className="flex flex-wrap gap-1.5 mt-2">
-      {chips.map(c => (
-        <span
-          key={c}
-          className="text-[10px] px-2 py-0.5 rounded-full bg-purple-50 text-purple-600 border border-purple-100 font-medium"
-        >
-          {c}
-        </span>
-      ))}
-    </div>
-  )
+interface ChatEntry {
+  id: string
+  role: 'user' | 'assistant'
+  text: string
+  engine?: string
+  toolsInvoked?: string[]
+  uiBlocks?: GenerativeUiBlock[]
 }
 
-function TypingDots() {
-  return (
-    <div className="flex items-end gap-3">
-      {/* Avatar */}
-      <div className="w-7 h-7 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center flex-shrink-0 shadow-sm">
-        <Sparkles size={12} className="text-white" />
-      </div>
-      <div className="bg-white border border-gray-100 shadow-sm rounded-2xl rounded-bl-sm px-4 py-3">
-        <span className="flex gap-1 items-center h-4">
-          <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-bounce [animation-delay:0ms]" />
-          <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-bounce [animation-delay:150ms]" />
-          <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-bounce [animation-delay:300ms]" />
-        </span>
-      </div>
-    </div>
-  )
-}
+const QUICK_PROMPTS = [
+  'Recommend archival outerwear & sneakers',
+  'Compare Bomber vs Overcoat',
+  'Show live Grail Auctions',
+  'Track order #1002',
+  'Decode my Mystery Vault Codex',
+]
 
-export default function AiChatWidget() {
+export function AiChatWidget() {
+  const location = useLocation()
+  const navigate = useNavigate()
+  const addItem = useCartStore(s => s.addItem)
+  const { toast } = useToast()
+
   const [open, setOpen] = useState(false)
   const [input, setInput] = useState('')
-  const listRef = useRef<HTMLDivElement>(null)
-  const inputRef = useRef<HTMLInputElement>(null)
+  const [sending, setSending] = useState(false)
+  const [sessionId] = useState(() => `enigma-stylist-${Date.now()}`)
+  const [selectedSizes, setSelectedSizes] = useState<Record<number, string>>({})
+  const [entries, setEntries] = useState<ChatEntry[]>([
+    {
+      id: 'welcome',
+      role: 'assistant',
+      text: 'Welcome to the ENIGMA Grail Stylist (Hybrid RAG + Tool Router). Ask me to curate archival pieces with inline size reservation, compare grails side-by-side, inspect live anti-snipe auctions, or track provenance dispatch.',
+    },
+  ])
 
-  const { connected, connecting, loading, error, messages, sendMessage, clearSession } =
-    useAiChat(open)
+  const bottomRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     if (open) {
-      setTimeout(() => inputRef.current?.focus(), 100)
+      bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
     }
-  }, [open])
+  }, [entries, open])
 
-  useEffect(() => {
-    if (listRef.current) {
-      listRef.current.scrollTo({ top: listRef.current.scrollHeight, behavior: 'smooth' })
-    }
-  }, [messages, loading])
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!input.trim() || loading) return
-    sendMessage(input)
-    setInput('')
+  if (location.pathname.startsWith('/admin')) {
+    return null
   }
 
-  const statusColor = connecting ? 'bg-yellow-400' : connected ? 'bg-emerald-400' : 'bg-red-400'
-  const statusText = connecting ? 'Đang kết nối...' : connected ? 'Trực tuyến' : 'Mất kết nối'
+  const sendQuery = async (messageText: string) => {
+    const trimmed = messageText.trim()
+    if (!trimmed || sending) return
+
+    const userMsg: ChatEntry = {
+      id: `u-${Date.now()}`,
+      role: 'user',
+      text: trimmed,
+    }
+    setEntries(prev => [...prev, userMsg])
+    setInput('')
+    setSending(true)
+
+    try {
+      const res = await api.post<AiChatResponsePayload>('/ai-chat/message', {
+        message: trimmed,
+        sessionId,
+      })
+      setEntries(prev => [
+        ...prev,
+        {
+          id: `a-${Date.now()}`,
+          role: 'assistant',
+          text: res.message,
+          engine: res.engine,
+          toolsInvoked: res.toolsInvoked,
+          uiBlocks: res.uiBlocks,
+        },
+      ])
+    } catch (err: any) {
+      setEntries(prev => [
+        ...prev,
+        {
+          id: `err-${Date.now()}`,
+          role: 'assistant',
+          text: err?.message || 'Vault Stylist temporarily unreachable.',
+        },
+      ])
+    } finally {
+      setSending(false)
+    }
+  }
+
+  const handleQuickAdd = async (p: Extract<GenerativeUiBlock, { kind: 'product_cards' }>['products'][number]) => {
+    const chosenSize = selectedSizes[p.id] || p.sizes?.[0] || 'One Size'
+    const variant = p.variants?.find(v => v.size === chosenSize)
+    await addItem(
+      {
+        productId: p.id,
+        variantId: variant?.id,
+        name: p.name,
+        price: p.price,
+        quantity: 1,
+        size: chosenSize,
+        color: p.colors?.[0] || 'Obsidian',
+        imageUrl: p.imageUrl || undefined,
+      },
+      false
+    )
+    toast(`Added "${p.name}" (${chosenSize}) directly from Grail Stylist.`, 'success')
+  }
 
   return (
     <>
-      <style>{`
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .chat-slide-up {
-          animation: chatSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        @keyframes chatSlideUp {
-          from { opacity: 0; transform: translateY(16px) scale(0.97); }
-          to   { opacity: 1; transform: translateY(0) scale(1); }
-        }
-        .msg-in {
-          animation: msgIn 0.2s ease-out;
-        }
-        @keyframes msgIn {
-          from { opacity: 0; transform: translateY(6px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
-
-      {/* Backdrop mobile */}
-      {open && (
-        <div
-          className="fixed inset-0 z-[60] bg-black/30 backdrop-blur-[2px] md:hidden"
-          onClick={() => setOpen(false)}
-          aria-hidden
-        />
+      {!open && (
+        <button
+          id="enigma-ai-stylist-trigger"
+          type="button"
+          onClick={() => setOpen(true)}
+          className="fixed bottom-6 right-6 z-[90] flex items-center gap-3 px-4 py-3 bg-[#111115] border border-[#cfa156]/60 text-[#ece5d8] shadow-2xl hover:bg-[#1c1d24] transition"
+        >
+          <EnigmaCrest className="w-5 h-5" />
+          <span className="font-mono text-xs uppercase tracking-[0.22em]">Grail Stylist</span>
+          <MessageSquare className="w-3.5 h-3.5 text-[#cfa156]" />
+        </button>
       )}
 
-      <div className="fixed bottom-5 right-5 z-[70] flex flex-col items-end gap-3">
-        {open && (
-          <div
-            className="chat-slide-up w-[calc(100vw-2.5rem)] sm:w-[400px] h-[min(580px,calc(100vh-6rem))] bg-white rounded-2xl shadow-2xl flex flex-col pointer-events-auto overflow-hidden border border-gray-100"
-            role="dialog"
-            aria-label="Trợ lý mua sắm AI"
-            onClick={e => e.stopPropagation()}
-          >
-            {/* Header */}
-            <header className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 text-white flex-shrink-0">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-white/20 backdrop-blur flex items-center justify-center shadow-inner">
-                  <Sparkles size={18} className="text-white" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold leading-tight">Trợ lý mua sắm AI</p>
-                  <div className="flex items-center gap-1.5 mt-0.5">
-                    <span className={`w-1.5 h-1.5 rounded-full ${statusColor} shadow-sm`} />
-                    <p className="text-[10px] text-white/70 leading-none">{statusText}</p>
-                  </div>
-                </div>
+      {open && (
+        <section
+          id="enigma-ai-stylist-panel"
+          aria-label="ENIGMA Generative UI Grail Stylist"
+          className="fixed bottom-4 right-4 z-[105] w-[calc(100vw-2rem)] sm:w-[440px] h-[620px] max-h-[85vh] bg-[#0b0b0f] border border-[#cfa156]/45 shadow-2xl flex flex-col text-[#ece5d8]"
+        >
+          {/* Header */}
+          <div className="px-4 py-3.5 bg-[#111115] border-b border-[#ece5d8]/10 flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <EnigmaCrest className="w-6 h-6" />
+              <div>
+                <h2 className="font-display text-base tracking-wide text-[#ece5d8]">
+                  ENIGMA Grail Stylist
+                </h2>
+                <p className="font-mono text-[9px] tracking-[0.24em] uppercase text-[#cfa156]">
+                  HYBRID RAG · TOOL ROUTER · GENERATIVE UI
+                </p>
               </div>
-              <div className="flex items-center gap-1">
-                <button
-                  type="button"
-                  onClick={clearSession}
-                  className="p-2 hover:bg-white/15 rounded-xl transition-colors"
-                  title="Cuộc trò chuyện mới"
-                  aria-label="Cuộc trò chuyện mới"
-                >
-                  <RotateCcw size={15} />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setOpen(false)}
-                  className="p-2 hover:bg-white/15 rounded-xl transition-colors"
-                  aria-label="Đóng"
-                >
-                  <X size={17} />
-                </button>
-              </div>
-            </header>
-
-            {/* Messages */}
-            <div
-              ref={listRef}
-              className="flex-1 overflow-y-auto px-4 py-4 space-y-4 bg-gradient-to-b from-slate-50 to-white hide-scrollbar"
+            </div>
+            <button
+              id="close-ai-stylist-btn"
+              type="button"
+              onClick={() => setOpen(false)}
+              aria-label="Close Grail Stylist"
+              className="p-1 text-[#9a948a] hover:text-[#ece5d8]"
             >
-              {messages.length === 0 && !loading && (
-                <div className="flex flex-col items-center justify-center h-full gap-4 py-8 text-center">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-100 to-purple-100 flex items-center justify-center">
-                    <Sparkles size={28} className="text-purple-500" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-gray-700 mb-1">Xin chào! 👋</p>
-                    <p className="text-xs text-gray-400 leading-relaxed max-w-[240px]">
-                      Mô tả phong cách hoặc sản phẩm bạn muốn — ví dụ:{' '}
-                      <span className="text-purple-500 font-medium">
-                        &quot;áo phông trắng đơn giản dưới 500k&quot;
-                      </span>
-                    </p>
-                  </div>
-                  <div className="flex flex-wrap gap-2 justify-center">
-                    {['Áo phông basic', 'Quần jeans nam', 'Váy dự tiệc', 'Outfit đi làm'].map(s => (
-                      <button
-                        key={s}
-                        type="button"
-                        onClick={() => { sendMessage(s); }}
-                        className="text-[11px] px-3 py-1.5 rounded-full border border-purple-200 text-purple-600 hover:bg-purple-50 transition-colors font-medium"
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Messages */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            {entries.map(entry => (
+              <div
+                key={entry.id}
+                className={`flex flex-col gap-2 ${
+                  entry.role === 'user' ? 'items-end' : 'items-start'
+                }`}
+              >
+                <div
+                  className={`max-w-[90%] px-3.5 py-2.5 text-xs leading-relaxed ${
+                    entry.role === 'user'
+                      ? 'bg-[#cfa156] text-[#070709] font-medium'
+                      : 'bg-[#111115] border border-[#ece5d8]/10 text-[#ece5d8]'
+                  }`}
+                >
+                  {entry.text}
+                </div>
+
+                {entry.toolsInvoked && entry.toolsInvoked.length > 0 && (
+                  <div className="flex flex-wrap gap-1">
+                    {entry.toolsInvoked.map(tool => (
+                      <span
+                        key={tool}
+                        className="px-2 py-0.5 bg-[#1c1d24] border border-[#ece5d8]/10 font-mono text-[9px] uppercase tracking-wider text-[#9a948a]"
                       >
-                        {s}
-                      </button>
+                        tool:{tool}
+                      </span>
                     ))}
                   </div>
-                </div>
-              )}
+                )}
 
-              {messages.map(msg => (
-                <div
-                  key={msg.id}
-                  className={`msg-in flex items-end gap-2 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
-                  {/* AI avatar */}
-                  {msg.role === 'assistant' && (
-                    <div className="w-7 h-7 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center flex-shrink-0 shadow-sm mb-0.5">
-                      <Sparkles size={12} className="text-white" />
-                    </div>
-                  )}
+                {/* Generative UI Blocks */}
+                {entry.uiBlocks?.map((block, bIdx) => {
+                  if (block.kind === 'product_cards') {
+                    return (
+                      <div key={bIdx} className="w-full space-y-2.5">
+                        <p className="font-mono text-[10px] tracking-[0.22em] text-[#cfa156] uppercase">
+                          {block.title}
+                        </p>
+                        {block.products.map(p => {
+                          const activeSz = selectedSizes[p.id] || p.sizes?.[0] || 'One Size'
+                          return (
+                            <div
+                              key={p.id}
+                              className="p-2.5 bg-[#111115] border border-[#ece5d8]/12 flex gap-3"
+                            >
+                              {p.imageUrl && (
+                                <img
+                                  src={p.imageUrl}
+                                  alt={p.name}
+                                  onClick={() => navigate(`/products/${p.id}`)}
+                                  className="w-16 h-20 object-cover bg-[#070709] cursor-pointer flex-shrink-0"
+                                />
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <button
+                                  type="button"
+                                  onClick={() => navigate(`/products/${p.id}`)}
+                                  className="text-left text-xs font-medium text-[#ece5d8] hover:text-[#cfa156] line-clamp-1"
+                                >
+                                  {p.name}
+                                </button>
+                                <p className="font-mono text-[11px] text-[#cfa156] tabular-nums mt-0.5">
+                                  {formatVnd(p.price)}
+                                </p>
+                                <div className="flex flex-wrap gap-1 my-1.5">
+                                  {(p.sizes?.length ? p.sizes : ['One Size']).slice(0, 4).map(sz => (
+                                    <button
+                                      key={sz}
+                                      type="button"
+                                      onClick={() =>
+                                        setSelectedSizes(prev => ({ ...prev, [p.id]: sz }))
+                                      }
+                                      className={`px-1.5 py-0.5 font-mono text-[10px] border ${
+                                        activeSz === sz
+                                          ? 'border-[#cfa156] text-[#cfa156]'
+                                          : 'border-[#ece5d8]/15 text-[#9a948a]'
+                                      }`}
+                                    >
+                                      {sz}
+                                    </button>
+                                  ))}
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => void handleQuickAdd(p)}
+                                  className="w-full py-1.5 bg-[#cfa156] text-[#070709] font-mono text-[10px] font-semibold uppercase tracking-widest flex items-center justify-center gap-1"
+                                >
+                                  <ShoppingBag className="w-3 h-3" /> Add ({activeSz})
+                                </button>
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    )
+                  }
 
-                  <div
-                    className={`max-w-[82%] ${
-                      msg.role === 'user'
-                        ? 'bg-gradient-to-br from-violet-600 to-purple-600 text-white rounded-2xl rounded-br-sm shadow-md shadow-purple-200'
-                        : 'bg-white border border-gray-100 text-gray-800 rounded-2xl rounded-bl-sm shadow-sm'
-                    } px-3.5 py-2.5 text-sm leading-relaxed`}
-                  >
-                    <p className="whitespace-pre-wrap">{msg.text}</p>
-                    {msg.role === 'assistant' && (
-                      <>
-                        <FilterChips filters={msg.filters} />
-                        {msg.products && msg.products.length > 0 && (
-                          <ProductRecommendationCards products={msg.products} />
-                        )}
-                      </>
-                    )}
-                    {/* Timestamp */}
-                    <p className={`text-[9px] mt-1.5 ${msg.role === 'user' ? 'text-white/50 text-right' : 'text-gray-300'}`}>
-                      {new Date(msg.timestamp).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
-                    </p>
-                  </div>
+                  if (block.kind === 'comparison_table') {
+                    return (
+                      <div
+                        key={bIdx}
+                        className="w-full bg-[#111115] border border-[#ece5d8]/15 p-3 space-y-2"
+                      >
+                        <p className="font-mono text-[10px] tracking-[0.2em] text-[#cfa156] uppercase">
+                          {block.title}
+                        </p>
+                        <div className="grid grid-cols-2 gap-2 text-[11px]">
+                          {block.columns.map(col => (
+                            <div
+                              key={col.id}
+                              className="p-2 bg-[#070709] border border-[#ece5d8]/10 space-y-1"
+                            >
+                              <p className="font-medium text-[#ece5d8] line-clamp-2">{col.name}</p>
+                              <p className="font-mono text-[#cfa156] tabular-nums">
+                                {formatVnd(col.price)}
+                              </p>
+                              <p className="font-mono text-[10px] text-[#9a948a]">
+                                {col.releaseType} · {col.condition}
+                              </p>
+                              <p className="font-mono text-[10px] text-[#9a948a]">
+                                Sizes: {col.sizes}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                        <p className="text-[11px] text-[#9a948a] italic pt-1">{block.verdict}</p>
+                      </div>
+                    )
+                  }
 
-                  {/* User avatar */}
-                  {msg.role === 'user' && (
-                    <div className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0 mb-0.5 text-xs font-bold text-gray-500">
-                      U
-                    </div>
-                  )}
-                </div>
-              ))}
+                  if (block.kind === 'auction_card') {
+                    return (
+                      <div key={bIdx} className="w-full space-y-2">
+                        <p className="font-mono text-[10px] tracking-[0.2em] text-[#cfa156] uppercase">
+                          {block.title}
+                        </p>
+                        {block.lots.map(lot => (
+                          <div
+                            key={lot.id}
+                            className="p-3 bg-[#111115] border border-[#cfa156]/35 space-y-2"
+                          >
+                            <p className="text-xs font-medium text-[#ece5d8]">{lot.title}</p>
+                            <div className="flex items-center justify-between font-mono text-[11px] tabular-nums">
+                              <span className="text-[#cfa156]">
+                                Bid: {formatVnd(lot.currentBid)}
+                              </span>
+                              <span className="inline-flex items-center gap-1 text-[#ece5d8]">
+                                <Clock className="w-3 h-3 text-[#cfa156]" />
+                                {formatCountdown(lot.remainingSeconds)}
+                              </span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setOpen(false)
+                                navigate('/auctions')
+                              }}
+                              className="w-full py-1.5 border border-[#cfa156] text-[#cfa156] font-mono text-[10px] uppercase tracking-widest hover:bg-[#cfa156] hover:text-[#070709] transition"
+                            >
+                              Enter Bidding Room
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )
+                  }
 
-              {loading && <TypingDots />}
-            </div>
+                  if (block.kind === 'order_stepper') {
+                    return (
+                      <div
+                        key={bIdx}
+                        className="w-full p-3 bg-[#111115] border border-[#ece5d8]/15 space-y-2.5"
+                      >
+                        <div className="flex items-center justify-between font-mono text-[10px]">
+                          <span className="text-[#cfa156] uppercase">{block.title}</span>
+                          <span className="tabular-nums text-[#ece5d8]">
+                            {formatVnd(block.order.total)}
+                          </span>
+                        </div>
+                        <div className="space-y-1.5">
+                          {block.order.stages.map(st => (
+                            <div
+                              key={st.key}
+                              className="flex items-center gap-2 font-mono text-[11px]"
+                            >
+                              <CheckCircle2
+                                className={`w-3.5 h-3.5 ${
+                                  st.completed ? 'text-[#cfa156]' : 'text-[#9a948a]/30'
+                                }`}
+                              />
+                              <span
+                                className={
+                                  st.completed ? 'text-[#ece5d8]' : 'text-[#9a948a]/60'
+                                }
+                              >
+                                {st.label}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setOpen(false)
+                            navigate(`/orders/${block.order.id}`)
+                          }}
+                          className="inline-flex items-center gap-1 font-mono text-[10px] text-[#cfa156] uppercase tracking-widest"
+                        >
+                          Inspect Full Dossier <ArrowUpRight className="w-3 h-3" />
+                        </button>
+                      </div>
+                    )
+                  }
 
-            {/* Error bar */}
-            {error && (
-              <div className="flex items-center gap-2 px-4 py-2 text-xs text-red-600 bg-red-50 border-t border-red-100 flex-shrink-0">
-                <WifiOff size={12} />
-                <span>{error}</span>
+                  if (block.kind === 'taste_codex_prompt') {
+                    return (
+                      <div
+                        key={bIdx}
+                        className="w-full p-3.5 bg-[#111115] border border-[#cfa156]/45 space-y-2"
+                      >
+                        <div className="flex items-center gap-2 text-[#cfa156] font-mono text-[10px] uppercase tracking-widest">
+                          <Compass className="w-3.5 h-3.5" />
+                          <span>{block.title}</span>
+                        </div>
+                        <p className="text-xs text-[#9a948a] leading-relaxed">{block.subtitle}</p>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setOpen(false)
+                            navigate(block.ctaUrl)
+                          }}
+                          className="w-full py-2 bg-[#cfa156] text-[#070709] font-mono text-[10px] font-semibold uppercase tracking-widest"
+                        >
+                          Open 8-Step Style Decoder
+                        </button>
+                      </div>
+                    )
+                  }
+
+                  return null
+                })}
+              </div>
+            ))}
+            {sending && (
+              <div className="font-mono text-[10px] tracking-[0.24em] text-[#9a948a] uppercase">
+                QUERYING ARCHIVE INDEX...
               </div>
             )}
+            <div ref={bottomRef} />
+          </div>
 
-            {/* Input */}
-            <form
-              onSubmit={handleSubmit}
-              className="flex items-center gap-2 p-3 border-t border-gray-100 bg-white flex-shrink-0"
-            >
-              <input
-                ref={inputRef}
-                type="text"
-                value={input}
-                onChange={e => setInput(e.target.value)}
-                placeholder="Nhập tin nhắn..."
-                disabled={loading}
-                className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm focus:border-purple-400 focus:ring-2 focus:ring-purple-100 focus:outline-none disabled:opacity-50 transition-all placeholder:text-gray-400"
-              />
+          {/* Quick Prompt Strip */}
+          <div className="px-3 py-2 border-t border-[#ece5d8]/10 bg-[#070709] flex gap-1.5 overflow-x-auto">
+            {QUICK_PROMPTS.map(prompt => (
               <button
-                type="submit"
-                disabled={loading || !input.trim()}
-                className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-purple-600 text-white flex items-center justify-center disabled:opacity-40 hover:from-violet-700 hover:to-purple-700 transition-all shadow-md shadow-purple-200 flex-shrink-0"
-                aria-label="Gửi"
+                key={prompt}
+                type="button"
+                onClick={() => void sendQuery(prompt)}
+                className="flex-shrink-0 px-2.5 py-1 border border-[#ece5d8]/15 hover:border-[#cfa156] font-mono text-[10px] text-[#9a948a] hover:text-[#ece5d8] whitespace-nowrap transition"
               >
-                <Send size={16} />
+                {prompt}
               </button>
-            </form>
+            ))}
           </div>
-        )}
 
-        {/* FAB button */}
-        <button
-          type="button"
-          onClick={() => setOpen(v => !v)}
-          className="w-14 h-14 rounded-full bg-gradient-to-br from-violet-600 to-purple-600 text-white shadow-lg shadow-purple-300 flex items-center justify-center hover:from-violet-700 hover:to-purple-700 transition-all pointer-events-auto hover:scale-105 active:scale-95"
-          aria-label={open ? 'Đóng trợ lý mua sắm' : 'Mở trợ lý mua sắm'}
-        >
-          <div className={`transition-transform duration-200 ${open ? 'rotate-90' : 'rotate-0'}`}>
-            {open ? <X size={22} /> : <MessageCircle size={22} />}
-          </div>
-          {/* Pulse ring khi đóng */}
-          {!open && (
-            <span className="absolute w-14 h-14 rounded-full bg-purple-400 opacity-30 animate-ping" />
-          )}
-        </button>
-      </div>
+          {/* Input */}
+          <form
+            onSubmit={e => {
+              e.preventDefault()
+              void sendQuery(input)
+            }}
+            className="p-3 bg-[#111115] border-t border-[#ece5d8]/10 flex gap-2"
+          >
+            <input
+              id="ai-stylist-input"
+              type="text"
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              placeholder="Ask for grails, compare items, live auctions, order #..."
+              className="flex-1 bg-[#070709] border border-[#ece5d8]/15 px-3 py-2 text-xs text-[#ece5d8] placeholder-[#9a948a] focus:outline-none focus:border-[#cfa156]"
+            />
+            <button
+              type="submit"
+              disabled={sending}
+              aria-label="Send message to Grail Stylist"
+              className="px-3.5 py-2 bg-[#cfa156] text-[#070709] hover:bg-[#dec37b] disabled:opacity-40 transition"
+            >
+              <Send className="w-4 h-4" />
+            </button>
+          </form>
+        </section>
+      )}
     </>
   )
 }
+
+export default AiChatWidget

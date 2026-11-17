@@ -4,5 +4,8 @@ export interface ProductVariant {
   size: string
   color: string
   stock: number
+  priceOverride?: number | null
   sku: string | null
 }
+
+export type Variant = ProductVariant

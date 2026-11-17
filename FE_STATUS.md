@@ -1,58 +1,25 @@
-# Frontend Status — The Basic Fashion Shop
+# ENIGMA Frontend Implementation Status (`FE_STATUS.md`)
 
-## Tech Stack
-- React + TypeScript (Vite)
-- Tailwind CSS
-- Zustand (state management)
-- React Router DOM
-- Vitest + React Testing Library (CI)
+**Status:** Production-Ready · Cult-Dark Rebuild Complete  
+**Theme:** ENIGMA Chiaroscuro Editorial (`#070709` / `#111115` / `#1c1d24` / `#ece5d8` / `#9a948a` / `#cfa156`)  
+**Backend Integration:** Dual-Mode (`be-fashion-shop` Live NestJS REST API + Resilient `localStorage` `enigmaDemoEngine.ts`)
 
 ---
 
-## Đã hoàn thiện
+## Completed Capabilities Matrix
 
-### Auth
-- Trang đăng nhập / đăng ký (`/auth`)
-- Gọi API thật: `POST /auth/login`, `POST /auth/register`
-- Lưu JWT vào localStorage, tự restore khi refresh trang
-- Hiển thị lỗi từ backend (sai mật khẩu, email đã tồn tại...)
-- Redirect đúng role sau khi login (admin → `/admin`, user → `/`)
-
-### Trang chủ (`/`)
-- Hero banner
-- Load danh sách sản phẩm từ `GET /products`
-- Skeleton loading khi chờ API
-- Hiển thị ảnh, tên, danh mục, giá sản phẩm
-
-### Admin Dashboard (`/admin`)
-- Bảo vệ route: redirect về `/auth` nếu không phải admin
-- Danh sách sản phẩm từ API (load thật)
-- Thêm sản phẩm mới (modal form + gọi `POST /products`)
-- Sửa sản phẩm (modal form + gọi `PUT /products/:id`)
-- Xóa sản phẩm (`DELETE /products/:id`)
-- Upload ảnh lên Cloudinary (`POST /products/upload`) trước khi lưu
-- Preview ảnh trước khi upload
-- Hiển thị trạng thái tồn kho (còn hàng / sắp hết / hết hàng)
-
-### API Layer
-- `src/api/apiClient.ts` — fetch wrapper tự gắn JWT vào header
-- Hàm upload riêng cho multipart/form-data (không set Content-Type thủ công)
-
-### CI/CD
-- GitHub Actions: lint → test → build khi có PR vào `main`
-- Vitest + React Testing Library
-
----
-
-## Chưa làm
-
-- Trang danh sách sản phẩm (`/products`) với filter theo category, search, pagination
-- Trang chi tiết sản phẩm (`/products/:id`)
-- Giỏ hàng (Cart)
-- Trang Checkout
-- Thanh toán (COD hoặc VNPay)
-- Lịch sử đơn hàng của user
-- Quản lý đơn hàng (admin)
-- Quản lý users (admin)
-- Route guard ở router level (hiện tại chỉ check trong component)
-- Trang 404
+| Area | Route / Component | Status | Highlights |
+| --- | --- | --- | --- |
+| **3D & Motion Layer** | `CinematicPreloader`, `HeroMonolithScene`, `MysteryVaultScene`, `CloudCurtainTransition` | ✅ Complete | Lazy-loaded Three.js scenes with WebGL fallback, GSAP ScrollTrigger manifesto & unseal animations, `prefers-reduced-motion` & test bypass |
+| **Diegetic Audio & Cipher** | `enigmaAudio.ts`, `InitiationEasterEgg.tsx` | ✅ Complete | Zero-MP3 Web Audio wind atmosphere, watch escapement tick, bronze gavel chime; typing `ENIGMA` unlocks & applies `ENIGMA15` |
+| **Home Showcase** | `/` (`HomePage.tsx`) | ✅ Complete | Hero 3D + Manifesto + Grail Drops + Live Auctions + Mystery Vaults + Interactive Concierge Builder + Reborn Dossiers |
+| **Drops & Filtering** | `/products` (`ProductsPage.tsx`) | ✅ Complete | Release tier, category, brand, size, price ceiling, search, sort, Quick Inspect modal, Wishlist heart toggle |
+| **Product Dossier** | `/products/:id` (`ProductDetailPage.tsx`) | ✅ Complete | SKU Variant matrix, **Interactive Size & Fit Calculator**, NFC Provenance seal, Verified Reviews breakdown, Related Grails |
+| **Live Grail Auctions** | `/auctions` (`AuctionsPage.tsx`) | ✅ Complete | 1s ticking countdowns, `<60s -> +120s` Anti-Snipe protocol, Bid History feed, Seat-Hold Bid Confirmation |
+| **Mystery Vault & Quiz** | `/mystery-boxes` (`MysteryBoxesPage.tsx`) | ✅ Complete | 8-step "Decode Your Style" quiz -> Taste Codex card + DNA breakdown + matched Mystery Box reservation |
+| **Concierge Sourcing** | `/concierge` (`ConciergePage.tsx`) | ✅ Complete | "Find It At My Price" custom sourcing mandate builder + live status & counter-offer ledger |
+| **Cart & Checkout** | `CartDrawer`, `/cart`, `/checkout` | ✅ Complete | Slide-over bag, `ENIGMA15` / `CULT10` / `VAULT500K` validation, 3-step Armored Checkout (Address Book, Courier, VNPay/Card/COD) |
+| **Provenance Tracking** | `/orders`, `/orders/:id` | ✅ Complete | 5-stage visual provenance stepper + cancellation support |
+| **Editorial & Wishlist** | `/journal`, `/wishlist`, `/profile` | ✅ Complete | Reborn Atelier Chronicles reader, persisted Collector Watchlist, Identity & Codex profile |
+| **Generative UI AI Stylist** | `AiChatWidget.tsx` | ✅ Complete | Inline Product Cards (size pick + 1-click Add), Side-by-Side Comparison Table, Live Auction Card, Order Stepper, Taste Codex Badge |
+| **Executive Admin Desk** | `/admin` (`AdminPage.tsx` + 8 tabs) | ✅ Complete | Sidebar + `Cmd/Ctrl+K` palette + KPI strip + SVG Area GMV chart + CSV export + SKU Variant Matrix + Auctions + Concierge + Vouchers + Orders |
