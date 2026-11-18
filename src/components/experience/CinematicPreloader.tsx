@@ -1,7 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react'
-import { EnigmaCrest } from '../EnigmaCrest'
+import React, { useEffect, useState } from 'react'
 
-const SCRAMBLE_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/·'
 const SESSION_KEY = 'enigma_preloader_seen'
 
 function shouldBypassPreloader(): boolean {
@@ -22,12 +20,16 @@ function shouldBypassPreloader(): boolean {
   return false
 }
 
+/**
+ * Film-leader intro: black screen, a Playfair italic percentage counter
+ * over a thin progress hairline, then the curtain lifts.
+ * Trigger logic and total timing are unchanged from the original
+ * preloader (1250ms count + 360ms exit, once per session).
+ */
 export function CinematicPreloader() {
   const [visible, setVisible] = useState<boolean>(() => !shouldBypassPreloader())
   const [progress, setProgress] = useState(0)
-  const [headline, setHeadline] = useState('DECODING...')
   const [fading, setFading] = useState(false)
-  const canvasRef = useRef<HTMLCanvasElement | null>(null)
 
   useEffect(() => {
     if (!visible) return
@@ -38,81 +40,26 @@ export function CinematicPreloader() {
       // ignore
     }
 
-    const canvas = canvasRef.current
-    let rafId = 0
-    if (canvas) {
-      const ctx = canvas.getContext('2d')
-      if (ctx) {
-        const w = (canvas.width = window.innerWidth)
-        const h = (canvas.height = window.innerHeight)
-        const clouds = Array.from({ length: 24 }, (_, i) => ({
-          x: (w * (i % 6)) / 5 + (Math.random() - 0.5) * 140,
-          y: (h * Math.floor(i / 6)) / 3 + (Math.random() - 0.5) * 120,
-          r: 140 + Math.random() * 180,
-          vx: (Math.random() - 0.5) * 0.45,
-          vy: (Math.random() - 0.5) * 0.3,
-        }))
-
-        const render = () => {
-          ctx.fillStyle = '#0a0a0a'
-          ctx.fillRect(0, 0, w, h)
-          for (const c of clouds) {
-            c.x += c.vx + (w / 2 - c.x) * 0.002
-            c.y += c.vy + (h / 2 - c.y) * 0.002
-            const grad = ctx.createRadialGradient(c.x, c.y, 10, c.x, c.y, c.r)
-            grad.addColorStop(0, 'rgba(35, 35, 35, 0.42)')
-            grad.addColorStop(0.6, 'rgba(17, 17, 17, 0.18)')
-            grad.addColorStop(1, 'rgba(10, 10, 10, 0)')
-            ctx.fillStyle = grad
-            ctx.beginPath()
-            ctx.arc(c.x, c.y, c.r, 0, Math.PI * 2)
-            ctx.fill()
-          }
-          rafId = window.requestAnimationFrame(render)
-        }
-        render()
-      }
-    }
-
-    const targetPhrase = 'DECODE YOUR STYLE'
     const start = performance.now()
     const duration = 1250
+    let rafId = 0
 
     const tick = (now: number) => {
       const ratio = Math.min(1, (now - start) / duration)
-      const pct = Math.round(ratio * 100)
-      setProgress(pct)
-
-      if (ratio < 0.35) {
-        setHeadline('DECODING...')
-      } else {
-        const revealRatio = (ratio - 0.35) / 0.65
-        const lockedCount = Math.floor(revealRatio * targetPhrase.length)
-        const scrambled = targetPhrase
-          .split('')
-          .map((ch, idx) => {
-            if (ch === ' ') return ' '
-            if (idx < lockedCount) return ch
-            return SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)]
-          })
-          .join('')
-        setHeadline(scrambled)
-      }
+      setProgress(Math.round(ratio * 100))
 
       if (ratio < 1) {
         rafId = window.requestAnimationFrame(tick)
       } else {
-        setHeadline(targetPhrase)
         setFading(true)
         window.setTimeout(() => setVisible(false), 360)
       }
     }
 
-    const timerId = window.requestAnimationFrame(tick)
+    rafId = window.requestAnimationFrame(tick)
 
     return () => {
       window.cancelAnimationFrame(rafId)
-      window.cancelAnimationFrame(timerId)
     }
   }, [visible])
 
@@ -122,26 +69,41 @@ export function CinematicPreloader() {
     <div
       id="enigma-preloader"
       aria-hidden="true"
-      className={`fixed inset-0 z-[120] flex flex-col items-center justify-center bg-[#0a0a0a] transition-opacity duration-300 ${
-        fading ? 'opacity-0 pointer-events-none' : 'opacity-100'
+      className={`fixed inset-0 z-[120] bg-[#0a0a0a] text-[#f9f9f9] transition-transform duration-300 ease-[cubic-bezier(0.76,0,0.24,1)] ${
+        fading ? '-translate-y-full' : 'translate-y-0'
       }`}
     >
-      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full opacity-90" />
-      <div className="relative z-10 flex flex-col items-center gap-6 px-6 text-center">
-        <EnigmaCrest className="w-12 h-12" />
-        <p className="font-mono text-xs md:text-sm tracking-[0.36em] text-[#f9f9f9] uppercase">
-          {headline}
+      {/* Film-leader corner marks */}
+      <span className="absolute left-5 top-5 font-sans text-[10px] font-medium uppercase tracking-[0.28em] text-[#a3a3a3] md:left-8 md:top-7">
+        Enigma Cult
+      </span>
+      <span className="absolute right-5 top-5 font-sans text-[10px] font-medium uppercase tracking-[0.28em] text-[#a3a3a3] md:right-8 md:top-7">
+        Reel N°01
+      </span>
+      <span className="absolute bottom-5 left-5 font-sans text-[10px] font-medium uppercase tracking-[0.28em] text-[#a3a3a3] md:bottom-7 md:left-8">
+        Feature Presentation
+      </span>
+      <span className="absolute bottom-5 right-5 font-sans text-[10px] font-medium uppercase tracking-[0.28em] text-[#a3a3a3] tabular-nums md:bottom-7 md:right-8">
+        AW · 2026
+      </span>
+
+      <div className="flex h-full flex-col items-center justify-center gap-7 px-6 text-center">
+        <p className="font-sans text-[10px] font-medium uppercase tracking-[0.34em] text-[#a3a3a3]">
+          Enigma · Feature Presentation
         </p>
-        <div className="w-56 h-[1px] bg-[#232323] overflow-hidden">
+        <p className="font-display text-[clamp(4.5rem,14vw,8.5rem)] italic leading-none text-[#f9f9f9] tabular-nums">
+          {progress}
+          <span className="text-[0.42em] not-italic text-[#a3a3a3]">%</span>
+        </p>
+        <div className="h-px w-56 overflow-hidden bg-[#232323] md:w-72">
           <div
             className="h-full bg-[#f9f9f9] transition-all duration-75"
             style={{ width: `${progress}%` }}
           />
         </div>
-        <div className="flex items-center gap-4 font-mono text-[11px] tracking-[0.28em] text-[#a3a3a3] tabular-nums">
-          <span>ENIGMA VAULT SEAL</span>
-          <span className="text-[#f9f9f9]">{String(progress).padStart(2, '0')} / 100</span>
-        </div>
+        <p className="font-sans text-[10px] font-medium uppercase tracking-[0.3em] text-[#a3a3a3]">
+          Loading the Archive
+        </p>
       </div>
     </div>
   )

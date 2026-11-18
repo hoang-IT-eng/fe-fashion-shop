@@ -6,6 +6,8 @@ import { CartDrawer } from './components/CartDrawer'
 import { CinematicPreloader } from './components/experience/CinematicPreloader'
 import { CloudCurtainTransition } from './components/experience/CloudCurtainTransition'
 import { InitiationEasterEgg } from './components/experience/InitiationEasterEgg'
+import { SmoothScroll } from './components/experience/SmoothScroll'
+import { CustomCursor } from './components/experience/CustomCursor'
 import { AiChatWidget } from './components/ai-chat/AiChatWidget'
 import { useCartStore } from './store/useCartStore'
 
@@ -38,6 +40,7 @@ export function AppLayout() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-[#f9f9f9] flex flex-col">
+      <SmoothScroll />
       <CinematicPreloader />
       <CloudCurtainTransition />
       <InitiationEasterEgg />
@@ -73,6 +76,9 @@ export function AppLayout() {
 
       <Footer />
       <AiChatWidget />
+      {/* Fixed film-grain overlay above all content, below the cursor */}
+      <div aria-hidden="true" className="film-grain" />
+      <CustomCursor />
     </div>
   )
 }
