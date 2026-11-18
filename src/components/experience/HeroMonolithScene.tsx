@@ -34,20 +34,20 @@ export default function HeroMonolithScene() {
           container.appendChild(renderer.domElement)
 
           const scene = new THREE.Scene()
-          scene.fog = new THREE.FogExp2(0x070709, 0.14)
+          scene.fog = new THREE.FogExp2(0x0a0a0a, 0.14)
 
           const camera = new THREE.PerspectiveCamera(42, width / height, 0.1, 100)
           camera.position.set(0, 0.2, 6.2)
 
           // Studio chiaroscuro lighting (warm bone key + antique gold rim)
-          const ambient = new THREE.AmbientLight(0xece5d8, 0.35)
+          const ambient = new THREE.AmbientLight(0xf9f9f9, 0.35)
           scene.add(ambient)
 
-          const keyLight = new THREE.DirectionalLight(0xece5d8, 1.9)
+          const keyLight = new THREE.DirectionalLight(0xf9f9f9, 1.9)
           keyLight.position.set(3.5, 4.5, 4)
           scene.add(keyLight)
 
-          const goldRim = new THREE.PointLight(0xcfa156, 2.8, 14)
+          const goldRim = new THREE.PointLight(0xf9f9f9, 2.8, 14)
           goldRim.position.set(-3.2, -1.6, 2.5)
           scene.add(goldRim)
 
@@ -61,7 +61,7 @@ export default function HeroMonolithScene() {
             roughness: 0.22,
           })
           const goldWireMat = new THREE.MeshStandardMaterial({
-            color: 0xcfa156,
+            color: 0xf9f9f9,
             metalness: 0.95,
             roughness: 0.18,
             wireframe: true,
@@ -81,7 +81,7 @@ export default function HeroMonolithScene() {
           // Orbiting precision brass halo ring
           const torusGeo = new THREE.TorusGeometry(2.25, 0.016, 16, 120)
           const haloMat = new THREE.MeshBasicMaterial({
-            color: 0xcfa156,
+            color: 0xf9f9f9,
             transparent: true,
             opacity: 0.55,
           })
@@ -103,7 +103,7 @@ export default function HeroMonolithScene() {
           const cloudGeo = new THREE.BufferGeometry()
           cloudGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3))
           const cloudMat = new THREE.PointsMaterial({
-            color: 0xece5d8,
+            color: 0xf9f9f9,
             size: 0.032,
             transparent: true,
             opacity: 0.38,
@@ -180,9 +180,9 @@ export default function HeroMonolithScene() {
           aria-hidden="true"
           className="absolute inset-0 flex items-center justify-center pointer-events-none"
         >
-          <div className="relative w-64 h-64 md:w-80 md:h-80 rounded-full border border-[#cfa156]/35 flex items-center justify-center bg-[#111115]/70">
-            <div className="w-44 h-44 rotate-45 border border-[#ece5d8]/25 bg-[#070709] flex items-center justify-center shadow-2xl">
-              <div className="w-20 h-20 border border-[#cfa156]/70" />
+          <div className="relative w-64 h-64 md:w-80 md:h-80 rounded-full border border-[#f9f9f9]/35 flex items-center justify-center bg-[#111111]/70">
+            <div className="w-44 h-44 rotate-45 border border-[#f9f9f9]/25 bg-[#0a0a0a] flex items-center justify-center shadow-2xl">
+              <div className="w-20 h-20 border border-[#f9f9f9]/70" />
             </div>
           </div>
         </div>

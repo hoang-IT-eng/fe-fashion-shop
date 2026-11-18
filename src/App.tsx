@@ -37,7 +37,7 @@ export function AppLayout() {
   }, [fetchCart])
 
   return (
-    <div className="min-h-screen bg-[#070709] text-[#ece5d8] flex flex-col">
+    <div className="min-h-screen bg-[#0a0a0a] text-[#f9f9f9] flex flex-col">
       <CinematicPreloader />
       <CloudCurtainTransition />
       <InitiationEasterEgg />

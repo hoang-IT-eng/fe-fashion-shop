@@ -80,11 +80,11 @@ export default function AdminVariantsModal({ product, onClose, onUpdated }: Prop
     >
       <div
         onClick={e => e.stopPropagation()}
-        className="w-full max-w-2xl bg-[#111115] border border-[#cfa156]/50 p-6 md:p-8 space-y-6 text-[#ece5d8]"
+        className="w-full max-w-2xl bg-[#111111] border border-[#f9f9f9]/50 p-6 md:p-8 space-y-6 text-[#f9f9f9]"
       >
         <div className="flex items-start justify-between">
           <div>
-            <p className="font-mono text-[10px] tracking-[0.26em] uppercase text-[#cfa156]">
+            <p className="font-mono text-[10px] tracking-[0.26em] uppercase text-[#f9f9f9]">
               SKU VARIANT MATRIX MANAGER
             </p>
             <h3 className="font-display text-2xl mt-1">{product.name}</h3>
@@ -92,16 +92,16 @@ export default function AdminVariantsModal({ product, onClose, onUpdated }: Prop
           <button
             type="button"
             onClick={onClose}
-            className="text-[#9a948a] hover:text-[#ece5d8]"
+            className="text-[#a3a3a3] hover:text-[#f9f9f9]"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Multi-variant Grid */}
-        <div className="max-h-64 overflow-y-auto border border-[#ece5d8]/10 divide-y divide-[#ece5d8]/10 bg-[#070709]">
+        <div className="max-h-64 overflow-y-auto border border-[#f9f9f9]/10 divide-y divide-[#f9f9f9]/10 bg-[#0a0a0a]">
           {variants.length === 0 ? (
-            <div className="p-6 text-center font-mono text-xs text-[#9a948a]">
+            <div className="p-6 text-center font-mono text-xs text-[#a3a3a3]">
               NO VARIANTS CONFIGURED YET
             </div>
           ) : (
@@ -111,11 +111,11 @@ export default function AdminVariantsModal({ product, onClose, onUpdated }: Prop
                 className="px-4 py-3 flex items-center justify-between gap-4 font-mono text-xs"
               >
                 <div className="min-w-0">
-                  <span className="text-[#cfa156]">{v.sku || `SKU-${v.id}`}</span>
-                  <span className="text-[#ece5d8] ml-3">
+                  <span className="text-[#f9f9f9]">{v.sku || `SKU-${v.id}`}</span>
+                  <span className="text-[#f9f9f9] ml-3">
                     Size {v.size || 'OS'} · {v.color || 'Obsidian'}
                   </span>
-                  <span className="text-[#9a948a] ml-3 tabular-nums">
+                  <span className="text-[#a3a3a3] ml-3 tabular-nums">
                     {formatVnd(v.priceOverride || product.price)}
                   </span>
                 </div>
@@ -125,12 +125,12 @@ export default function AdminVariantsModal({ product, onClose, onUpdated }: Prop
                     min={0}
                     value={v.stock}
                     onChange={e => void handleStockChange(v.id, Number(e.target.value))}
-                    className="w-20 bg-[#111115] border border-[#ece5d8]/20 px-2.5 py-1 text-right tabular-nums text-[#ece5d8]"
+                    className="w-20 bg-[#111111] border border-[#f9f9f9]/20 px-2.5 py-1 text-right tabular-nums text-[#f9f9f9]"
                   />
                   <button
                     type="button"
                     onClick={() => void handleDelete(v.id)}
-                    className="p-1.5 text-[#9a948a] hover:text-red-400"
+                    className="p-1.5 text-[#a3a3a3] hover:text-red-400"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
@@ -148,7 +148,7 @@ export default function AdminVariantsModal({ product, onClose, onUpdated }: Prop
             placeholder="Size (e.g. 42)"
             value={size}
             onChange={e => setSize(e.target.value)}
-            className="bg-[#070709] border border-[#ece5d8]/15 px-3 py-2 font-mono text-xs text-[#ece5d8]"
+            className="bg-[#0a0a0a] border border-[#f9f9f9]/15 px-3 py-2 font-mono text-xs text-[#f9f9f9]"
           />
           <input
             type="text"
@@ -156,7 +156,7 @@ export default function AdminVariantsModal({ product, onClose, onUpdated }: Prop
             placeholder="Colorway"
             value={color}
             onChange={e => setColor(e.target.value)}
-            className="bg-[#070709] border border-[#ece5d8]/15 px-3 py-2 font-mono text-xs text-[#ece5d8]"
+            className="bg-[#0a0a0a] border border-[#f9f9f9]/15 px-3 py-2 font-mono text-xs text-[#f9f9f9]"
           />
           <input
             type="number"
@@ -165,18 +165,18 @@ export default function AdminVariantsModal({ product, onClose, onUpdated }: Prop
             placeholder="Stock"
             value={stock}
             onChange={e => setStock(Number(e.target.value))}
-            className="bg-[#070709] border border-[#ece5d8]/15 px-3 py-2 font-mono text-xs text-[#ece5d8] tabular-nums"
+            className="bg-[#0a0a0a] border border-[#f9f9f9]/15 px-3 py-2 font-mono text-xs text-[#f9f9f9] tabular-nums"
           />
           <input
             type="text"
             placeholder="SKU Code"
             value={sku}
             onChange={e => setSku(e.target.value)}
-            className="bg-[#070709] border border-[#ece5d8]/15 px-3 py-2 font-mono text-xs text-[#ece5d8]"
+            className="bg-[#0a0a0a] border border-[#f9f9f9]/15 px-3 py-2 font-mono text-xs text-[#f9f9f9]"
           />
           <button
             type="submit"
-            className="bg-[#cfa156] text-[#070709] font-mono text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-1 py-2"
+            className="bg-[#f9f9f9] text-[#0a0a0a] font-mono text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-1 py-2"
           >
             <Plus className="w-3.5 h-3.5" /> Add SKU
           </button>

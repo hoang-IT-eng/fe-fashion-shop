@@ -22,33 +22,33 @@ export function EnigmaCrest({
       >
         <polygon
           points="32,4 54,15 60,32 54,49 32,60 10,49 4,32 10,15"
-          stroke="#cfa156"
+          stroke="#f9f9f9"
           strokeWidth="1.5"
-          fill="#0b0b0f"
+          fill="#111111"
         />
         <polygon
           points="32,11 48,19 52,32 48,45 32,53 16,45 12,32 16,19"
-          stroke="#ece5d8"
+          stroke="#f9f9f9"
           strokeOpacity="0.28"
           strokeWidth="1"
           fill="none"
         />
         <path
           d="M32 14L43 32L32 50L21 32L32 14Z"
-          stroke="#cfa156"
+          stroke="#f9f9f9"
           strokeWidth="1.4"
-          fill="#14141b"
+          fill="#111111"
         />
-        <line x1="21" y1="32" x2="43" y2="32" stroke="#ece5d8" strokeWidth="1.2" />
-        <circle cx="32" cy="32" r="3" fill="#cfa156" />
+        <line x1="21" y1="32" x2="43" y2="32" stroke="#f9f9f9" strokeWidth="1.2" />
+        <circle cx="32" cy="32" r="3" fill="#f9f9f9" />
       </svg>
       {showWordmark && (
         <span className="flex flex-col leading-none">
-          <span className="font-display tracking-[0.28em] text-[#ece5d8] text-lg md:text-xl uppercase font-semibold">
+          <span className="font-display tracking-[0.28em] text-[#f9f9f9] text-lg md:text-xl uppercase font-semibold">
             ENIGMA
           </span>
           {subtitle && (
-            <span className="font-mono text-[9px] tracking-[0.26em] text-[#9a948a] uppercase mt-1">
+            <span className="font-sans text-[9px] font-medium tracking-[0.22em] text-[#a3a3a3] uppercase mt-1">
               {subtitle}
             </span>
           )}

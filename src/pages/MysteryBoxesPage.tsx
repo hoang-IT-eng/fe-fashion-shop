@@ -104,33 +104,33 @@ export default function MysteryBoxesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#070709] text-[#ece5d8] py-10 md:py-14">
+    <div className="min-h-screen bg-[#0a0a0a] text-[#f9f9f9] py-10 md:py-14">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <Breadcrumb
           items={[{ label: 'Archive', path: '/' }, { label: 'Mystery Vault & Style Quiz' }]}
         />
 
         {/* Top 3D Vault + Interactive 8-Step Decoder */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center pb-20 border-b border-[#ece5d8]/10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center pb-20 border-b border-[#f9f9f9]/10">
           {/* 3D Interactive Vault Visual */}
-          <div className="lg:col-span-5 bg-[#111115] border border-[#ece5d8]/12 p-6 space-y-4">
-            <div className="flex items-center justify-between font-mono text-[10px] tracking-[0.26em] uppercase">
-              <span className="text-[#cfa156]">
+          <div className="lg:col-span-5 bg-[#111111] border border-[#f9f9f9]/12 p-6 space-y-4">
+            <div className="flex items-center justify-between font-sans text-[10px] font-medium tracking-[0.16em] uppercase">
+              <span className="text-[#f9f9f9]">
                 {unsealed ? 'VAULT SEAL: UNLOCKED' : 'ANODIZED VAULT CHEST'}
               </span>
               <button
                 type="button"
                 onClick={() => setUnsealed(v => !v)}
-                className="inline-flex items-center gap-1 text-[#9a948a] hover:text-[#ece5d8]"
+                className="inline-flex items-center gap-1 text-[#a3a3a3] hover:text-[#f9f9f9]"
               >
-                <LockOpen className="w-3.5 h-3.5 text-[#cfa156]" />
+                <LockOpen className="w-3.5 h-3.5 text-[#f9f9f9]" />
                 {unsealed ? 'Seal Lid' : 'Preview Unseal'}
               </button>
             </div>
 
             <Suspense
               fallback={
-                <div className="h-[320px] flex items-center justify-center font-mono text-xs text-[#9a948a]">
+                <div className="h-[320px] flex items-center justify-center font-sans text-xs text-[#a3a3a3]">
                   LOADING 3D VAULT...
                 </div>
               }
@@ -141,18 +141,18 @@ export default function MysteryBoxesPage() {
               />
             </Suspense>
 
-            <div className="pt-3 border-t border-[#ece5d8]/10 flex items-center justify-between font-mono text-[11px] text-[#9a948a]">
+            <div className="pt-3 border-t border-[#f9f9f9]/10 flex items-center justify-between font-sans text-[11px] text-[#a3a3a3]">
               <span>GUARANTEED VALUE FLOOR</span>
-              <span className="text-[#cfa156] tabular-nums">UP TO 24,500,000₫</span>
+              <span className="text-[#f9f9f9] tabular-nums">UP TO 24,500,000₫</span>
             </div>
           </div>
 
           {/* 8-Step Style Quiz OR Decoded Taste Codex Reveal */}
           <div className="lg:col-span-7">
             {!codex ? (
-              <div className="bg-[#111115] border border-[#ece5d8]/15 p-6 md:p-10 space-y-7">
+              <div className="bg-[#111111] border border-[#f9f9f9]/15 p-6 md:p-10 space-y-7">
                 <div className="flex items-center justify-between">
-                  <span className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.28em] text-[#cfa156]">
+                  <span className="inline-flex items-center gap-2 font-sans text-[11px] font-medium uppercase tracking-[0.18em] text-[#f9f9f9]">
                     <Compass className="w-4 h-4" />
                     DECODE YOUR STYLE · STEP 0{currentStep + 1} / 0{steps.length}
                   </span>
@@ -160,7 +160,7 @@ export default function MysteryBoxesPage() {
                     <button
                       type="button"
                       onClick={() => setCurrentStep(s => Math.max(0, s - 1))}
-                      className="font-mono text-xs uppercase tracking-widest text-[#9a948a] hover:text-[#ece5d8]"
+                      className="font-sans text-[11px] font-medium uppercase tracking-[0.16em] text-[#a3a3a3] hover:text-[#f9f9f9]"
                     >
                       ← Back
                     </button>
@@ -168,18 +168,18 @@ export default function MysteryBoxesPage() {
                 </div>
 
                 {/* Progress Bar */}
-                <div className="w-full h-1 bg-[#070709]">
+                <div className="w-full h-1 bg-[#0a0a0a]">
                   <div
-                    className="h-full bg-[#cfa156] transition-all duration-300"
+                    className="h-full bg-[#f9f9f9] transition-all duration-300"
                     style={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
                   />
                 </div>
 
                 <div>
-                  <h1 className="font-display text-3xl md:text-4xl text-[#ece5d8] leading-snug mb-2">
+                  <h1 className="font-display text-3xl md:text-4xl text-[#f9f9f9] leading-snug mb-2">
                     {activeQuizStep?.question}
                   </h1>
-                  <p className="text-xs text-[#9a948a]">
+                  <p className="text-xs text-[#a3a3a3]">
                     Each response calibrates your chromatic, textile, and silhouette archetype.
                   </p>
                 </div>
@@ -195,11 +195,11 @@ export default function MysteryBoxesPage() {
                         onClick={() => void handleSelectOption(activeQuizStep.field, opt.value)}
                         className={`text-left p-4 border transition flex flex-col justify-between gap-2 ${
                           chosen
-                            ? 'border-[#cfa156] bg-[#cfa156]/15 text-[#ece5d8]'
-                            : 'border-[#ece5d8]/15 bg-[#070709] hover:border-[#cfa156]/60 text-[#ece5d8]'
+                            ? 'border-[#f9f9f9] bg-[#f9f9f9]/15 text-[#f9f9f9]'
+                            : 'border-[#f9f9f9]/15 bg-[#0a0a0a] hover:border-[#f9f9f9]/60 text-[#f9f9f9]'
                         }`}
                       >
-                        <span className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#cfa156]">
+                        <span className="font-sans text-[10px] font-medium tracking-[0.16em] uppercase text-[#f9f9f9]">
                           {opt.archetype.replace('_', ' ')}
                         </span>
                         <span className="text-sm font-medium leading-snug">{opt.label}</span>
@@ -212,42 +212,42 @@ export default function MysteryBoxesPage() {
               <div
                 ref={revealCardRef}
                 id="taste-codex-result-card"
-                className="bg-[#111115] border border-[#cfa156]/60 p-6 md:p-10 space-y-6"
+                className="bg-[#111111] border border-[#f9f9f9]/60 p-6 md:p-10 space-y-6"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <p className="font-mono text-xs tracking-[0.3em] uppercase text-[#cfa156]">
+                    <p className="font-sans text-[11px] font-medium tracking-[0.18em] uppercase text-[#a3a3a3]">
                       TASTE CODEX DECODED · ARCHETYPE SEAL
                     </p>
-                    <h1 className="font-display text-4xl md:text-5xl text-[#ece5d8] mt-1">
+                    <h1 className="font-display text-4xl md:text-5xl text-[#f9f9f9] mt-1">
                       {codex.archetype}
                     </h1>
-                    <p className="font-display italic text-lg text-[#cfa156] mt-1">
+                    <p className="font-display italic text-lg text-[#f9f9f9] mt-1">
                       “{codex.motto}”
                     </p>
                   </div>
                   <button
                     type="button"
                     onClick={handleResetQuiz}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-[#ece5d8]/20 font-mono text-[10px] uppercase tracking-widest text-[#9a948a] hover:text-[#ece5d8]"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-[#f9f9f9]/20 font-sans text-[10px] font-medium uppercase tracking-[0.16em] text-[#a3a3a3] hover:text-[#f9f9f9]"
                   >
                     <RotateCcw className="w-3 h-3" /> Recalibrate
                   </button>
                 </div>
 
-                <p className="text-sm text-[#9a948a] leading-relaxed">{codex.description}</p>
+                <p className="text-sm text-[#a3a3a3] leading-relaxed">{codex.description}</p>
 
                 {/* DNA Affinity Breakdown */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
                   {codex.dnaBreakdown.map(dna => (
                     <div
                       key={dna.code}
-                      className="p-3 bg-[#070709] border border-[#ece5d8]/10 space-y-1.5"
+                      className="p-3 bg-[#0a0a0a] border border-[#f9f9f9]/10 space-y-1.5"
                     >
-                      <span className="block font-mono text-lg font-semibold text-[#cfa156] tabular-nums">
+                      <span className="block font-sans text-lg font-semibold text-[#f9f9f9] tabular-nums">
                         {dna.affinityPercent}%
                       </span>
-                      <span className="block font-mono text-[10px] text-[#9a948a] uppercase leading-tight">
+                      <span className="block font-sans text-[10px] font-medium text-[#a3a3a3] uppercase leading-tight">
                         {dna.archetype}
                       </span>
                     </div>
@@ -256,17 +256,17 @@ export default function MysteryBoxesPage() {
 
                 {/* Matched Box Allocation CTA */}
                 {codex.recommendedBox && (
-                  <div className="p-5 bg-[#070709] border border-[#cfa156]/45 space-y-4">
+                  <div className="p-5 bg-[#0a0a0a] border border-[#f9f9f9]/45 space-y-4">
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <div>
-                        <span className="block font-mono text-[10px] uppercase tracking-widest text-[#cfa156]">
+                        <span className="block font-sans text-[10px] font-medium uppercase tracking-[0.16em] text-[#f9f9f9]">
                           MATCHED ALLOCATION TIER
                         </span>
-                        <h2 className="font-display text-2xl text-[#ece5d8]">
+                        <h2 className="font-display text-2xl text-[#f9f9f9]">
                           {codex.recommendedBox.name} — {formatVnd(codex.recommendedBox.price)}
                         </h2>
                       </div>
-                      <span className="font-mono text-xs text-[#9a948a] tabular-nums">
+                      <span className="font-sans text-xs text-[#a3a3a3] tabular-nums">
                         Min Floor: {formatVnd(codex.recommendedBox.guaranteedMinValue)}
                       </span>
                     </div>
@@ -275,7 +275,7 @@ export default function MysteryBoxesPage() {
                       <select
                         value={selectedBoxSize}
                         onChange={e => setSelectedBoxSize(e.target.value)}
-                        className="bg-[#111115] border border-[#ece5d8]/20 px-3.5 py-3 font-mono text-xs text-[#ece5d8]"
+                        className="bg-[#111111] border border-[#f9f9f9]/20 px-3.5 py-3 font-sans text-xs text-[#f9f9f9]"
                       >
                         <option value="S / EU 40">Size Profile: S / EU 40</option>
                         <option value="M / EU 41">Size Profile: M / EU 41</option>
@@ -287,7 +287,7 @@ export default function MysteryBoxesPage() {
                         id="add-matched-mystery-box-btn"
                         type="button"
                         onClick={() => void handleReserveBox(codex.recommendedBox!)}
-                        className="flex-1 py-3 bg-[#cfa156] text-[#070709] font-mono text-xs font-semibold uppercase tracking-[0.22em] hover:bg-[#dec37b] transition inline-flex items-center justify-center gap-2"
+                        className="flex-1 py-3 bg-[#f9f9f9] text-[#0a0a0a] font-sans text-xs font-semibold uppercase tracking-[0.14em] hover:bg-[#d9d9d9] transition inline-flex items-center justify-center gap-2"
                       >
                         <ShoppingBag className="w-4 h-4" />
                         Add Matched Chest to Vault Bag
@@ -303,10 +303,10 @@ export default function MysteryBoxesPage() {
         {/* All 3 Mystery Box Tiers Comparison */}
         <section className="pt-16">
           <div className="mb-10">
-            <p className="font-mono text-xs tracking-[0.3em] uppercase text-[#cfa156] mb-2">
+            <p className="font-sans text-[11px] font-medium tracking-[0.18em] uppercase text-[#a3a3a3] mb-2">
               SEALED TIER SPECIFICATIONS
             </p>
-            <h2 className="font-display text-3xl md:text-4xl text-[#ece5d8]">
+            <h2 className="font-display text-3xl md:text-4xl text-[#f9f9f9]">
               Mystery Vault Allocations
             </h2>
           </div>
@@ -317,48 +317,48 @@ export default function MysteryBoxesPage() {
               return (
                 <article
                   key={box.id}
-                  className={`p-6 bg-[#111115] border flex flex-col justify-between gap-6 ${
-                    isMatched ? 'border-[#cfa156]' : 'border-[#ece5d8]/12'
+                  className={`p-6 border flex flex-col justify-between gap-6 ${
+                    isMatched ? 'border-[#f9f9f9]' : 'border-[#f9f9f9]/12'
                   }`}
                 >
                   <div className="space-y-4">
                     {isMatched && (
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#cfa156] text-[#070709] font-mono text-[10px] font-semibold uppercase tracking-widest">
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#f9f9f9] text-[#0a0a0a] font-sans text-[10px] font-semibold uppercase tracking-[0.14em]">
                         <Check className="w-3 h-3" /> Matched to Your Codex
                       </span>
                     )}
-                    <h3 className="font-display text-3xl text-[#ece5d8]">{box.name}</h3>
-                    <p className="text-xs text-[#9a948a] leading-relaxed">{box.description}</p>
+                    <h3 className="font-display text-3xl text-[#f9f9f9]">{box.name}</h3>
+                    <p className="text-xs text-[#a3a3a3] leading-relaxed">{box.description}</p>
 
-                    <div className="space-y-2 pt-3 border-t border-[#ece5d8]/10">
-                      <span className="block font-mono text-[10px] uppercase tracking-widest text-[#cfa156]">
+                    <div className="space-y-2 pt-3 border-t border-[#f9f9f9]/10">
+                      <span className="block font-sans text-[10px] font-medium uppercase tracking-[0.16em] text-[#f9f9f9]">
                         Documented Drop Odds
                       </span>
                       {(box.possibleDrops || []).map((dr, i) => (
                         <div
                           key={i}
-                          className="flex items-center justify-between text-xs font-mono text-[#ece5d8]/85"
+                          className="flex items-center justify-between text-xs font-sans text-[#f9f9f9]/85"
                         >
                           <span className="truncate pr-2">{dr.title}</span>
-                          <span className="text-[#cfa156] tabular-nums">{dr.odds}</span>
+                          <span className="text-[#f9f9f9] tabular-nums">{dr.odds}</span>
                         </div>
                       ))}
                     </div>
                   </div>
 
-                  <div className="pt-4 border-t border-[#ece5d8]/10 space-y-3">
-                    <div className="flex justify-between items-baseline font-mono">
-                      <span className="text-xl font-semibold text-[#ece5d8] tabular-nums">
+                  <div className="pt-4 border-t border-[#f9f9f9]/10 space-y-3">
+                    <div className="flex justify-between items-baseline font-sans">
+                      <span className="text-xl font-semibold text-[#f9f9f9] tabular-nums">
                         {formatVnd(box.price)}
                       </span>
-                      <span className="text-xs text-[#9a948a] tabular-nums">
+                      <span className="text-xs text-[#a3a3a3] tabular-nums">
                         Floor: {formatVnd(box.guaranteedMinValue)}
                       </span>
                     </div>
                     <button
                       type="button"
                       onClick={() => void handleReserveBox(box)}
-                      className="w-full py-3 bg-[#cfa156] text-[#070709] font-mono text-xs font-semibold uppercase tracking-[0.22em] hover:bg-[#dec37b] transition"
+                      className="w-full py-3 bg-[#f9f9f9] text-[#0a0a0a] font-sans text-xs font-semibold uppercase tracking-[0.14em] hover:bg-[#d9d9d9] transition"
                     >
                       Acquire {box.name}
                     </button>

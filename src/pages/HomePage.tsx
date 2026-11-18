@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -25,10 +25,6 @@ import { useToast } from '../components/Toast'
 if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
   gsap.registerPlugin(ScrollTrigger)
 }
-
-const HeroMonolithScene = lazy(
-  () => import('../components/experience/HeroMonolithScene')
-)
 
 export default function HomePage() {
   const navigate = useNavigate()
@@ -168,93 +164,68 @@ export default function HomePage() {
   }
 
   return (
-    <div className="bg-[#070709] text-[#ece5d8]">
-      {/* 1. HERO — CHIAROSCURO SKY + 3D MONOLITH + EDITORIAL TYPOGRAPHY */}
-      <section className="relative min-h-[88vh] flex items-center overflow-hidden border-b border-[#ece5d8]/10">
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 opacity-40 bg-cover bg-center"
-          style={{ backgroundImage: 'url(/images/enigma/chiaroscuro-sky.jpg)' }}
-        />
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 bg-gradient-to-b from-[#070709]/60 via-[#070709]/70 to-[#070709]"
-        />
+    <div className="bg-[#0a0a0a] text-[#f9f9f9]">
+      {/* 1. HERO — EDITORIAL TYPOGRAPHY + 3-IMAGE COLLAGE */}
+      <section className="relative border-b border-[#f9f9f9]/10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-12 lg:pt-24 lg:pb-16">
+          <p className="font-sans text-[11px] font-medium tracking-[0.18em] uppercase text-[#a3a3a3] mb-6">
+            ENIGMA CULT ARCHIVE · AUTUMN / WINTER 2026
+          </p>
+          <h1
+            className="font-display text-[#f9f9f9] leading-[0.98] tracking-tight max-w-5xl"
+            style={{ fontSize: 'clamp(2.9rem, 7vw, 6.6rem)' }}
+          >
+            Authenticated Grails, Nocturnal Auctions &amp; <em>Reborn Customs.</em>
+          </h1>
+          <p className="text-base md:text-lg text-[#a3a3a3] max-w-xl leading-relaxed mt-7">
+            Every garment, timepiece, and 1-of-1 horsehide reconstruction enters our vault
+            cryptographically sealed. Acquire drops outright, bid under 60-second anti-snipe
+            protection, or decode your 8-step Taste Codex.
+          </p>
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24 w-full grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-          <div className="lg:col-span-7 space-y-7">
-            <p className="font-mono text-xs tracking-[0.34em] uppercase text-[#cfa156]">
-              ENIGMA CULT ARCHIVE · AUTUMN / WINTER 2026
-            </p>
-            <h1
-              className="font-display text-[#ece5d8] leading-[0.98] tracking-tight"
-              style={{ fontSize: 'clamp(2.85rem, 6.2vw, 5.6rem)' }}
+          <div className="flex flex-wrap items-center gap-4 pt-9">
+            <Link
+              id="hero-explore-drops-cta"
+              to="/products"
+              className="px-8 py-4 bg-[#f9f9f9] text-[#0a0a0a] font-sans text-xs font-semibold uppercase tracking-[0.14em] hover:bg-[#d9d9d9] transition inline-flex items-center gap-2.5"
             >
-              Authenticated Grails, Nocturnal Auctions &amp; Reborn Customs.
-            </h1>
-            <p className="text-base md:text-lg text-[#9a948a] max-w-xl leading-relaxed">
-              Every garment, timepiece, and 1-of-1 horsehide reconstruction enters our vault
-              cryptographically sealed. Acquire drops outright, bid under 60-second anti-snipe
-              protection, or decode your 8-step Taste Codex.
-            </p>
-
-            <div className="flex flex-wrap items-center gap-4 pt-2">
-              <Link
-                id="hero-explore-drops-cta"
-                to="/products"
-                className="px-8 py-4 bg-[#cfa156] text-[#070709] font-mono text-xs font-semibold uppercase tracking-[0.24em] hover:bg-[#dec37b] transition inline-flex items-center gap-2.5"
-              >
-                Explore Archive Drops <ArrowRight className="w-4 h-4" />
-              </Link>
-              <Link
-                id="hero-decode-style-cta"
-                to="/mystery-boxes"
-                className="px-7 py-4 border border-[#ece5d8]/25 text-[#ece5d8] font-mono text-xs uppercase tracking-[0.24em] hover:border-[#cfa156] hover:text-[#cfa156] transition inline-flex items-center gap-2"
-              >
-                <Compass className="w-4 h-4 text-[#cfa156]" />
-                Decode Your Style
-              </Link>
-            </div>
-
-            {/* Architectural Telemetry Bar */}
-            <div className="pt-8 border-t border-[#ece5d8]/10 grid grid-cols-3 gap-6 max-w-lg">
-              <div>
-                <p className="font-mono text-xl md:text-2xl text-[#ece5d8] font-semibold tabular-nums">
-                  100%
-                </p>
-                <p className="font-mono text-[10px] tracking-[0.22em] text-[#9a948a] uppercase mt-1">
-                  NFC Provenance
-                </p>
-              </div>
-              <div>
-                <p className="font-mono text-xl md:text-2xl text-[#cfa156] font-semibold tabular-nums">
-                  +120s
-                </p>
-                <p className="font-mono text-[10px] tracking-[0.22em] text-[#9a948a] uppercase mt-1">
-                  Anti-Snipe Clock
-                </p>
-              </div>
-              <div>
-                <p className="font-mono text-xl md:text-2xl text-[#ece5d8] font-semibold tabular-nums">
-                  1-of-12
-                </p>
-                <p className="font-mono text-[10px] tracking-[0.22em] text-[#9a948a] uppercase mt-1">
-                  Reborn Editions
-                </p>
-              </div>
-            </div>
+              Explore Archive Drops <ArrowRight className="w-4 h-4" />
+            </Link>
+            <Link
+              id="hero-decode-style-cta"
+              to="/mystery-boxes"
+              className="px-7 py-4 border border-[#f9f9f9]/25 text-[#f9f9f9] font-sans text-[11px] font-medium uppercase tracking-[0.16em] hover:border-[#f9f9f9] transition inline-flex items-center gap-2"
+            >
+              <Compass className="w-4 h-4 text-[#f9f9f9]" />
+              Decode Your Style
+            </Link>
           </div>
+        </div>
 
-          <div className="lg:col-span-5 h-[360px] md:h-[480px]">
-            <Suspense
-              fallback={
-                <div className="w-full h-full flex items-center justify-center font-mono text-xs text-[#9a948a]">
-                  CALIBRATING MONOLITH...
-                </div>
-              }
-            >
-              <HeroMonolithScene />
-            </Suspense>
+        {/* Editorial collage — large left frame, stacked right frames */}
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 pb-16 lg:pb-24 grid grid-cols-1 md:grid-cols-12 gap-4">
+          <div className="md:col-span-7 aspect-[4/3] overflow-hidden bg-[#111111]">
+            <img
+              src="/images/enigma/grail-sneaker-obsidian.jpg"
+              alt="Obsidian grail sneaker from the Enigma archive"
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <div className="md:col-span-5 grid grid-rows-2 gap-4">
+            <div className="relative overflow-hidden bg-[#111111] min-h-[180px]">
+              <img
+                src="/images/enigma/grail-leather-bomber.jpg"
+                alt="Horsehide leather bomber from the Enigma archive"
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+            </div>
+            <div className="relative overflow-hidden bg-[#111111] min-h-[180px]">
+              <img
+                src="/images/enigma/grail-trench-monolith.jpg"
+                alt="Monolith trench from the Reborn archive"
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+            </div>
           </div>
         </div>
       </section>
@@ -262,28 +233,28 @@ export default function HomePage() {
       {/* 2. GSAP SCROLL MANIFESTO */}
       <section
         ref={manifestoRef}
-        className="py-24 md:py-32 border-b border-[#ece5d8]/10 bg-[#0b0b0f]"
+        className="py-24 md:py-32 border-b border-[#f9f9f9]/10"
       >
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-          <p className="font-mono text-xs tracking-[0.34em] uppercase text-[#cfa156]">
+          <p className="font-sans text-[11px] font-medium tracking-[0.18em] uppercase text-[#a3a3a3]">
             HOUSE MANIFESTO · CHAPTER I
           </p>
           <h2
-            className="manifesto-line font-display text-[#ece5d8] leading-[1.08]"
+            className="manifesto-line font-display text-[#f9f9f9] leading-[1.08]"
             style={{ fontSize: 'clamp(2.1rem, 4.5vw, 4rem)' }}
           >
             “This isn’t fashion — it’s initiation.”
           </h2>
           <p
-            className="manifesto-line font-display italic text-[#9a948a] leading-[1.18]"
+            className="manifesto-line font-display italic text-[#a3a3a3] leading-[1.18]"
             style={{ fontSize: 'clamp(1.6rem, 3.2vw, 2.75rem)' }}
           >
             Rarity Is Philosophy. Every stitch carries provenance; every auction rejects bots;
             every scar in horsehide outlives seasonal hype.
           </p>
-          <div className="manifesto-line pt-4 flex flex-wrap items-center gap-8 font-mono text-xs uppercase tracking-[0.24em] text-[#9a948a]">
-            <span className="inline-flex items-center gap-2 text-[#ece5d8]">
-              <ShieldCheck className="w-4 h-4 text-[#cfa156]" />
+          <div className="manifesto-line pt-4 flex flex-wrap items-center gap-8 font-sans text-[11px] font-medium uppercase tracking-[0.16em] text-[#a3a3a3]">
+            <span className="inline-flex items-center gap-2 text-[#f9f9f9]">
+              <ShieldCheck className="w-4 h-4 text-[#f9f9f9]" />
               PHYSICAL MULTI-STAGE VERIFICATION
             </span>
             <span>NO ALGORITHMIC DROP BOTS</span>
@@ -296,16 +267,16 @@ export default function HomePage() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-24">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-12">
           <div>
-            <p className="font-mono text-xs tracking-[0.3em] uppercase text-[#cfa156] mb-2">
+            <p className="font-sans text-[11px] font-medium tracking-[0.18em] uppercase text-[#a3a3a3] mb-2">
               VAULT ALLOCATION · 01
             </p>
-            <h2 className="font-display text-3xl md:text-5xl text-[#ece5d8]">
+            <h2 className="font-display text-3xl md:text-5xl text-[#f9f9f9]">
               Curated Grail Drops
             </h2>
           </div>
           <Link
             to="/products"
-            className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.24em] text-[#ece5d8] hover:text-[#cfa156] transition"
+            className="inline-flex items-center gap-2 font-sans text-[11px] font-medium uppercase tracking-[0.16em] text-[#f9f9f9] hover:text-[#f9f9f9] transition"
           >
             Inspect Full Archive ({products.length}) <ArrowUpRight className="w-4 h-4" />
           </Link>
@@ -323,20 +294,20 @@ export default function HomePage() {
       </section>
 
       {/* 4. LIVE TRENDING GRAIL AUCTIONS */}
-      <section className="border-y border-[#ece5d8]/10 bg-[#0b0b0f] py-20 md:py-24">
+      <section className="border-y border-[#f9f9f9]/10 py-20 md:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-12">
             <div>
-              <p className="font-mono text-xs tracking-[0.3em] uppercase text-[#cfa156] mb-2">
+              <p className="font-sans text-[11px] font-medium tracking-[0.18em] uppercase text-[#a3a3a3] mb-2">
                 LIVE BIDDING ROOM · ANTI-SNIPE PROTECTED
               </p>
-              <h2 className="font-display text-3xl md:text-5xl text-[#ece5d8]">
+              <h2 className="font-display text-3xl md:text-5xl text-[#f9f9f9]">
                 Trending Grail Auctions
               </h2>
             </div>
             <Link
               to="/auctions"
-              className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.24em] text-[#cfa156] hover:text-[#ece5d8] transition"
+              className="inline-flex items-center gap-2 font-sans text-[11px] font-medium uppercase tracking-[0.16em] text-[#f9f9f9] hover:text-[#f9f9f9] transition"
             >
               Enter Full Auction Floor <ArrowRight className="w-4 h-4" />
             </Link>
@@ -349,9 +320,9 @@ export default function HomePage() {
                 <article
                   key={lot.id}
                   onMouseEnter={playTick}
-                  className="bg-[#111115] border border-[#ece5d8]/12 hover:border-[#cfa156]/60 transition flex flex-col"
+                  className="flex flex-col"
                 >
-                  <div className="relative aspect-[16/11] bg-[#070709] overflow-hidden">
+                  <div className="relative aspect-[16/11] bg-[#0a0a0a] overflow-hidden">
                     {lot.imageUrl && (
                       <img
                         src={lot.imageUrl}
@@ -359,49 +330,54 @@ export default function HomePage() {
                         className="w-full h-full object-cover"
                       />
                     )}
-                    <div className="absolute top-3 left-3 px-2.5 py-1 bg-[#070709]/90 border border-[#cfa156]/50 font-mono text-[10px] tracking-[0.2em] uppercase text-[#cfa156]">
+                    <div className="absolute top-3 left-3 px-2.5 py-1 bg-[#0a0a0a]/90 border border-[#f9f9f9]/50 font-sans text-[10px] font-medium tracking-[0.16em] uppercase text-[#f9f9f9]">
                       {underMinute ? 'ANTI-SNIPE WINDOW (<60S)' : 'LIVE LOT'}
                     </div>
-                    <div className="absolute bottom-3 right-3 px-3 py-1.5 bg-[#070709]/90 border border-[#ece5d8]/20 font-mono text-xs text-[#ece5d8] tabular-nums inline-flex items-center gap-1.5">
-                      <Clock className="w-3.5 h-3.5 text-[#cfa156]" />
+                    <div className="absolute bottom-3 right-3 px-3 py-1.5 bg-[#0a0a0a]/90 border border-[#f9f9f9]/20 font-sans text-xs text-[#f9f9f9] tabular-nums inline-flex items-center gap-1.5">
+                      <Clock className="w-3.5 h-3.5 text-[#f9f9f9]" />
                       {formatCountdown(lot.remainingSeconds)}
                     </div>
                   </div>
 
-                  <div className="p-6 flex-1 flex flex-col justify-between gap-5">
+                  <div className="pt-5 flex-1 flex flex-col justify-between gap-5">
                     <div>
-                      <h3 className="font-display text-2xl text-[#ece5d8] leading-snug mb-1.5">
+                      <h3 className="font-display text-2xl text-[#f9f9f9] leading-snug mb-1.5">
                         {lot.title}
                       </h3>
-                      <p className="text-xs text-[#9a948a]">{lot.subtitle}</p>
+                      <p className="text-xs text-[#a3a3a3]">{lot.subtitle}</p>
                     </div>
 
-                    <div className="space-y-4 pt-4 border-t border-[#ece5d8]/10">
+                    <div className="space-y-4 pt-4 border-t border-[#f9f9f9]/10">
                       <div className="flex items-end justify-between">
                         <div>
-                          <span className="block font-mono text-[10px] uppercase tracking-widest text-[#9a948a]">
+                          <span className="block font-sans text-[10px] font-medium uppercase tracking-[0.16em] text-[#a3a3a3]">
                             Current Bid ({lot.bidCount} bids)
                           </span>
-                          <span className="font-mono text-lg font-semibold text-[#cfa156] tabular-nums">
+                          <span className="font-sans text-lg font-semibold text-[#f9f9f9] tabular-nums">
                             {formatVnd(lot.currentBid)}
                           </span>
                         </div>
-                        <span className="font-mono text-[10px] uppercase tracking-widest text-[#9a948a] tabular-nums">
-                          Next: {formatVnd(lot.nextMinimumBid)}
-                        </span>
+                        <div className="text-right">
+                          <span className="block font-sans text-[10px] font-medium uppercase tracking-[0.16em] text-[#a3a3a3]">
+                            Time Left
+                          </span>
+                          <span className="font-sans text-lg font-semibold text-[#f9f9f9] tabular-nums">
+                            {formatCountdown(lot.remainingSeconds)}
+                          </span>
+                        </div>
                       </div>
 
                       <div className="grid grid-cols-2 gap-2.5">
                         <button
                           type="button"
                           onClick={() => openQuickBid(lot)}
-                          className="py-2.5 bg-[#cfa156] text-[#070709] font-mono text-xs font-semibold uppercase tracking-widest hover:bg-[#dec37b] transition inline-flex items-center justify-center gap-1.5"
+                          className="py-2.5 bg-[#f9f9f9] text-[#0a0a0a] font-sans text-xs font-semibold uppercase tracking-[0.14em] hover:bg-[#d9d9d9] transition inline-flex items-center justify-center gap-1.5"
                         >
                           <Gavel className="w-3.5 h-3.5" /> Quick Bid
                         </button>
                         <Link
                           to="/auctions"
-                          className="py-2.5 border border-[#ece5d8]/20 text-center font-mono text-xs uppercase tracking-widest text-[#ece5d8] hover:border-[#cfa156] transition"
+                          className="py-2.5 border border-[#f9f9f9]/20 text-center font-sans text-[11px] font-medium uppercase tracking-[0.16em] text-[#f9f9f9] hover:border-[#f9f9f9] transition"
                         >
                           Bid Log
                         </Link>
@@ -419,13 +395,13 @@ export default function HomePage() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-24">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center mb-12">
           <div className="lg:col-span-7">
-            <p className="font-mono text-xs tracking-[0.3em] uppercase text-[#cfa156] mb-2">
+            <p className="font-sans text-[11px] font-medium tracking-[0.18em] uppercase text-[#a3a3a3] mb-2">
               8-STEP AI STYLE CALIBRATION
             </p>
-            <h2 className="font-display text-3xl md:text-5xl text-[#ece5d8] mb-4">
+            <h2 className="font-display text-3xl md:text-5xl text-[#f9f9f9] mb-4">
               Sealed Mystery Vaults Matched to Your Taste Codex
             </h2>
-            <p className="text-sm md:text-base text-[#9a948a] max-w-2xl leading-relaxed">
+            <p className="text-sm md:text-base text-[#a3a3a3] max-w-2xl leading-relaxed">
               Answer eight questions across silhouette, chromatic register, fabric weight, and
               era lineage. Our engine computes your Taste Codex archetype and unlocks sealed chests
               with guaranteed value floors up to 24,500,000₫.
@@ -434,7 +410,7 @@ export default function HomePage() {
           <div className="lg:col-span-5 flex lg:justify-end">
             <Link
               to="/mystery-boxes"
-              className="px-7 py-4 bg-[#cfa156] text-[#070709] font-mono text-xs font-semibold uppercase tracking-[0.24em] hover:bg-[#dec37b] transition inline-flex items-center gap-2"
+              className="px-7 py-4 bg-[#f9f9f9] text-[#0a0a0a] font-sans text-xs font-semibold uppercase tracking-[0.14em] hover:bg-[#d9d9d9] transition inline-flex items-center gap-2"
             >
               Start 8-Step Style Quiz <ArrowRight className="w-4 h-4" />
             </Link>
@@ -445,34 +421,34 @@ export default function HomePage() {
           {boxes.map((box, idx) => (
             <div
               key={box.id}
-              className="bg-[#111115] border border-[#ece5d8]/12 p-6 flex flex-col justify-between gap-6"
+              className="border-t border-[#f9f9f9]/12 pt-6 flex flex-col justify-between gap-6"
             >
               <div>
-                <div className="flex items-center justify-between font-mono text-[10px] tracking-[0.24em] uppercase text-[#cfa156] mb-3">
+                <div className="flex items-center justify-between font-sans text-[10px] font-medium tracking-[0.16em] uppercase text-[#f9f9f9] mb-3">
                   <span>TIER 0{idx + 1}</span>
                   <span className="tabular-nums">{box.itemCount} ARCHIVE PIECES</span>
                 </div>
                 <img
                   src={box.imageUrl || '/images/enigma/mystery-chest.jpg'}
                   alt={box.name}
-                  className="w-full h-48 object-cover mb-5 border border-[#ece5d8]/10"
+                  className="w-full h-48 object-cover mb-5"
                 />
-                <h3 className="font-display text-2xl text-[#ece5d8] mb-1">{box.name}</h3>
-                <p className="text-xs text-[#9a948a] leading-relaxed mb-4">{box.description}</p>
+                <h3 className="font-display text-2xl text-[#f9f9f9] mb-1">{box.name}</h3>
+                <p className="text-xs text-[#a3a3a3] leading-relaxed mb-4">{box.description}</p>
               </div>
 
-              <div className="pt-4 border-t border-[#ece5d8]/10 space-y-3">
-                <div className="flex items-baseline justify-between font-mono">
-                  <span className="text-lg font-semibold text-[#ece5d8] tabular-nums">
+              <div className="pt-4 border-t border-[#f9f9f9]/10 space-y-3">
+                <div className="flex items-baseline justify-between font-sans">
+                  <span className="text-lg font-semibold text-[#f9f9f9] tabular-nums">
                     {formatVnd(box.price)}
                   </span>
-                  <span className="text-[11px] text-[#cfa156] tabular-nums">
+                  <span className="text-[11px] text-[#f9f9f9] tabular-nums">
                     Floor: {formatVnd(box.guaranteedMinValue)}
                   </span>
                 </div>
                 <Link
                   to="/mystery-boxes"
-                  className="block w-full text-center py-3 border border-[#cfa156]/60 text-[#cfa156] hover:bg-[#cfa156] hover:text-[#070709] font-mono text-xs uppercase tracking-[0.22em] transition"
+                  className="block w-full text-center py-3 border border-[#f9f9f9]/60 text-[#f9f9f9] hover:bg-[#f9f9f9] hover:text-[#0a0a0a] font-sans text-[11px] font-medium uppercase tracking-[0.16em] transition"
                 >
                   Unseal &amp; Match Tier
                 </Link>
@@ -483,16 +459,16 @@ export default function HomePage() {
       </section>
 
       {/* 6. INTERACTIVE "FIND IT AT MY PRICE" CONCIERGE SOURCING BUILDER */}
-      <section className="border-y border-[#ece5d8]/10 bg-[#111115] py-20 md:py-24">
+      <section className="border-y border-[#f9f9f9]/10 py-20 md:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-6 space-y-5">
-            <p className="font-mono text-xs tracking-[0.3em] uppercase text-[#cfa156] inline-flex items-center gap-2">
+            <p className="font-sans text-[11px] font-medium tracking-[0.18em] uppercase text-[#a3a3a3] inline-flex items-center gap-2">
               <Crosshair className="w-4 h-4" /> PRIVATE SOURCING DESK
             </p>
-            <h2 className="font-display text-3xl md:text-5xl text-[#ece5d8]">
+            <h2 className="font-display text-3xl md:text-5xl text-[#f9f9f9]">
               Find It At My Price.
             </h2>
-            <p className="text-sm md:text-base text-[#9a948a] leading-relaxed">
+            <p className="text-sm md:text-base text-[#a3a3a3] leading-relaxed">
               Hunting an elusive archive runway sample, Tokyo-exclusive sneaker, or discontinued
               chronograph? Name your exact piece, size, and target offer. Our Antwerp, Osaka, and
               Saigon buyers locate, authenticate, and counter or accept directly.
@@ -500,7 +476,7 @@ export default function HomePage() {
             <div className="pt-2">
               <Link
                 to="/concierge"
-                className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.22em] text-[#cfa156] hover:text-[#ece5d8]"
+                className="inline-flex items-center gap-2 font-sans text-[11px] font-medium uppercase tracking-[0.16em] text-[#f9f9f9] hover:text-[#f9f9f9]"
               >
                 Inspect Active Sourcing Ledger <ArrowUpRight className="w-4 h-4" />
               </Link>
@@ -509,11 +485,11 @@ export default function HomePage() {
 
           <form
             onSubmit={handleConciergeSubmit}
-            className="lg:col-span-6 bg-[#070709] border border-[#ece5d8]/15 p-6 md:p-8 space-y-5"
+            className="lg:col-span-6 bg-[#0a0a0a] border border-[#f9f9f9]/15 p-6 md:p-8 space-y-5"
           >
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="sm:col-span-2">
-                <label className="block font-mono text-[10px] uppercase tracking-widest text-[#9a948a] mb-1.5">
+                <label className="block font-sans text-[10px] font-medium uppercase tracking-[0.16em] text-[#a3a3a3] mb-1.5">
                   Desired Archive Piece
                 </label>
                 <input
@@ -521,11 +497,11 @@ export default function HomePage() {
                   required
                   value={sourcingItem}
                   onChange={e => setSourcingItem(e.target.value)}
-                  className="w-full bg-[#111115] border border-[#ece5d8]/15 px-3.5 py-2.5 text-sm text-[#ece5d8] focus:outline-none focus:border-[#cfa156]"
+                  className="w-full bg-[#111111] border border-[#f9f9f9]/15 px-3.5 py-2.5 text-sm text-[#f9f9f9] focus:outline-none focus:border-[#f9f9f9]"
                 />
               </div>
               <div>
-                <label className="block font-mono text-[10px] uppercase tracking-widest text-[#9a948a] mb-1.5">
+                <label className="block font-sans text-[10px] font-medium uppercase tracking-[0.16em] text-[#a3a3a3] mb-1.5">
                   Size Spec
                 </label>
                 <input
@@ -533,15 +509,15 @@ export default function HomePage() {
                   required
                   value={sourcingSize}
                   onChange={e => setSourcingSize(e.target.value)}
-                  className="w-full bg-[#111115] border border-[#ece5d8]/15 px-3.5 py-2.5 text-sm font-mono text-[#ece5d8] focus:outline-none focus:border-[#cfa156]"
+                  className="w-full bg-[#111111] border border-[#f9f9f9]/15 px-3.5 py-2.5 text-sm font-sans text-[#f9f9f9] focus:outline-none focus:border-[#f9f9f9]"
                 />
               </div>
             </div>
 
             <div>
-              <div className="flex justify-between font-mono text-xs mb-2">
-                <span className="text-[#9a948a] uppercase tracking-widest">Your Target Offer</span>
-                <span className="text-[#cfa156] font-semibold tabular-nums">
+              <div className="flex justify-between font-sans text-xs mb-2">
+                <span className="text-[#a3a3a3] uppercase tracking-widest">Your Target Offer</span>
+                <span className="text-[#f9f9f9] font-semibold tabular-nums">
                   {formatVnd(sourcingPrice)}
                 </span>
               </div>
@@ -552,16 +528,16 @@ export default function HomePage() {
                 step={500000}
                 value={sourcingPrice}
                 onChange={e => setSourcingPrice(Number(e.target.value))}
-                className="w-full accent-[#cfa156]"
+                className="w-full accent-[#f9f9f9]"
               />
-              <div className="flex justify-between font-mono text-[10px] text-[#9a948a] mt-1 tabular-nums">
+              <div className="flex justify-between font-sans text-[10px] text-[#a3a3a3] mt-1 tabular-nums">
                 <span>Est. Global Secondary: {formatVnd(Math.round(sourcingPrice * 1.14))}</span>
                 <span>Concierge Fee Included</span>
               </div>
             </div>
 
             <div>
-              <label className="block font-mono text-[10px] uppercase tracking-widest text-[#9a948a] mb-1.5">
+              <label className="block font-sans text-[10px] font-medium uppercase tracking-[0.16em] text-[#a3a3a3] mb-1.5">
                 Collector Dispatch Email
               </label>
               <input
@@ -569,14 +545,14 @@ export default function HomePage() {
                 placeholder="collector@enigma.cult"
                 value={sourcingEmail}
                 onChange={e => setSourcingEmail(e.target.value)}
-                className="w-full bg-[#111115] border border-[#ece5d8]/15 px-3.5 py-2.5 text-sm text-[#ece5d8] placeholder-[#9a948a]/60 focus:outline-none focus:border-[#cfa156]"
+                className="w-full bg-[#111111] border border-[#f9f9f9]/15 px-3.5 py-2.5 text-sm text-[#f9f9f9] placeholder-[#a3a3a3]/60 focus:outline-none focus:border-[#f9f9f9]"
               />
             </div>
 
             <button
               type="submit"
               disabled={submittingConcierge}
-              className="w-full py-3.5 bg-[#cfa156] text-[#070709] font-mono text-xs font-semibold uppercase tracking-[0.24em] hover:bg-[#dec37b] transition"
+              className="w-full py-3.5 bg-[#f9f9f9] text-[#0a0a0a] font-sans text-xs font-semibold uppercase tracking-[0.14em] hover:bg-[#d9d9d9] transition"
             >
               {submittingConcierge ? 'TRANSMITTING DOSSIER...' : 'TRANSMIT TARGET OFFER'}
             </button>
@@ -588,16 +564,16 @@ export default function HomePage() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-24">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-12">
           <div>
-            <p className="font-mono text-xs tracking-[0.3em] uppercase text-[#cfa156] mb-2">
+            <p className="font-sans text-[11px] font-medium tracking-[0.18em] uppercase text-[#a3a3a3] mb-2">
               REBORN ATELIER CHRONICLES
             </p>
-            <h2 className="font-display text-3xl md:text-5xl text-[#ece5d8]">
+            <h2 className="font-display text-3xl md:text-5xl text-[#f9f9f9]">
               Latest from Reborn
             </h2>
           </div>
           <Link
             to="/journal"
-            className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.24em] text-[#ece5d8] hover:text-[#cfa156]"
+            className="inline-flex items-center gap-2 font-sans text-[11px] font-medium uppercase tracking-[0.16em] text-[#f9f9f9] hover:text-[#f9f9f9]"
           >
             Read All Dossiers <ArrowUpRight className="w-4 h-4" />
           </Link>
@@ -608,28 +584,28 @@ export default function HomePage() {
             <Link
               key={story.slug}
               to={`/journal?story=${story.slug}`}
-              className="group bg-[#111115] border border-[#ece5d8]/10 hover:border-[#cfa156]/50 transition flex flex-col overflow-hidden"
+              className="group flex flex-col overflow-hidden"
             >
-              <div className="aspect-[16/10] bg-[#070709] overflow-hidden">
+              <div className="aspect-[16/10] bg-[#0a0a0a] overflow-hidden">
                 <img
                   src={story.imageUrl}
                   alt={story.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                 />
               </div>
-              <div className="p-6 flex-1 flex flex-col justify-between gap-4">
+              <div className="pt-5 flex-1 flex flex-col justify-between gap-4">
                 <div>
-                  <p className="font-mono text-[10px] tracking-[0.24em] uppercase text-[#cfa156] mb-2">
+                  <p className="font-sans text-[10px] font-medium tracking-[0.16em] uppercase text-[#a3a3a3] mb-2">
                     {story.kicker}
                   </p>
-                  <h3 className="font-display text-2xl text-[#ece5d8] group-hover:text-[#cfa156] transition leading-snug mb-2">
+                  <h3 className="font-display text-2xl text-[#f9f9f9] leading-snug mb-2">
                     {story.title}
                   </h3>
-                  <p className="text-xs text-[#9a948a] leading-relaxed line-clamp-3">
+                  <p className="text-xs text-[#a3a3a3] leading-relaxed line-clamp-3">
                     {story.excerpt}
                   </p>
                 </div>
-                <div className="pt-3 border-t border-[#ece5d8]/10 flex items-center justify-between font-mono text-[10px] text-[#9a948a] uppercase tracking-widest">
+                <div className="pt-3 border-t border-[#f9f9f9]/10 flex items-center justify-between font-sans text-[10px] text-[#a3a3a3] uppercase tracking-widest">
                   <span>{story.author}</span>
                   <span>{story.readTime}</span>
                 </div>
@@ -653,11 +629,11 @@ export default function HomePage() {
           <form
             onClick={e => e.stopPropagation()}
             onSubmit={submitQuickBid}
-            className="w-full max-w-md bg-[#111115] border border-[#cfa156]/50 p-6 md:p-8 space-y-5 text-[#ece5d8]"
+            className="w-full max-w-md bg-[#111111] border border-[#f9f9f9]/50 p-6 md:p-8 space-y-5 text-[#f9f9f9]"
           >
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="font-mono text-[10px] tracking-[0.26em] uppercase text-[#cfa156]">
+                <p className="font-sans text-[10px] font-medium tracking-[0.16em] uppercase text-[#f9f9f9]">
                   SEAT-HOLD BID CONFIRMATION
                 </p>
                 <h3 className="font-display text-2xl mt-1">{quickBidLot.title}</h3>
@@ -665,21 +641,21 @@ export default function HomePage() {
               <button
                 type="button"
                 onClick={() => setQuickBidLot(null)}
-                className="text-[#9a948a] hover:text-[#ece5d8]"
+                className="text-[#a3a3a3] hover:text-[#f9f9f9]"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="p-3.5 bg-[#070709] border border-[#ece5d8]/10 flex justify-between font-mono text-xs tabular-nums">
-              <span className="text-[#9a948a]">MINIMUM VALID BID</span>
-              <span className="text-[#cfa156] font-semibold">
+            <div className="p-3.5 bg-[#0a0a0a] border border-[#f9f9f9]/10 flex justify-between font-sans text-xs tabular-nums">
+              <span className="text-[#a3a3a3]">MINIMUM VALID BID</span>
+              <span className="text-[#f9f9f9] font-semibold">
                 {formatVnd(quickBidLot.nextMinimumBid)}
               </span>
             </div>
 
             <div>
-              <label className="block font-mono text-[10px] uppercase tracking-widest text-[#9a948a] mb-2">
+              <label className="block font-sans text-[10px] font-medium uppercase tracking-[0.16em] text-[#a3a3a3] mb-2">
                 Your Bid Amount (VND)
               </label>
               <input
@@ -689,11 +665,11 @@ export default function HomePage() {
                 step={quickBidLot.minIncrement}
                 value={bidAmount}
                 onChange={e => setBidAmount(e.target.value)}
-                className="w-full bg-[#070709] border border-[#ece5d8]/20 px-4 py-3 font-mono text-base text-[#ece5d8] tabular-nums focus:outline-none focus:border-[#cfa156]"
+                className="w-full bg-[#0a0a0a] border border-[#f9f9f9]/20 px-4 py-3 font-sans text-base text-[#f9f9f9] tabular-nums focus:outline-none focus:border-[#f9f9f9]"
               />
             </div>
 
-            <p className="font-mono text-[10px] text-[#9a948a] leading-relaxed">
+            <p className="font-sans text-[10px] text-[#a3a3a3] leading-relaxed">
               Anti-Snipe Protocol: Bids placed inside the final 60 seconds automatically extend lot
               closing by +120s.
             </p>
@@ -701,7 +677,7 @@ export default function HomePage() {
             <button
               type="submit"
               disabled={placingBid}
-              className="w-full py-3.5 bg-[#cfa156] text-[#070709] font-mono text-xs font-semibold uppercase tracking-[0.24em] hover:bg-[#dec37b] transition"
+              className="w-full py-3.5 bg-[#f9f9f9] text-[#0a0a0a] font-sans text-xs font-semibold uppercase tracking-[0.14em] hover:bg-[#d9d9d9] transition"
             >
               {placingBid ? 'SEALING BID...' : 'CONFIRM BINDING BID'}
             </button>

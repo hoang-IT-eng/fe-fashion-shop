@@ -61,59 +61,59 @@ export function InitiationEasterEgg() {
       aria-labelledby="initiation-modal-title"
       className="fixed inset-0 z-[130] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md"
     >
-      <div className="relative w-full max-w-lg border border-[#cfa156]/50 bg-[#070709] text-[#ece5d8] p-8 md:p-10 shadow-2xl">
+      <div className="relative w-full max-w-lg border border-[#f9f9f9]/50 bg-[#0a0a0a] text-[#f9f9f9] p-8 md:p-10 shadow-2xl">
         <button
           id="close-initiation-modal"
           onClick={() => setOpen(false)}
           aria-label="Close Initiation Modal"
-          className="absolute top-5 right-5 text-[#9a948a] hover:text-[#ece5d8] transition"
+          className="absolute top-5 right-5 text-[#a3a3a3] hover:text-[#f9f9f9] transition"
         >
           <X className="w-5 h-5" />
         </button>
 
         <div className="flex flex-col items-center text-center">
           <EnigmaCrest className="w-12 h-12 mb-5" />
-          <p className="font-mono text-[11px] tracking-[0.34em] text-[#cfa156] uppercase mb-3">
+          <p className="font-mono text-[11px] tracking-[0.34em] text-[#f9f9f9] uppercase mb-3">
             CIPHER ACCEPTED · INNER CIRCLE INITIATION
           </p>
           <h2
             id="initiation-modal-title"
-            className="font-display text-3xl md:text-4xl text-[#ece5d8] tracking-wide mb-4"
+            className="font-display text-3xl md:text-4xl text-[#f9f9f9] tracking-wide mb-4"
           >
             You Found the Unlisted Threshold
           </h2>
-          <p className="text-sm text-[#9a948a] leading-relaxed mb-7 max-w-md">
+          <p className="text-sm text-[#a3a3a3] leading-relaxed mb-7 max-w-md">
             Most visitors browse the surface. By keying the cipher, your session has been granted
             Inner Circle Allocation privileges—automatically applied to your Vault Bag and Checkout.
           </p>
 
-          <div className="w-full border border-[#cfa156]/40 bg-[#111115] px-5 py-4 flex items-center justify-between mb-6">
+          <div className="w-full border border-[#f9f9f9]/40 bg-[#111111] px-5 py-4 flex items-center justify-between mb-6">
             <div className="text-left">
-              <span className="block font-mono text-[10px] tracking-[0.26em] text-[#9a948a] uppercase">
+              <span className="block font-mono text-[10px] tracking-[0.26em] text-[#a3a3a3] uppercase">
                 INITIATION PRIVILEGE CODE
               </span>
-              <span className="font-mono text-xl tracking-[0.22em] text-[#cfa156] font-semibold">
+              <span className="font-mono text-xl tracking-[0.22em] text-[#f9f9f9] font-semibold">
                 ENIGMA15
               </span>
             </div>
             <button
               id="copy-enigma15-btn"
               onClick={handleCopy}
-              className="inline-flex items-center gap-2 border border-[#ece5d8]/20 hover:border-[#cfa156] px-3.5 py-2 text-xs font-mono tracking-widest uppercase text-[#ece5d8] transition"
+              className="inline-flex items-center gap-2 border border-[#f9f9f9]/20 hover:border-[#f9f9f9] px-3.5 py-2 text-xs font-mono tracking-widest uppercase text-[#f9f9f9] transition"
             >
-              {copied ? <Check className="w-3.5 h-3.5 text-[#cfa156]" /> : <Copy className="w-3.5 h-3.5" />}
+              {copied ? <Check className="w-3.5 h-3.5 text-[#f9f9f9]" /> : <Copy className="w-3.5 h-3.5" />}
               {copied ? 'COPIED' : 'COPY'}
             </button>
           </div>
 
-          <p className="font-mono text-[11px] text-[#9a948a] tracking-wider uppercase mb-6 tabular-nums">
+          <p className="font-mono text-[11px] text-[#a3a3a3] tracking-wider uppercase mb-6 tabular-nums">
             15% OFF ARCHIVE DROPS &amp; MYSTERY CHESTS · MAX 2,500,000₫ · ACTIVE IN BAG
           </p>
 
           <button
             id="confirm-initiation-btn"
             onClick={() => setOpen(false)}
-            className="w-full py-3.5 bg-[#cfa156] text-[#070709] font-mono text-xs font-semibold tracking-[0.26em] uppercase hover:bg-[#dec37b] transition"
+            className="w-full py-3.5 bg-[#f9f9f9] text-[#0a0a0a] font-mono text-xs font-semibold tracking-[0.26em] uppercase hover:bg-[#d9d9d9] transition"
           >
             ENTER WITH PRIVILEGE
           </button>

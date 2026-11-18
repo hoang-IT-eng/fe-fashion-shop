@@ -44,18 +44,18 @@ export default function AdminUsersPage() {
   return (
     <div className="space-y-6">
       <div>
-        <p className="font-mono text-[10px] tracking-[0.28em] uppercase text-[#cfa156]">
+        <p className="font-mono text-[10px] tracking-[0.28em] uppercase text-[#f9f9f9]">
           INNER CIRCLE DIRECTORY &amp; ROLES
         </p>
-        <h2 className="font-display text-2xl md:text-3xl text-[#ece5d8]">
+        <h2 className="font-display text-2xl md:text-3xl text-[#f9f9f9]">
           Collectors &amp; Curators ({users.length})
         </h2>
       </div>
 
-      <div className="bg-[#111115] border border-[#ece5d8]/12 overflow-x-auto">
+      <div className="bg-[#111111] border border-[#f9f9f9]/12 overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="border-b border-[#ece5d8]/10 font-mono text-[10px] uppercase tracking-[0.22em] text-[#9a948a]">
+            <tr className="border-b border-[#f9f9f9]/10 font-mono text-[10px] uppercase tracking-[0.22em] text-[#a3a3a3]">
               <th className="py-3.5 px-4">ID</th>
               <th className="py-3.5 px-4">Collector</th>
               <th className="py-3.5 px-4">Email</th>
@@ -63,20 +63,20 @@ export default function AdminUsersPage() {
               <th className="py-3.5 px-4 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#ece5d8]/10 text-xs">
+          <tbody className="divide-y divide-[#f9f9f9]/10 text-xs">
             {users.map(u => (
-              <tr key={u.id} className="hover:bg-[#1c1d24]/40 transition">
-                <td className="py-3 px-4 font-mono text-[#9a948a] tabular-nums">#{u.id}</td>
-                <td className="py-3 px-4 font-medium text-[#ece5d8]">{u.name}</td>
-                <td className="py-3 px-4 font-mono text-[#9a948a]">{u.email}</td>
+              <tr key={u.id} className="hover:bg-[#232323]/40 transition">
+                <td className="py-3 px-4 font-mono text-[#a3a3a3] tabular-nums">#{u.id}</td>
+                <td className="py-3 px-4 font-medium text-[#f9f9f9]">{u.name}</td>
+                <td className="py-3 px-4 font-mono text-[#a3a3a3]">{u.email}</td>
                 <td className="py-3 px-4">
                   <button
                     type="button"
                     onClick={() => void handleRoleToggle(u)}
                     className={`inline-flex items-center gap-1.5 px-2.5 py-1 border font-mono text-[10px] uppercase tracking-wider ${
                       u.role === 'admin'
-                        ? 'border-[#cfa156] text-[#cfa156] bg-[#cfa156]/10'
-                        : 'border-[#ece5d8]/20 text-[#ece5d8]'
+                        ? 'border-[#f9f9f9] text-[#f9f9f9] bg-[#f9f9f9]/10'
+                        : 'border-[#f9f9f9]/20 text-[#f9f9f9]'
                     }`}
                   >
                     <Shield className="w-3 h-3" /> {u.role}
@@ -86,7 +86,7 @@ export default function AdminUsersPage() {
                   <button
                     type="button"
                     onClick={() => void handleDelete(u)}
-                    className="p-2 text-[#9a948a] hover:text-red-400"
+                    className="p-2 text-[#a3a3a3] hover:text-red-400"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>

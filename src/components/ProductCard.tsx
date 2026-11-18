@@ -41,9 +41,9 @@ export default function ProductCard({ product, onQuickView }: Props) {
   return (
     <article
       onClick={() => navigate(`/products/${product.id}`)}
-      className="group cursor-pointer bg-[#111115] border border-[#ece5d8]/10 hover:border-[#cfa156]/55 transition-colors flex flex-col"
+      className="group cursor-pointer flex flex-col"
     >
-      <div className="relative aspect-[4/5] bg-[#070709] overflow-hidden">
+      <div className="relative aspect-[4/5] bg-[#0a0a0a] overflow-hidden">
         {product.imageUrl ? (
           <img
             src={product.imageUrl}
@@ -52,18 +52,18 @@ export default function ProductCard({ product, onQuickView }: Props) {
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center font-mono text-xs text-[#9a948a]">
+          <div className="w-full h-full flex items-center justify-center font-mono text-xs text-[#a3a3a3]">
             VAULT IMAGE
           </div>
         )}
 
         {/* Release Badge */}
         <div className="absolute top-3 left-3 flex flex-col gap-1.5">
-          <span className="px-2.5 py-1 bg-[#070709]/90 border border-[#ece5d8]/15 font-mono text-[10px] tracking-[0.2em] uppercase text-[#ece5d8]">
+          <span className="px-2.5 py-1 bg-[#f9f9f9] font-sans text-[10px] font-semibold tracking-[0.14em] uppercase text-[#0a0a0a]">
             {RELEASE_BADGES[product.releaseType || 'drop'] || 'ARCHIVE'}
           </span>
           {product.stock === 0 && (
-            <span className="px-2.5 py-1 bg-red-950/90 border border-red-500/40 font-mono text-[10px] tracking-[0.2em] uppercase text-red-200">
+            <span className="px-2.5 py-1 bg-red-950/90 border border-red-500/40 font-sans text-[10px] font-medium tracking-[0.16em] uppercase text-red-200">
               VAULT EXHAUSTED
             </span>
           )}
@@ -76,8 +76,8 @@ export default function ProductCard({ product, onQuickView }: Props) {
           aria-label={`Toggle wishlist for ${product.name}`}
           className={`absolute top-3 right-3 w-9 h-9 flex items-center justify-center border backdrop-blur-sm transition ${
             wished
-              ? 'bg-[#cfa156] border-[#cfa156] text-[#070709]'
-              : 'bg-[#070709]/80 border-[#ece5d8]/20 text-[#ece5d8] hover:border-[#cfa156]'
+              ? 'bg-[#f9f9f9] border-[#f9f9f9] text-[#0a0a0a]'
+              : 'bg-[#0a0a0a]/80 border-[#f9f9f9]/20 text-[#f9f9f9] hover:border-[#f9f9f9]'
           }`}
         >
           <Heart className={`w-4 h-4 ${wished ? 'fill-current' : ''}`} />
@@ -88,7 +88,7 @@ export default function ProductCard({ product, onQuickView }: Props) {
           <button
             type="button"
             onClick={handleQuickView}
-            className="absolute inset-x-3 bottom-3 py-2.5 bg-[#070709]/92 border border-[#cfa156]/50 text-[#ece5d8] font-mono text-[11px] uppercase tracking-[0.22em] opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all flex items-center justify-center gap-2 hover:bg-[#cfa156] hover:text-[#070709]"
+            className="absolute inset-x-3 bottom-3 py-2.5 bg-[#0a0a0a]/92 border border-[#f9f9f9]/50 text-[#f9f9f9] font-sans text-[11px] font-medium uppercase tracking-[0.16em] opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all flex items-center justify-center gap-2 hover:bg-[#f9f9f9] hover:text-[#0a0a0a]"
           >
             <Eye className="w-3.5 h-3.5" />
             Quick Inspect
@@ -96,24 +96,24 @@ export default function ProductCard({ product, onQuickView }: Props) {
         )}
       </div>
 
-      <div className="p-4 flex-1 flex flex-col justify-between gap-3">
+      <div className="pt-4 flex-1 flex flex-col justify-between gap-3">
         <div>
-          <div className="flex items-center justify-between gap-2 font-mono text-[10px] tracking-[0.2em] uppercase text-[#9a948a] mb-1">
+          <div className="flex items-center justify-between gap-2 font-sans text-[10px] font-medium tracking-[0.16em] uppercase text-[#a3a3a3] mb-1">
             <span className="truncate">{product.brand || product.category || 'ENIGMA'}</span>
             {product.stock > 0 && product.stock <= 5 && (
-              <span className="text-[#cfa156] tabular-nums">{product.stock} LEFT</span>
+              <span className="text-[#f9f9f9] tabular-nums">{product.stock} LEFT</span>
             )}
           </div>
-          <h3 className="font-display text-lg leading-snug text-[#ece5d8] group-hover:text-[#cfa156] transition line-clamp-2">
+          <h3 className="font-sans text-base font-medium leading-snug text-[#f9f9f9] line-clamp-2">
             {product.name}
           </h3>
         </div>
 
-        <div className="pt-2 border-t border-[#ece5d8]/[0.08] flex items-center justify-between">
-          <span className="font-mono text-sm font-semibold text-[#ece5d8] tabular-nums">
+        <div className="flex items-center justify-between">
+          <span className="font-sans text-sm font-semibold text-[#f9f9f9] tabular-nums">
             {formatVnd(product.price)}
           </span>
-          <span className="font-mono text-[10px] text-[#9a948a] uppercase tracking-widest">
+          <span className="font-sans text-[10px] text-[#a3a3a3] uppercase tracking-[0.14em]">
             {(product.sizes || []).slice(0, 3).join(' · ')}
           </span>
         </div>

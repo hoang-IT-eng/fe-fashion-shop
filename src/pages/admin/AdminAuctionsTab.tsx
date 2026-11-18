@@ -84,17 +84,17 @@ export default function AdminAuctionsTab() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <p className="font-mono text-[10px] tracking-[0.28em] uppercase text-[#cfa156]">
+          <p className="font-mono text-[10px] tracking-[0.28em] uppercase text-[#f9f9f9]">
             LIVE AUCTION FLOOR CONTROL
           </p>
-          <h2 className="font-display text-2xl md:text-3xl text-[#ece5d8]">
+          <h2 className="font-display text-2xl md:text-3xl text-[#f9f9f9]">
             Grail Lots &amp; Anti-Snipe Monitor ({lots.length})
           </h2>
         </div>
         <button
           type="button"
           onClick={() => setShowCreate(v => !v)}
-          className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#cfa156] text-[#070709] font-mono text-xs font-semibold uppercase tracking-[0.2em]"
+          className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#f9f9f9] text-[#0a0a0a] font-mono text-xs font-semibold uppercase tracking-[0.2em]"
         >
           <Plus className="w-4 h-4" /> Launch Grail Lot
         </button>
@@ -103,7 +103,7 @@ export default function AdminAuctionsTab() {
       {showCreate && (
         <form
           onSubmit={handleCreate}
-          className="p-6 bg-[#111115] border border-[#cfa156]/40 grid grid-cols-1 md:grid-cols-3 gap-4"
+          className="p-6 bg-[#111111] border border-[#f9f9f9]/40 grid grid-cols-1 md:grid-cols-3 gap-4"
         >
           <input
             type="text"
@@ -111,14 +111,14 @@ export default function AdminAuctionsTab() {
             placeholder="Lot Title (e.g. LOT 04 · Reborn Sample)"
             value={title}
             onChange={e => setTitle(e.target.value)}
-            className="md:col-span-2 bg-[#070709] border border-[#ece5d8]/15 px-3.5 py-2.5 text-xs text-[#ece5d8]"
+            className="md:col-span-2 bg-[#0a0a0a] border border-[#f9f9f9]/15 px-3.5 py-2.5 text-xs text-[#f9f9f9]"
           />
           <input
             type="text"
             placeholder="Image URL"
             value={imageUrl}
             onChange={e => setImageUrl(e.target.value)}
-            className="bg-[#070709] border border-[#ece5d8]/15 px-3.5 py-2.5 font-mono text-xs text-[#ece5d8]"
+            className="bg-[#0a0a0a] border border-[#f9f9f9]/15 px-3.5 py-2.5 font-mono text-xs text-[#f9f9f9]"
           />
           <input
             type="number"
@@ -126,7 +126,7 @@ export default function AdminAuctionsTab() {
             placeholder="Starting Bid"
             value={startingBid}
             onChange={e => setStartingBid(Number(e.target.value))}
-            className="bg-[#070709] border border-[#ece5d8]/15 px-3.5 py-2.5 font-mono text-xs text-[#ece5d8] tabular-nums"
+            className="bg-[#0a0a0a] border border-[#f9f9f9]/15 px-3.5 py-2.5 font-mono text-xs text-[#f9f9f9] tabular-nums"
           />
           <input
             type="number"
@@ -134,7 +134,7 @@ export default function AdminAuctionsTab() {
             placeholder="Min Increment"
             value={minIncrement}
             onChange={e => setMinIncrement(Number(e.target.value))}
-            className="bg-[#070709] border border-[#ece5d8]/15 px-3.5 py-2.5 font-mono text-xs text-[#ece5d8] tabular-nums"
+            className="bg-[#0a0a0a] border border-[#f9f9f9]/15 px-3.5 py-2.5 font-mono text-xs text-[#f9f9f9] tabular-nums"
           />
           <div className="flex gap-2">
             <input
@@ -144,11 +144,11 @@ export default function AdminAuctionsTab() {
               placeholder="Mins"
               value={durationMinutes}
               onChange={e => setDurationMinutes(Number(e.target.value))}
-              className="w-24 bg-[#070709] border border-[#ece5d8]/15 px-3 py-2.5 font-mono text-xs text-[#ece5d8] tabular-nums"
+              className="w-24 bg-[#0a0a0a] border border-[#f9f9f9]/15 px-3 py-2.5 font-mono text-xs text-[#f9f9f9] tabular-nums"
             />
             <button
               type="submit"
-              className="flex-1 bg-[#cfa156] text-[#070709] font-mono text-xs font-semibold uppercase tracking-wider"
+              className="flex-1 bg-[#f9f9f9] text-[#0a0a0a] font-mono text-xs font-semibold uppercase tracking-wider"
             >
               Open Lot
             </button>
@@ -162,23 +162,23 @@ export default function AdminAuctionsTab() {
             <div
               key={lot.id}
               onClick={() => setSelectedLot(lot)}
-              className={`cursor-pointer p-4 bg-[#111115] border transition flex flex-wrap items-center justify-between gap-4 ${
-                selectedLot?.id === lot.id ? 'border-[#cfa156]' : 'border-[#ece5d8]/12'
+              className={`cursor-pointer p-4 bg-[#111111] border transition flex flex-wrap items-center justify-between gap-4 ${
+                selectedLot?.id === lot.id ? 'border-[#f9f9f9]' : 'border-[#f9f9f9]/12'
               }`}
             >
               <div className="space-y-1 min-w-0">
                 <div className="flex items-center gap-2 font-mono text-[10px] uppercase">
-                  <span className="px-2 py-0.5 bg-[#070709] border border-[#cfa156]/40 text-[#cfa156]">
+                  <span className="px-2 py-0.5 bg-[#0a0a0a] border border-[#f9f9f9]/40 text-[#f9f9f9]">
                     {lot.status}
                   </span>
-                  <span className="text-[#9a948a] tabular-nums">
+                  <span className="text-[#a3a3a3] tabular-nums">
                     {lot.bidCount} bids · +{lot.antiSnipeCount || 0} snipe guards
                   </span>
                 </div>
-                <h3 className="font-medium text-sm text-[#ece5d8] truncate">{lot.title}</h3>
-                <p className="font-mono text-xs text-[#cfa156] tabular-nums">
+                <h3 className="font-medium text-sm text-[#f9f9f9] truncate">{lot.title}</h3>
+                <p className="font-mono text-xs text-[#f9f9f9] tabular-nums">
                   Current: {formatVnd(lot.currentBid)} ·{' '}
-                  <Clock className="w-3 h-3 inline text-[#9a948a]" />{' '}
+                  <Clock className="w-3 h-3 inline text-[#a3a3a3]" />{' '}
                   {formatCountdown(lot.remainingSeconds)}
                 </p>
               </div>
@@ -190,7 +190,7 @@ export default function AdminAuctionsTab() {
                     e.stopPropagation()
                     void handleExtend(lot.id, 120)
                   }}
-                  className="px-2.5 py-1.5 border border-[#ece5d8]/20 hover:border-[#cfa156] text-[#ece5d8] uppercase"
+                  className="px-2.5 py-1.5 border border-[#f9f9f9]/20 hover:border-[#f9f9f9] text-[#f9f9f9] uppercase"
                 >
                   +120s
                 </button>
@@ -201,7 +201,7 @@ export default function AdminAuctionsTab() {
                       e.stopPropagation()
                       void handleSettle(lot.id)
                     }}
-                    className="px-2.5 py-1.5 bg-[#cfa156] text-[#070709] font-semibold uppercase inline-flex items-center gap-1"
+                    className="px-2.5 py-1.5 bg-[#f9f9f9] text-[#0a0a0a] font-semibold uppercase inline-flex items-center gap-1"
                   >
                     <CheckCircle2 className="w-3 h-3" /> Settle
                   </button>
@@ -212,7 +212,7 @@ export default function AdminAuctionsTab() {
                     e.stopPropagation()
                     void handleDelete(lot.id)
                   }}
-                  className="p-1.5 text-[#9a948a] hover:text-red-400"
+                  className="p-1.5 text-[#a3a3a3] hover:text-red-400"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
@@ -222,35 +222,35 @@ export default function AdminAuctionsTab() {
         </div>
 
         {/* Bid Log Inspector */}
-        <div className="lg:col-span-5 bg-[#111115] border border-[#ece5d8]/12 p-5 space-y-4">
+        <div className="lg:col-span-5 bg-[#111111] border border-[#f9f9f9]/12 p-5 space-y-4">
           <div className="flex items-center gap-2">
-            <Gavel className="w-4 h-4 text-[#cfa156]" />
-            <h3 className="font-display text-xl text-[#ece5d8]">
+            <Gavel className="w-4 h-4 text-[#f9f9f9]" />
+            <h3 className="font-display text-xl text-[#f9f9f9]">
               {selectedLot ? `Bid Audit Log · Lot #${selectedLot.id}` : 'Select a Lot'}
             </h3>
           </div>
 
           <div className="space-y-2 max-h-80 overflow-y-auto">
             {(selectedLot?.bids || []).length === 0 ? (
-              <p className="font-mono text-xs text-[#9a948a]">NO BIDS RECORDED YET</p>
+              <p className="font-mono text-xs text-[#a3a3a3]">NO BIDS RECORDED YET</p>
             ) : (
               selectedLot?.bids.map(b => (
                 <div
                   key={b.id}
-                  className="p-3 bg-[#070709] border border-[#ece5d8]/10 flex items-center justify-between font-mono text-xs"
+                  className="p-3 bg-[#0a0a0a] border border-[#f9f9f9]/10 flex items-center justify-between font-mono text-xs"
                 >
                   <div>
-                    <span className="text-[#ece5d8] font-semibold">{b.bidderAlias}</span>
+                    <span className="text-[#f9f9f9] font-semibold">{b.bidderAlias}</span>
                     {b.triggeredExtension && (
-                      <span className="ml-2 text-[9px] text-[#cfa156] border border-[#cfa156]/50 px-1.5 py-0.5">
+                      <span className="ml-2 text-[9px] text-[#f9f9f9] border border-[#f9f9f9]/50 px-1.5 py-0.5">
                         +120S EXTENDED
                       </span>
                     )}
-                    <span className="block text-[10px] text-[#9a948a]">
+                    <span className="block text-[10px] text-[#a3a3a3]">
                       {new Date(b.createdAt).toLocaleTimeString()}
                     </span>
                   </div>
-                  <span className="text-[#cfa156] tabular-nums">{formatVnd(b.amount)}</span>
+                  <span className="text-[#f9f9f9] tabular-nums">{formatVnd(b.amount)}</span>
                 </div>
               ))
             )}

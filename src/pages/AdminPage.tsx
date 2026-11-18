@@ -77,15 +77,15 @@ export default function AdminPage() {
   // Allow instant 1-click Curator authorization if someone visits /admin directly without signing in
   if (!isAuthenticated || user?.role !== 'admin') {
     return (
-      <div className="min-h-screen bg-[#070709] text-[#ece5d8] flex items-center justify-center p-6">
-        <div className="max-w-md w-full bg-[#111115] border border-[#cfa156]/50 p-8 text-center space-y-6">
+      <div className="min-h-screen bg-[#0a0a0a] text-[#f9f9f9] flex items-center justify-center p-6">
+        <div className="max-w-md w-full bg-[#111111] border border-[#f9f9f9]/50 p-8 text-center space-y-6">
           <EnigmaCrest className="w-12 h-12 mx-auto" />
           <div>
-            <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#cfa156]">
+            <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#f9f9f9]">
               RESTRICTED CURATOR CONSOLE
             </p>
             <h1 className="font-display text-3xl mt-1">Executive Grail Desk</h1>
-            <p className="text-xs text-[#9a948a] mt-2 leading-relaxed">
+            <p className="text-xs text-[#a3a3a3] mt-2 leading-relaxed">
               Curator clearance is required to access GMV telemetry, SKU matrices, live auction
               controls, and sourcing mandates.
             </p>
@@ -94,13 +94,13 @@ export default function AdminPage() {
             id="instant-admin-unlock-btn"
             type="button"
             onClick={() => void login('admin@fashionshop.com', 'Admin@123')}
-            className="w-full py-3.5 bg-[#cfa156] text-[#070709] font-mono text-xs font-semibold uppercase tracking-[0.22em] hover:bg-[#dec37b] transition inline-flex items-center justify-center gap-2"
+            className="w-full py-3.5 bg-[#f9f9f9] text-[#0a0a0a] font-mono text-xs font-semibold uppercase tracking-[0.22em] hover:bg-[#d9d9d9] transition inline-flex items-center justify-center gap-2"
           >
             <KeyRound className="w-4 h-4" /> Authenticate Demo Curator (Admin@123)
           </button>
           <Link
             to="/"
-            className="inline-block font-mono text-xs uppercase tracking-widest text-[#9a948a] hover:text-[#ece5d8]"
+            className="inline-block font-mono text-xs uppercase tracking-widest text-[#a3a3a3] hover:text-[#f9f9f9]"
           >
             ← Return to Storefront
           </Link>
@@ -114,11 +114,11 @@ export default function AdminPage() {
   )
 
   return (
-    <div className="min-h-screen bg-[#070709] text-[#ece5d8] flex flex-col lg:flex-row">
+    <div className="min-h-screen bg-[#0a0a0a] text-[#f9f9f9] flex flex-col lg:flex-row">
       {/* Left High-Density Studio Sidebar */}
-      <aside className="lg:w-64 bg-[#0b0b0f] border-b lg:border-b-0 lg:border-r border-[#ece5d8]/10 flex flex-col justify-between flex-shrink-0">
+      <aside className="lg:w-64 bg-[#111111] border-b lg:border-b-0 lg:border-r border-[#f9f9f9]/10 flex flex-col justify-between flex-shrink-0">
         <div>
-          <div className="p-5 border-b border-[#ece5d8]/10 flex items-center justify-between">
+          <div className="p-5 border-b border-[#f9f9f9]/10 flex items-center justify-between">
             <EnigmaCrest className="w-7 h-7" showWordmark subtitle="GRAIL DESK" />
           </div>
 
@@ -127,12 +127,12 @@ export default function AdminPage() {
               id="admin-cmdk-btn"
               type="button"
               onClick={() => setCmdOpen(true)}
-              className="w-full px-3 py-2 bg-[#111115] border border-[#ece5d8]/15 hover:border-[#cfa156]/60 flex items-center justify-between font-mono text-xs text-[#9a948a] transition"
+              className="w-full px-3 py-2 bg-[#111111] border border-[#f9f9f9]/15 hover:border-[#f9f9f9]/60 flex items-center justify-between font-mono text-xs text-[#a3a3a3] transition"
             >
               <span className="inline-flex items-center gap-2">
-                <Search className="w-3.5 h-3.5 text-[#cfa156]" /> Quick Jump...
+                <Search className="w-3.5 h-3.5 text-[#f9f9f9]" /> Quick Jump...
               </span>
-              <span className="px-1.5 py-0.5 bg-[#070709] border border-[#ece5d8]/15 text-[10px]">
+              <span className="px-1.5 py-0.5 bg-[#0a0a0a] border border-[#f9f9f9]/15 text-[10px]">
                 ⌘K
               </span>
             </button>
@@ -149,8 +149,8 @@ export default function AdminPage() {
                   onClick={() => setActiveTab(tab.id)}
                   className={`w-full flex items-center justify-between px-3 py-2.5 font-mono text-xs transition border-l-2 ${
                     active
-                      ? 'border-[#cfa156] bg-[#111115] text-[#cfa156]'
-                      : 'border-transparent text-[#9a948a] hover:text-[#ece5d8] hover:bg-[#111115]/50'
+                      ? 'border-[#f9f9f9] bg-[#111111] text-[#f9f9f9]'
+                      : 'border-transparent text-[#a3a3a3] hover:text-[#f9f9f9] hover:bg-[#111111]/50'
                   }`}
                 >
                   <span className="inline-flex items-center gap-2.5 truncate">
@@ -163,16 +163,16 @@ export default function AdminPage() {
           </nav>
         </div>
 
-        <div className="p-4 border-t border-[#ece5d8]/10 space-y-2">
-          <div className="font-mono text-[10px] text-[#9a948a] truncate">
-            CURATOR: <span className="text-[#ece5d8]">{user.name}</span>
+        <div className="p-4 border-t border-[#f9f9f9]/10 space-y-2">
+          <div className="font-mono text-[10px] text-[#a3a3a3] truncate">
+            CURATOR: <span className="text-[#f9f9f9]">{user.name}</span>
           </div>
           <Link
             to="/"
-            className="w-full py-2 px-3 border border-[#ece5d8]/15 hover:border-[#cfa156] font-mono text-[10px] uppercase tracking-widest text-[#ece5d8] flex items-center justify-between"
+            className="w-full py-2 px-3 border border-[#f9f9f9]/15 hover:border-[#f9f9f9] font-mono text-[10px] uppercase tracking-widest text-[#f9f9f9] flex items-center justify-between"
           >
             <span>Live Storefront</span>
-            <ArrowUpRight className="w-3.5 h-3.5 text-[#cfa156]" />
+            <ArrowUpRight className="w-3.5 h-3.5 text-[#f9f9f9]" />
           </Link>
         </div>
       </aside>
@@ -180,54 +180,54 @@ export default function AdminPage() {
       {/* Main Executive Workspace */}
       <div className="flex-1 min-w-0 flex flex-col">
         {/* Top Tabular-Nums KPI Strip */}
-        <header className="bg-[#0b0b0f] border-b border-[#ece5d8]/10 px-6 py-4">
+        <header className="bg-[#111111] border-b border-[#f9f9f9]/10 px-6 py-4">
           <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
-            <h1 className="font-display text-2xl md:text-3xl text-[#ece5d8]">
+            <h1 className="font-display text-2xl md:text-3xl text-[#f9f9f9]">
               ENIGMA Executive Commerce &amp; Grail Desk
             </h1>
-            <span className="font-mono text-[10px] tracking-[0.24em] uppercase text-[#cfa156]">
+            <span className="font-mono text-[10px] tracking-[0.24em] uppercase text-[#f9f9f9]">
               STUDIO TELEMETRY · LIVE SYNC
             </span>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 font-mono">
-            <div className="p-3 bg-[#111115] border border-[#ece5d8]/10">
-              <span className="block text-[9px] uppercase tracking-widest text-[#9a948a]">
+            <div className="p-3 bg-[#111111] border border-[#f9f9f9]/10">
+              <span className="block text-[9px] uppercase tracking-widest text-[#a3a3a3]">
                 GROSS GMV
               </span>
-              <span className="text-sm md:text-base font-semibold text-[#cfa156] tabular-nums">
+              <span className="text-sm md:text-base font-semibold text-[#f9f9f9] tabular-nums">
                 {formatVnd(kpi?.totalRevenue || 0)}
               </span>
             </div>
-            <div className="p-3 bg-[#111115] border border-[#ece5d8]/10">
-              <span className="block text-[9px] uppercase tracking-widest text-[#9a948a]">
+            <div className="p-3 bg-[#111111] border border-[#f9f9f9]/10">
+              <span className="block text-[9px] uppercase tracking-widest text-[#a3a3a3]">
                 AVG ORDER VALUE
               </span>
-              <span className="text-sm md:text-base font-semibold text-[#ece5d8] tabular-nums">
+              <span className="text-sm md:text-base font-semibold text-[#f9f9f9] tabular-nums">
                 {formatVnd(kpi?.averageOrderValue || 0)}
               </span>
             </div>
-            <div className="p-3 bg-[#111115] border border-[#ece5d8]/10">
-              <span className="block text-[9px] uppercase tracking-widest text-[#9a948a]">
+            <div className="p-3 bg-[#111111] border border-[#f9f9f9]/10">
+              <span className="block text-[9px] uppercase tracking-widest text-[#a3a3a3]">
                 LIVE GRAIL LOTS
               </span>
-              <span className="text-sm md:text-base font-semibold text-[#ece5d8] tabular-nums">
+              <span className="text-sm md:text-base font-semibold text-[#f9f9f9] tabular-nums">
                 {kpi?.auctionHeat.liveCount ?? 3} ACTIVE
               </span>
             </div>
-            <div className="p-3 bg-[#111115] border border-[#ece5d8]/10">
-              <span className="block text-[9px] uppercase tracking-widest text-[#9a948a]">
+            <div className="p-3 bg-[#111111] border border-[#f9f9f9]/10">
+              <span className="block text-[9px] uppercase tracking-widest text-[#a3a3a3]">
                 CONCIERGE QUEUE
               </span>
-              <span className="text-sm md:text-base font-semibold text-[#cfa156] tabular-nums">
+              <span className="text-sm md:text-base font-semibold text-[#f9f9f9] tabular-nums">
                 {kpi?.pendingConciergeCount ?? 2} OPEN
               </span>
             </div>
-            <div className="p-3 bg-[#111115] border border-[#ece5d8]/10 col-span-2 sm:col-span-1">
-              <span className="block text-[9px] uppercase tracking-widest text-[#9a948a]">
+            <div className="p-3 bg-[#111111] border border-[#f9f9f9]/10 col-span-2 sm:col-span-1">
+              <span className="block text-[9px] uppercase tracking-widest text-[#a3a3a3]">
                 LOW-STOCK SKUS
               </span>
-              <span className="text-sm md:text-base font-semibold text-[#ece5d8] tabular-nums">
+              <span className="text-sm md:text-base font-semibold text-[#f9f9f9] tabular-nums">
                 {kpi?.lowStockSkus.length ?? 0} ALERTS
               </span>
             </div>
@@ -257,20 +257,20 @@ export default function AdminPage() {
         >
           <div
             onClick={e => e.stopPropagation()}
-            className="w-full max-w-lg bg-[#111115] border border-[#cfa156]/60 shadow-2xl overflow-hidden"
+            className="w-full max-w-lg bg-[#111111] border border-[#f9f9f9]/60 shadow-2xl overflow-hidden"
           >
-            <div className="p-3.5 border-b border-[#ece5d8]/10 flex items-center gap-3">
-              <Command className="w-4 h-4 text-[#cfa156]" />
+            <div className="p-3.5 border-b border-[#f9f9f9]/10 flex items-center gap-3">
+              <Command className="w-4 h-4 text-[#f9f9f9]" />
               <input
                 type="text"
                 autoFocus
                 value={cmdQuery}
                 onChange={e => setCmdQuery(e.target.value)}
                 placeholder="Jump to Analytics, SKU Matrix, Auctions, Concierge, Vouchers..."
-                className="flex-1 bg-transparent font-mono text-xs text-[#ece5d8] placeholder-[#9a948a] focus:outline-none"
+                className="flex-1 bg-transparent font-mono text-xs text-[#f9f9f9] placeholder-[#a3a3a3] focus:outline-none"
               />
             </div>
-            <div className="divide-y divide-[#ece5d8]/10 max-h-72 overflow-y-auto">
+            <div className="divide-y divide-[#f9f9f9]/10 max-h-72 overflow-y-auto">
               {filteredCommands.map(cmd => {
                 const Icon = cmd.icon
                 return (
@@ -282,13 +282,13 @@ export default function AdminPage() {
                       setCmdOpen(false)
                       setCmdQuery('')
                     }}
-                    className="w-full px-4 py-3 flex items-center justify-between hover:bg-[#1c1d24] font-mono text-xs text-[#ece5d8]"
+                    className="w-full px-4 py-3 flex items-center justify-between hover:bg-[#232323] font-mono text-xs text-[#f9f9f9]"
                   >
                     <span className="inline-flex items-center gap-2.5">
-                      <Icon className="w-3.5 h-3.5 text-[#cfa156]" />
+                      <Icon className="w-3.5 h-3.5 text-[#f9f9f9]" />
                       {cmd.label}
                     </span>
-                    <span className="text-[10px] text-[#9a948a]">{cmd.shortcut}</span>
+                    <span className="text-[10px] text-[#a3a3a3]">{cmd.shortcut}</span>
                   </button>
                 )
               })}

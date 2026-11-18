@@ -7,26 +7,29 @@ export default {
   theme: {
     extend: {
       colors: {
-        obsidian: '#070709',
-        charcoal: '#111115',
-        slate: '#1c1d24',
-        bone: '#ece5d8',
-        pewter: '#9a948a',
-        gold: '#cfa156',
-        'gold-dim': '#9e7839',
+        obsidian: '#0a0a0a',
+        charcoal: '#111111',
+        slate: '#232323',
+        bone: '#f9f9f9',
+        pewter: '#a3a3a3',
+        // Monochrome restyle: the former gold accent is retired. The token is
+        // repurposed to the neutral off-white so legacy `gold` call sites
+        // render monochrome instead of breaking.
+        gold: '#f9f9f9',
+        'gold-dim': '#d9d9d9',
         crimson: '#b54444',
         sage: '#5e8c6a',
         // Legacy aliases mapped cleanly to Enigma tokens
-        ink: '#ece5d8',
-        paper: '#070709',
-        sand: '#111115',
-        line: '#1c1d24',
-        muted: '#9a948a',
+        ink: '#f9f9f9',
+        paper: '#0a0a0a',
+        sand: '#111111',
+        line: '#232323',
+        muted: '#a3a3a3',
       },
       fontFamily: {
         sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
-        display: ['"Cormorant Garamond"', 'Cinzel', 'Georgia', 'serif'],
-        ritual: ['Cinzel', '"Cormorant Garamond"', 'serif'],
+        display: ['"Playfair Display"', 'Georgia', 'serif'],
+        ritual: ['"Playfair Display"', 'Georgia', 'serif'],
         mono: ['"JetBrains Mono"', 'monospace'],
       },
       letterSpacing: {

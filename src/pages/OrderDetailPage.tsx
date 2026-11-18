@@ -53,7 +53,7 @@ export default function OrderDetailPage() {
 
   if (loading || !order) {
     return (
-      <div className="min-h-screen bg-[#070709] flex items-center justify-center font-mono text-xs text-[#9a948a]">
+      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center font-mono text-xs text-[#a3a3a3]">
         LOADING PROVENANCE DOSSIER...
       </div>
     )
@@ -62,7 +62,7 @@ export default function OrderDetailPage() {
   const activeStage = stageIndexForStatus(order.status)
 
   return (
-    <div className="min-h-screen bg-[#070709] text-[#ece5d8] py-10 md:py-14">
+    <div className="min-h-screen bg-[#0a0a0a] text-[#f9f9f9] py-10 md:py-14">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <Breadcrumb
           items={[
@@ -72,22 +72,22 @@ export default function OrderDetailPage() {
           ]}
         />
 
-        <div className="flex flex-wrap items-end justify-between gap-4 pb-8 border-b border-[#ece5d8]/10 mb-10">
+        <div className="flex flex-wrap items-end justify-between gap-4 pb-8 border-b border-[#f9f9f9]/10 mb-10">
           <div>
-            <p className="font-mono text-xs tracking-[0.3em] uppercase text-[#cfa156] mb-2">
+            <p className="font-mono text-xs tracking-[0.3em] uppercase text-[#f9f9f9] mb-2">
               PROVENANCE DISPATCH CERTIFICATE
             </p>
-            <h1 className="font-display text-4xl md:text-5xl text-[#ece5d8]">
+            <h1 className="font-display text-4xl md:text-5xl text-[#f9f9f9]">
               Order #{order.id}
             </h1>
           </div>
-          <div className="font-mono text-xs text-[#9a948a]">
+          <div className="font-mono text-xs text-[#a3a3a3]">
             {new Date(order.createdAt).toLocaleString()}
           </div>
         </div>
 
         {/* 5-Stage Visual Provenance Stepper */}
-        <section className="p-6 md:p-8 bg-[#111115] border border-[#ece5d8]/15 mb-8">
+        <section className="p-6 md:p-8 bg-[#111111] border border-[#f9f9f9]/15 mb-8">
           {order.status === 'cancelled' ? (
             <div className="flex items-center gap-3 text-red-300 font-mono text-sm">
               <XCircle className="w-5 h-5" />
@@ -103,16 +103,16 @@ export default function OrderDetailPage() {
                     key={stage.key}
                     className={`p-3.5 border transition ${
                       current
-                        ? 'border-[#cfa156] bg-[#070709]'
+                        ? 'border-[#f9f9f9] bg-[#0a0a0a]'
                         : done
-                          ? 'border-[#cfa156]/40 bg-[#070709]/60'
-                          : 'border-[#ece5d8]/10 bg-[#070709]/30 opacity-50'
+                          ? 'border-[#f9f9f9]/40 bg-[#0a0a0a]/60'
+                          : 'border-[#f9f9f9]/10 bg-[#0a0a0a]/30 opacity-50'
                     }`}
                   >
                     <CheckCircle2
-                      className={`w-4 h-4 mb-2 ${done ? 'text-[#cfa156]' : 'text-[#9a948a]'}`}
+                      className={`w-4 h-4 mb-2 ${done ? 'text-[#f9f9f9]' : 'text-[#a3a3a3]'}`}
                     />
-                    <p className="font-mono text-[11px] uppercase tracking-wider text-[#ece5d8]">
+                    <p className="font-mono text-[11px] uppercase tracking-wider text-[#f9f9f9]">
                       {stage.label}
                     </p>
                   </div>
@@ -124,28 +124,28 @@ export default function OrderDetailPage() {
 
         {/* Manifest + Recipient */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          <div className="lg:col-span-7 bg-[#111115] border border-[#ece5d8]/12 p-6 space-y-4">
+          <div className="lg:col-span-7 bg-[#111111] border border-[#f9f9f9]/12 p-6 space-y-4">
             <h2 className="font-display text-2xl">Authenticated Items</h2>
             {order.items.map((item, idx) => (
               <div
                 key={idx}
-                className="flex items-center justify-between gap-4 py-3 border-b border-[#ece5d8]/10 last:border-0"
+                className="flex items-center justify-between gap-4 py-3 border-b border-[#f9f9f9]/10 last:border-0"
               >
                 <div className="flex items-center gap-4">
                   <img
                     src={item.imageUrl || '/images/enigma/grail-sneaker-obsidian.jpg'}
                     alt={item.name}
-                    className="w-16 h-20 object-cover bg-[#070709]"
+                    className="w-16 h-20 object-cover bg-[#0a0a0a]"
                   />
                   <div>
-                    <p className="font-medium text-sm text-[#ece5d8]">{item.name}</p>
-                    <p className="font-mono text-xs text-[#9a948a] mt-0.5">
+                    <p className="font-medium text-sm text-[#f9f9f9]">{item.name}</p>
+                    <p className="font-mono text-xs text-[#a3a3a3] mt-0.5">
                       Qty {item.quantity} {item.size ? `· Size ${item.size}` : ''}
                       {item.color ? ` · ${item.color}` : ''}
                     </p>
                   </div>
                 </div>
-                <span className="font-mono text-sm font-semibold text-[#ece5d8] tabular-nums">
+                <span className="font-mono text-sm font-semibold text-[#f9f9f9] tabular-nums">
                   {formatVnd(item.price * item.quantity)}
                 </span>
               </div>
@@ -153,35 +153,35 @@ export default function OrderDetailPage() {
           </div>
 
           <div className="lg:col-span-5 space-y-6">
-            <div className="bg-[#111115] border border-[#ece5d8]/12 p-6 space-y-3 font-mono text-xs">
-              <h2 className="font-display text-2xl text-[#ece5d8] font-normal mb-2">
+            <div className="bg-[#111111] border border-[#f9f9f9]/12 p-6 space-y-3 font-mono text-xs">
+              <h2 className="font-display text-2xl text-[#f9f9f9] font-normal mb-2">
                 Settlement &amp; Dispatch
               </h2>
-              <div className="flex justify-between text-[#9a948a]">
+              <div className="flex justify-between text-[#a3a3a3]">
                 <span>RECIPIENT</span>
-                <span className="text-[#ece5d8]">{order.shippingName || 'Collector'}</span>
+                <span className="text-[#f9f9f9]">{order.shippingName || 'Collector'}</span>
               </div>
-              <div className="flex justify-between text-[#9a948a]">
+              <div className="flex justify-between text-[#a3a3a3]">
                 <span>PHONE</span>
-                <span className="text-[#ece5d8]">{order.shippingPhone || '—'}</span>
+                <span className="text-[#f9f9f9]">{order.shippingPhone || '—'}</span>
               </div>
-              <div className="pt-1 text-[#9a948a]">
+              <div className="pt-1 text-[#a3a3a3]">
                 <span className="block mb-1">DISPATCH DESTINATION</span>
-                <span className="text-[#ece5d8]">{order.shippingAddress || 'Vault Pickup'}</span>
+                <span className="text-[#f9f9f9]">{order.shippingAddress || 'Vault Pickup'}</span>
               </div>
-              <div className="pt-3 border-t border-[#ece5d8]/10 flex justify-between text-[#9a948a]">
+              <div className="pt-3 border-t border-[#f9f9f9]/10 flex justify-between text-[#a3a3a3]">
                 <span>PAYMENT</span>
-                <span className="text-[#ece5d8] uppercase">
+                <span className="text-[#f9f9f9] uppercase">
                   {order.paymentMethod} ({order.paymentStatus || 'pending'})
                 </span>
               </div>
               {order.voucherCode && (
-                <div className="flex justify-between text-[#cfa156]">
+                <div className="flex justify-between text-[#f9f9f9]">
                   <span>PRIVILEGE ({order.voucherCode})</span>
                   <span className="tabular-nums">-{formatVnd(order.discountAmount || 0)}</span>
                 </div>
               )}
-              <div className="pt-3 border-t border-[#ece5d8]/10 flex justify-between text-base font-semibold text-[#cfa156]">
+              <div className="pt-3 border-t border-[#f9f9f9]/10 flex justify-between text-base font-semibold text-[#f9f9f9]">
                 <span>TOTAL SETTLED</span>
                 <span className="tabular-nums">{formatVnd(order.total)}</span>
               </div>
@@ -197,8 +197,8 @@ export default function OrderDetailPage() {
               </button>
             )}
 
-            <div className="p-4 bg-[#111115] border border-[#cfa156]/35 flex items-center gap-3 font-mono text-[11px] text-[#9a948a]">
-              <ShieldCheck className="w-5 h-5 text-[#cfa156] flex-shrink-0" />
+            <div className="p-4 bg-[#111111] border border-[#f9f9f9]/35 flex items-center gap-3 font-mono text-[11px] text-[#a3a3a3]">
+              <ShieldCheck className="w-5 h-5 text-[#f9f9f9] flex-shrink-0" />
               <span>NFC Cryptographic Provenance Tag Bound to Order #{order.id}</span>
             </div>
           </div>

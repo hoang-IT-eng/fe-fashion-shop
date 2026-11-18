@@ -9,7 +9,7 @@ import EmptyState from '../components/EmptyState'
 
 const STATUS_STYLE: Record<string, string> = {
   pending: 'border-amber-400/50 text-amber-300',
-  confirmed: 'border-[#cfa156] text-[#cfa156]',
+  confirmed: 'border-[#f9f9f9] text-[#f9f9f9]',
   shipping: 'border-sky-400/50 text-sky-300',
   delivered: 'border-emerald-400/50 text-emerald-300',
   cancelled: 'border-red-400/50 text-red-300',
@@ -28,21 +28,21 @@ export default function OrdersPage() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-[#070709] text-[#ece5d8] py-10 md:py-14">
+    <div className="min-h-screen bg-[#0a0a0a] text-[#f9f9f9] py-10 md:py-14">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <Breadcrumb items={[{ label: 'Archive', path: '/' }, { label: 'Provenance Orders' }]} />
 
-        <div className="pb-8 border-b border-[#ece5d8]/10 mb-10">
-          <p className="font-mono text-xs tracking-[0.3em] uppercase text-[#cfa156] mb-2">
+        <div className="pb-8 border-b border-[#f9f9f9]/10 mb-10">
+          <p className="font-mono text-xs tracking-[0.3em] uppercase text-[#f9f9f9] mb-2">
             DISPATCH TELEMETRY
           </p>
-          <h1 className="font-display text-4xl md:text-5xl text-[#ece5d8]">
+          <h1 className="font-display text-4xl md:text-5xl text-[#f9f9f9]">
             Order Provenance Ledger
           </h1>
         </div>
 
         {loading ? (
-          <div className="font-mono text-xs text-[#9a948a]">LOADING LEDGER...</div>
+          <div className="font-mono text-xs text-[#a3a3a3]">LOADING LEDGER...</div>
         ) : orders.length === 0 ? (
           <EmptyState
             title="No Provenance Dispatches Found"
@@ -56,34 +56,34 @@ export default function OrdersPage() {
               <Link
                 key={order.id}
                 to={`/orders/${order.id}`}
-                className="block p-6 bg-[#111115] border border-[#ece5d8]/12 hover:border-[#cfa156]/60 transition"
+                className="block p-6 bg-[#111111] border border-[#f9f9f9]/12 hover:border-[#f9f9f9]/60 transition"
               >
-                <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-[#ece5d8]/10">
+                <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-[#f9f9f9]/10">
                   <div className="flex items-center gap-3">
-                    <Package className="w-4 h-4 text-[#cfa156]" />
-                    <span className="font-mono text-sm font-semibold text-[#ece5d8] tabular-nums">
+                    <Package className="w-4 h-4 text-[#f9f9f9]" />
+                    <span className="font-mono text-sm font-semibold text-[#f9f9f9] tabular-nums">
                       ORDER #{order.id}
                     </span>
-                    <span className="font-mono text-xs text-[#9a948a]">
+                    <span className="font-mono text-xs text-[#a3a3a3]">
                       · {new Date(order.createdAt).toLocaleDateString()}
                     </span>
                   </div>
                   <div className="flex items-center gap-3">
                     <span
-                      className={`px-3 py-1 bg-[#070709] border font-mono text-[10px] uppercase tracking-widest ${
-                        STATUS_STYLE[order.status] || 'border-[#ece5d8]/20 text-[#ece5d8]'
+                      className={`px-3 py-1 bg-[#0a0a0a] border font-mono text-[10px] uppercase tracking-widest ${
+                        STATUS_STYLE[order.status] || 'border-[#f9f9f9]/20 text-[#f9f9f9]'
                       }`}
                     >
                       {order.status}
                     </span>
-                    <span className="font-mono text-base font-semibold text-[#cfa156] tabular-nums">
+                    <span className="font-mono text-base font-semibold text-[#f9f9f9] tabular-nums">
                       {formatVnd(order.total)}
                     </span>
-                    <ArrowUpRight className="w-4 h-4 text-[#9a948a]" />
+                    <ArrowUpRight className="w-4 h-4 text-[#a3a3a3]" />
                   </div>
                 </div>
 
-                <div className="pt-4 flex flex-wrap items-center justify-between gap-4 text-xs text-[#9a948a]">
+                <div className="pt-4 flex flex-wrap items-center justify-between gap-4 text-xs text-[#a3a3a3]">
                   <span>
                     {order.items.map(i => `${i.name} (×${i.quantity})`).join(' · ')}
                   </span>
