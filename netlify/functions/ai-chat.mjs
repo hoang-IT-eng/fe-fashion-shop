@@ -38,7 +38,7 @@ export default async req => {
     })
   }
 
-  const model = process.env.GEMINI_MODEL || 'gemini-2.5-flash'
+  const model = process.env.GEMINI_MODEL || 'gemini-3.8-flash'
   const encKey = encodeURIComponent(apiKey)
   const vertexUrl = `https://aiplatform.googleapis.com/v1/publishers/google/models/${model}:generateContent?key=${encKey}`
   const studioUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encKey}`
@@ -70,7 +70,7 @@ export default async req => {
       const data = await upstream.json()
       const text = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim()
       if (text) {
-        return new Response(JSON.stringify({ reply: text, engine: 'gemini-2.5-flash' }), {
+        return new Response(JSON.stringify({ reply: text, engine: model }), {
           status: 200,
           headers: { 'Content-Type': 'application/json' },
         })
