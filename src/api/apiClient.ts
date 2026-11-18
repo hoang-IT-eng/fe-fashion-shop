@@ -22,21 +22,24 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
       ? JSON.parse(options.body)
       : undefined
 
-  // If no live backend URL is configured or current session is a local demo session, use resilient demo engine directly
-  if (!RAW_BASE_URL || isDemoToken(token)) {
+  const isAiEndpoint = path.startsWith('/ai-chat/')
+
+  // If no live backend URL is configured (or demo session for non-public endpoints), use resilient demo engine directly
+  if (!RAW_BASE_URL || (isDemoToken(token) && !isAiEndpoint)) {
     return demoHandleRequest<T>(method, path, parsedBody, token)
   }
 
   try {
     const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), 3200)
+    const timeoutId = setTimeout(() => controller.abort(), isAiEndpoint ? 15000 : 3200)
+    const forwardAuth = token && !isDemoToken(token)
 
     const res = await fetch(`${RAW_BASE_URL}${path}`, {
       ...options,
       signal: controller.signal,
       headers: {
         'Content-Type': 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(forwardAuth ? { Authorization: `Bearer ${token}` } : {}),
         ...options.headers,
       },
     })

@@ -9,7 +9,6 @@ import {
   ArrowUpRight,
   CheckCircle2,
   Compass,
-  KeyRound,
 } from 'lucide-react'
 import { api } from '../../api/apiClient'
 import { AiChatResponsePayload, GenerativeUiBlock } from '../../types/enigma'
@@ -18,50 +17,36 @@ import { useCartStore } from '../../store/useCartStore'
 import { useToast } from '../Toast'
 import { EnigmaCrest } from '../EnigmaCrest'
 
-const ENIGMA_KEY_STORAGE = 'ENIGMA_GEMINI_API_KEY'
+// Scrub any legacy client-side key from earlier sessions so no secret ever sits in localStorage
+try {
+  if (typeof window !== 'undefined') {
+    window.localStorage.removeItem('ENIGMA_GEMINI_API_KEY')
+  }
+} catch {
+  // ignore
+}
 
-async function maybeSynthesizeClientGemini(
-  apiKey: string,
+async function callServerSideSynthesis(
   userMessage: string,
   fallbackText: string,
   uiBlocks?: GenerativeUiBlock[]
 ): Promise<string | null> {
-  const key = apiKey.trim()
-  if (!key) return null
-  const encKey = encodeURIComponent(key)
-  const vertexUrl = `https://aiplatform.googleapis.com/v1/publishers/google/models/gemini-2.5-flash:generateContent?key=${encKey}`
-  const studioUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encKey}`
-  const endpoints = key.startsWith('AQ.') ? [vertexUrl, studioUrl] : [studioUrl, vertexUrl]
-  const body = JSON.stringify({
-    contents: [
-      {
-        role: 'user',
-        parts: [
-          {
-            text: `You are ENIGMA — an avant-garde luxury streetwear & grail auction stylist. Reply in the user's language (Vietnamese or English) in 1-2 crisp editorial sentences grounded in: ${JSON.stringify({ fallbackText, blockKinds: (uiBlocks || []).map(b => b.kind) })}.\nUser message: ${userMessage}`,
-          },
-        ],
-      },
-    ],
-    generationConfig: { temperature: 0.25, maxOutputTokens: 240 },
-  })
-
-  for (const url of endpoints) {
-    try {
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body,
-      })
-      if (!res.ok) continue
-      const json = await res.json()
-      const text = json?.candidates?.[0]?.content?.parts?.[0]?.text?.trim()
-      if (text) return text
-    } catch {
-      // try fallback endpoint
-    }
+  try {
+    const res = await fetch('/api/ai-chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: userMessage,
+        fallbackText,
+        blockKinds: (uiBlocks || []).map(b => b.kind),
+      }),
+    })
+    if (!res.ok) return null
+    const json = await res.json()
+    return typeof json?.reply === 'string' && json.reply.trim() ? json.reply.trim() : null
+  } catch {
+    return null
   }
-  return null
 }
 
 interface ChatEntry {
@@ -88,14 +73,6 @@ export function AiChatWidget() {
   const { toast } = useToast()
 
   const [open, setOpen] = useState(false)
-  const [keyOpen, setKeyOpen] = useState(false)
-  const [keyDraft, setKeyDraft] = useState(() => {
-    try {
-      return window.localStorage.getItem(ENIGMA_KEY_STORAGE) || ''
-    } catch {
-      return ''
-    }
-  })
   const [input, setInput] = useState('')
   const [sending, setSending] = useState(false)
   const [sessionId] = useState(() => `enigma-stylist-${Date.now()}`)
@@ -140,13 +117,8 @@ export function AiChatWidget() {
       })
       let finalMessage = res.message
       let finalEngine = res.engine
-      if (res.engine !== 'gemini-tools' && keyDraft.trim()) {
-        const enriched = await maybeSynthesizeClientGemini(
-          keyDraft,
-          trimmed,
-          res.message,
-          res.uiBlocks
-        )
+      if (res.engine !== 'gemini-tools') {
+        const enriched = await callServerSideSynthesis(trimmed, res.message, res.uiBlocks)
         if (enriched) {
           finalMessage = enriched
           finalEngine = 'gemini-2.5-flash'
@@ -230,54 +202,16 @@ export function AiChatWidget() {
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-1">
-              <button
-                type="button"
-                onClick={() => setKeyOpen(v => !v)}
-                aria-label="Configure Gemini API Key"
-                title="Configure Optional Gemini API Key (AQ.* / AIza*)"
-                className="p-1 text-[#9a948a] hover:text-[#cfa156]"
-              >
-                <KeyRound className="w-4 h-4" />
-              </button>
-              <button
-                id="close-ai-stylist-btn"
-                type="button"
-                onClick={() => setOpen(false)}
-                aria-label="Close Grail Stylist"
-                className="p-1 text-[#9a948a] hover:text-[#ece5d8]"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
+            <button
+              id="close-ai-stylist-btn"
+              type="button"
+              onClick={() => setOpen(false)}
+              aria-label="Close Grail Stylist"
+              className="p-1 text-[#9a948a] hover:text-[#ece5d8]"
+            >
+              <X className="w-4 h-4" />
+            </button>
           </div>
-
-          {keyOpen && (
-            <div className="px-3 py-2 bg-[#070709] border-b border-[#ece5d8]/10 flex items-center gap-2">
-              <input
-                type="password"
-                value={keyDraft}
-                onChange={e => setKeyDraft(e.target.value)}
-                placeholder="AQ.... or AIzaSy..."
-                className="flex-1 bg-[#111115] border border-[#ece5d8]/15 px-2.5 py-1 text-xs text-[#ece5d8] focus:outline-none focus:border-[#cfa156]"
-              />
-              <button
-                type="button"
-                onClick={() => {
-                  try {
-                    window.localStorage.setItem(ENIGMA_KEY_STORAGE, keyDraft.trim())
-                  } catch {
-                    // ignore
-                  }
-                  setKeyOpen(false)
-                  toast('Saved Gemini API key locally.', 'success')
-                }}
-                className="px-2.5 py-1 bg-[#cfa156] text-[#070709] font-mono text-[10px] uppercase tracking-wider"
-              >
-                Save
-              </button>
-            </div>
-          )}
 
           {/* Messages */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
