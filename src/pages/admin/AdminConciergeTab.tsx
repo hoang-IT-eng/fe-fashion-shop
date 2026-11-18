@@ -59,10 +59,10 @@ export default function AdminConciergeTab() {
         {/* Concierge "Find It At My Price" Tickets */}
         <section className="xl:col-span-8 space-y-4">
           <div>
-            <p className="font-mono text-[10px] tracking-[0.28em] uppercase text-[#cfa156] inline-flex items-center gap-1.5">
+            <p className="font-mono text-[10px] tracking-[0.28em] uppercase text-[#f9f9f9] inline-flex items-center gap-1.5">
               <Crosshair className="w-3.5 h-3.5" /> PRIVATE SOURCING DESK
             </p>
-            <h2 className="font-display text-2xl md:text-3xl text-[#ece5d8]">
+            <h2 className="font-display text-2xl md:text-3xl text-[#f9f9f9]">
               “Find It At My Price” Mandates ({tickets.length})
             </h2>
           </div>
@@ -70,33 +70,33 @@ export default function AdminConciergeTab() {
           {tickets.map(t => (
             <article
               key={t.id}
-              className="p-5 bg-[#111115] border border-[#ece5d8]/12 space-y-4"
+              className="p-5 bg-[#111111] border border-[#f9f9f9]/12 space-y-4"
             >
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
-                  <span className="font-mono text-[10px] text-[#9a948a] uppercase tracking-widest">
+                  <span className="font-mono text-[10px] text-[#a3a3a3] uppercase tracking-widest">
                     MANDATE #{t.id} · {t.requesterName} ({t.requesterEmail})
                   </span>
-                  <h3 className="font-display text-xl text-[#ece5d8] mt-0.5">
-                    {t.itemName} · <span className="text-[#cfa156]">Size {t.size}</span>
+                  <h3 className="font-display text-xl text-[#f9f9f9] mt-0.5">
+                    {t.itemName} · <span className="text-[#f9f9f9]">Size {t.size}</span>
                   </h3>
                 </div>
-                <span className="px-2.5 py-1 bg-[#070709] border border-[#cfa156]/50 font-mono text-[10px] uppercase tracking-widest text-[#cfa156]">
+                <span className="px-2.5 py-1 bg-[#0a0a0a] border border-[#f9f9f9]/50 font-mono text-[10px] uppercase tracking-widest text-[#f9f9f9]">
                   {t.status}
                 </span>
               </div>
 
               <div className="flex flex-wrap gap-6 font-mono text-xs">
                 <div>
-                  <span className="text-[#9a948a]">TARGET OFFER: </span>
-                  <span className="text-[#ece5d8] font-semibold tabular-nums">
+                  <span className="text-[#a3a3a3]">TARGET OFFER: </span>
+                  <span className="text-[#f9f9f9] font-semibold tabular-nums">
                     {formatVnd(t.targetPrice)}
                   </span>
                 </div>
                 {t.counterOfferPrice && (
                   <div>
-                    <span className="text-[#9a948a]">COUNTERED AT: </span>
-                    <span className="text-[#cfa156] font-semibold tabular-nums">
+                    <span className="text-[#a3a3a3]">COUNTERED AT: </span>
+                    <span className="text-[#f9f9f9] font-semibold tabular-nums">
                       {formatVnd(t.counterOfferPrice)}
                     </span>
                   </div>
@@ -111,7 +111,7 @@ export default function AdminConciergeTab() {
                   onChange={e =>
                     setCounterInputs(prev => ({ ...prev, [t.id]: e.target.value }))
                   }
-                  className="bg-[#070709] border border-[#ece5d8]/15 px-3 py-2 font-mono text-xs text-[#ece5d8] tabular-nums"
+                  className="bg-[#0a0a0a] border border-[#f9f9f9]/15 px-3 py-2 font-mono text-xs text-[#f9f9f9] tabular-nums"
                 />
                 <input
                   type="text"
@@ -120,7 +120,7 @@ export default function AdminConciergeTab() {
                   onChange={e =>
                     setNoteInputs(prev => ({ ...prev, [t.id]: e.target.value }))
                   }
-                  className="sm:col-span-2 bg-[#070709] border border-[#ece5d8]/15 px-3 py-2 text-xs text-[#ece5d8]"
+                  className="sm:col-span-2 bg-[#0a0a0a] border border-[#f9f9f9]/15 px-3 py-2 text-xs text-[#f9f9f9]"
                 />
               </div>
 
@@ -128,14 +128,14 @@ export default function AdminConciergeTab() {
                 <button
                   type="button"
                   onClick={() => void updateTicket(t, 'accepted')}
-                  className="px-3 py-1.5 bg-[#cfa156] text-[#070709] font-semibold uppercase tracking-wider inline-flex items-center gap-1"
+                  className="px-3 py-1.5 bg-[#f9f9f9] text-[#0a0a0a] font-semibold uppercase tracking-wider inline-flex items-center gap-1"
                 >
                   <Check className="w-3 h-3" /> Accept Target
                 </button>
                 <button
                   type="button"
                   onClick={() => void updateTicket(t, 'countered', true)}
-                  className="px-3 py-1.5 border border-[#cfa156] text-[#cfa156] uppercase tracking-wider inline-flex items-center gap-1"
+                  className="px-3 py-1.5 border border-[#f9f9f9] text-[#f9f9f9] uppercase tracking-wider inline-flex items-center gap-1"
                 >
                   <MessageSquare className="w-3 h-3" /> Send Counter-Offer
                 </button>
@@ -161,10 +161,10 @@ export default function AdminConciergeTab() {
         {/* Decoded Customer Taste Codex Profiles */}
         <section className="xl:col-span-4 space-y-4">
           <div>
-            <p className="font-mono text-[10px] tracking-[0.28em] uppercase text-[#cfa156] inline-flex items-center gap-1.5">
+            <p className="font-mono text-[10px] tracking-[0.28em] uppercase text-[#f9f9f9] inline-flex items-center gap-1.5">
               <Compass className="w-3.5 h-3.5" /> 8-STEP QUIZ TELEMETRY
             </p>
-            <h2 className="font-display text-2xl text-[#ece5d8]">
+            <h2 className="font-display text-2xl text-[#f9f9f9]">
               Collector Taste Codex Profiles
             </h2>
           </div>
@@ -177,17 +177,17 @@ export default function AdminConciergeTab() {
               return (
                 <div
                   key={prof.id}
-                  className="p-4 bg-[#111115] border border-[#ece5d8]/12 space-y-2"
+                  className="p-4 bg-[#111111] border border-[#f9f9f9]/12 space-y-2"
                 >
                   <div className="flex items-center justify-between font-mono text-[10px]">
-                    <span className="text-[#ece5d8] uppercase">
+                    <span className="text-[#f9f9f9] uppercase">
                       {prof.requesterLabel || `Collector #${prof.id}`}
                     </span>
-                    <span className="text-[#cfa156] uppercase">{tier}</span>
+                    <span className="text-[#f9f9f9] uppercase">{tier}</span>
                   </div>
-                  <h3 className="font-display text-xl text-[#cfa156]">{archetype}</h3>
+                  <h3 className="font-display text-xl text-[#f9f9f9]">{archetype}</h3>
                   {prof.codex?.motto && (
-                    <p className="text-xs text-[#9a948a] italic">“{prof.codex.motto}”</p>
+                    <p className="text-xs text-[#a3a3a3] italic">“{prof.codex.motto}”</p>
                   )}
                 </div>
               )

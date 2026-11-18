@@ -119,10 +119,10 @@ export default function AdminProductsTab() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <p className="font-mono text-[10px] tracking-[0.28em] uppercase text-[#cfa156]">
+          <p className="font-mono text-[10px] tracking-[0.28em] uppercase text-[#f9f9f9]">
             ARCHIVE CATALOG &amp; SKU MATRIX
           </p>
-          <h2 className="font-display text-2xl md:text-3xl text-[#ece5d8]">
+          <h2 className="font-display text-2xl md:text-3xl text-[#f9f9f9]">
             Authenticated Pieces ({products.length})
           </h2>
         </div>
@@ -130,17 +130,17 @@ export default function AdminProductsTab() {
           id="admin-new-product-btn"
           type="button"
           onClick={openCreate}
-          className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#cfa156] text-[#070709] font-mono text-xs font-semibold uppercase tracking-[0.2em]"
+          className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#f9f9f9] text-[#0a0a0a] font-mono text-xs font-semibold uppercase tracking-[0.2em]"
         >
           <Plus className="w-4 h-4" /> New Archive Piece
         </button>
       </div>
 
       {/* High-Density Product Table */}
-      <div className="bg-[#111115] border border-[#ece5d8]/12 overflow-x-auto">
+      <div className="bg-[#111111] border border-[#f9f9f9]/12 overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="border-b border-[#ece5d8]/10 font-mono text-[10px] uppercase tracking-[0.22em] text-[#9a948a]">
+            <tr className="border-b border-[#f9f9f9]/10 font-mono text-[10px] uppercase tracking-[0.22em] text-[#a3a3a3]">
               <th className="py-3.5 px-4">Piece</th>
               <th className="py-3.5 px-4">Tier / House</th>
               <th className="py-3.5 px-4">Price</th>
@@ -148,40 +148,40 @@ export default function AdminProductsTab() {
               <th className="py-3.5 px-4 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#ece5d8]/10 text-xs">
+          <tbody className="divide-y divide-[#f9f9f9]/10 text-xs">
             {products.map(p => (
-              <tr key={p.id} className="hover:bg-[#1c1d24]/40 transition">
+              <tr key={p.id} className="hover:bg-[#232323]/40 transition">
                 <td className="py-3 px-4">
                   <div className="flex items-center gap-3">
                     <img
                       src={p.imageUrl || '/images/enigma/grail-sneaker-obsidian.jpg'}
                       alt={p.name}
-                      className="w-11 h-14 object-cover bg-[#070709] border border-[#ece5d8]/10"
+                      className="w-11 h-14 object-cover bg-[#0a0a0a] border border-[#f9f9f9]/10"
                     />
                     <div>
-                      <p className="font-medium text-[#ece5d8]">{p.name}</p>
-                      <p className="font-mono text-[10px] text-[#9a948a]">
+                      <p className="font-medium text-[#f9f9f9]">{p.name}</p>
+                      <p className="font-mono text-[10px] text-[#a3a3a3]">
                         {p.authenticityCode || `ENG-00${p.id}`} · {p.category}
                       </p>
                     </div>
                   </div>
                 </td>
                 <td className="py-3 px-4 font-mono">
-                  <span className="px-2 py-0.5 bg-[#070709] border border-[#cfa156]/40 text-[#cfa156] text-[10px] uppercase">
+                  <span className="px-2 py-0.5 bg-[#0a0a0a] border border-[#f9f9f9]/40 text-[#f9f9f9] text-[10px] uppercase">
                     {p.releaseType || 'drop'}
                   </span>
-                  <span className="block text-[10px] text-[#9a948a] mt-1">{p.brand}</span>
+                  <span className="block text-[10px] text-[#a3a3a3] mt-1">{p.brand}</span>
                 </td>
-                <td className="py-3 px-4 font-mono text-[#ece5d8] tabular-nums">
+                <td className="py-3 px-4 font-mono text-[#f9f9f9] tabular-nums">
                   {formatVnd(p.price)}
                 </td>
                 <td className="py-3 px-4 font-mono">
                   <button
                     type="button"
                     onClick={() => setVariantProduct(p)}
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#070709] border border-[#ece5d8]/15 hover:border-[#cfa156] text-[#ece5d8] tabular-nums"
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#0a0a0a] border border-[#f9f9f9]/15 hover:border-[#f9f9f9] text-[#f9f9f9] tabular-nums"
                   >
-                    <Layers className="w-3 h-3 text-[#cfa156]" />
+                    <Layers className="w-3 h-3 text-[#f9f9f9]" />
                     {(p.variants || []).length} SKUs · {p.stock}u
                   </button>
                 </td>
@@ -189,7 +189,7 @@ export default function AdminProductsTab() {
                   <button
                     type="button"
                     onClick={() => openEdit(p)}
-                    className="p-2 border border-[#ece5d8]/15 hover:border-[#cfa156] text-[#ece5d8]"
+                    className="p-2 border border-[#f9f9f9]/15 hover:border-[#f9f9f9] text-[#f9f9f9]"
                     title="Edit Piece"
                   >
                     <Edit3 className="w-3.5 h-3.5" />
@@ -197,7 +197,7 @@ export default function AdminProductsTab() {
                   <button
                     type="button"
                     onClick={() => void handleDelete(p)}
-                    className="p-2 border border-[#ece5d8]/15 hover:border-red-400 text-[#9a948a] hover:text-red-300"
+                    className="p-2 border border-[#f9f9f9]/15 hover:border-red-400 text-[#a3a3a3] hover:text-red-300"
                     title="Delete Piece"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
@@ -220,16 +220,16 @@ export default function AdminProductsTab() {
           <form
             onClick={e => e.stopPropagation()}
             onSubmit={handleSave}
-            className="w-full max-w-lg bg-[#111115] border-l border-[#cfa156]/40 h-full overflow-y-auto p-6 md:p-8 space-y-5 text-[#ece5d8]"
+            className="w-full max-w-lg bg-[#111111] border-l border-[#f9f9f9]/40 h-full overflow-y-auto p-6 md:p-8 space-y-5 text-[#f9f9f9]"
           >
-            <div className="flex items-center justify-between pb-4 border-b border-[#ece5d8]/10">
+            <div className="flex items-center justify-between pb-4 border-b border-[#f9f9f9]/10">
               <h3 className="font-display text-2xl">
                 {editing ? 'Edit Archive Dossier' : 'Catalog New Archive Piece'}
               </h3>
               <button
                 type="button"
                 onClick={() => setDrawerOpen(false)}
-                className="text-[#9a948a] hover:text-[#ece5d8]"
+                className="text-[#a3a3a3] hover:text-[#f9f9f9]"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -239,12 +239,12 @@ export default function AdminProductsTab() {
               <img
                 src={imageUrl}
                 alt="Preview"
-                className="w-full h-48 object-cover border border-[#ece5d8]/15 bg-[#070709]"
+                className="w-full h-48 object-cover border border-[#f9f9f9]/15 bg-[#0a0a0a]"
               />
             )}
 
             <div>
-              <label className="block font-mono text-[10px] uppercase tracking-widest text-[#9a948a] mb-1">
+              <label className="block font-mono text-[10px] uppercase tracking-widest text-[#a3a3a3] mb-1">
                 Title
               </label>
               <input
@@ -252,30 +252,30 @@ export default function AdminProductsTab() {
                 required
                 value={name}
                 onChange={e => setName(e.target.value)}
-                className="w-full bg-[#070709] border border-[#ece5d8]/15 px-3 py-2 text-xs text-[#ece5d8]"
+                className="w-full bg-[#0a0a0a] border border-[#f9f9f9]/15 px-3 py-2 text-xs text-[#f9f9f9]"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block font-mono text-[10px] uppercase tracking-widest text-[#9a948a] mb-1">
+                <label className="block font-mono text-[10px] uppercase tracking-widest text-[#a3a3a3] mb-1">
                   Atelier / Brand
                 </label>
                 <input
                   type="text"
                   value={brand}
                   onChange={e => setBrand(e.target.value)}
-                  className="w-full bg-[#070709] border border-[#ece5d8]/15 px-3 py-2 text-xs text-[#ece5d8]"
+                  className="w-full bg-[#0a0a0a] border border-[#f9f9f9]/15 px-3 py-2 text-xs text-[#f9f9f9]"
                 />
               </div>
               <div>
-                <label className="block font-mono text-[10px] uppercase tracking-widest text-[#9a948a] mb-1">
+                <label className="block font-mono text-[10px] uppercase tracking-widest text-[#a3a3a3] mb-1">
                   Release Tier
                 </label>
                 <select
                   value={releaseType}
                   onChange={e => setReleaseType(e.target.value as any)}
-                  className="w-full bg-[#070709] border border-[#ece5d8]/15 px-3 py-2 font-mono text-xs text-[#ece5d8]"
+                  className="w-full bg-[#0a0a0a] border border-[#f9f9f9]/15 px-3 py-2 font-mono text-xs text-[#f9f9f9]"
                 >
                   <option value="grail">Grail Allocation</option>
                   <option value="reborn">Reborn 1-of-12</option>
@@ -287,7 +287,7 @@ export default function AdminProductsTab() {
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block font-mono text-[10px] uppercase tracking-widest text-[#9a948a] mb-1">
+                <label className="block font-mono text-[10px] uppercase tracking-widest text-[#a3a3a3] mb-1">
                   Price (VND)
                 </label>
                 <input
@@ -295,74 +295,74 @@ export default function AdminProductsTab() {
                   required
                   value={price}
                   onChange={e => setPrice(Number(e.target.value))}
-                  className="w-full bg-[#070709] border border-[#ece5d8]/15 px-3 py-2 font-mono text-xs text-[#ece5d8] tabular-nums"
+                  className="w-full bg-[#0a0a0a] border border-[#f9f9f9]/15 px-3 py-2 font-mono text-xs text-[#f9f9f9] tabular-nums"
                 />
               </div>
               <div>
-                <label className="block font-mono text-[10px] uppercase tracking-widest text-[#9a948a] mb-1">
+                <label className="block font-mono text-[10px] uppercase tracking-widest text-[#a3a3a3] mb-1">
                   Category
                 </label>
                 <input
                   type="text"
                   value={category}
                   onChange={e => setCategory(e.target.value)}
-                  className="w-full bg-[#070709] border border-[#ece5d8]/15 px-3 py-2 text-xs text-[#ece5d8]"
+                  className="w-full bg-[#0a0a0a] border border-[#f9f9f9]/15 px-3 py-2 text-xs text-[#f9f9f9]"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block font-mono text-[10px] uppercase tracking-widest text-[#9a948a] mb-1">
+              <label className="block font-mono text-[10px] uppercase tracking-widest text-[#a3a3a3] mb-1">
                 Image URL
               </label>
               <input
                 type="text"
                 value={imageUrl}
                 onChange={e => setImageUrl(e.target.value)}
-                className="w-full bg-[#070709] border border-[#ece5d8]/15 px-3 py-2 font-mono text-xs text-[#ece5d8]"
+                className="w-full bg-[#0a0a0a] border border-[#f9f9f9]/15 px-3 py-2 font-mono text-xs text-[#f9f9f9]"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block font-mono text-[10px] uppercase tracking-widest text-[#9a948a] mb-1">
+                <label className="block font-mono text-[10px] uppercase tracking-widest text-[#a3a3a3] mb-1">
                   Sizes (comma-separated)
                 </label>
                 <input
                   type="text"
                   value={sizesText}
                   onChange={e => setSizesText(e.target.value)}
-                  className="w-full bg-[#070709] border border-[#ece5d8]/15 px-3 py-2 font-mono text-xs text-[#ece5d8]"
+                  className="w-full bg-[#0a0a0a] border border-[#f9f9f9]/15 px-3 py-2 font-mono text-xs text-[#f9f9f9]"
                 />
               </div>
               <div>
-                <label className="block font-mono text-[10px] uppercase tracking-widest text-[#9a948a] mb-1">
+                <label className="block font-mono text-[10px] uppercase tracking-widest text-[#a3a3a3] mb-1">
                   Colorways
                 </label>
                 <input
                   type="text"
                   value={colorsText}
                   onChange={e => setColorsText(e.target.value)}
-                  className="w-full bg-[#070709] border border-[#ece5d8]/15 px-3 py-2 font-mono text-xs text-[#ece5d8]"
+                  className="w-full bg-[#0a0a0a] border border-[#f9f9f9]/15 px-3 py-2 font-mono text-xs text-[#f9f9f9]"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block font-mono text-[10px] uppercase tracking-widest text-[#9a948a] mb-1">
+              <label className="block font-mono text-[10px] uppercase tracking-widest text-[#a3a3a3] mb-1">
                 Provenance Description
               </label>
               <textarea
                 rows={4}
                 value={description}
                 onChange={e => setDescription(e.target.value)}
-                className="w-full bg-[#070709] border border-[#ece5d8]/15 p-3 text-xs text-[#ece5d8]"
+                className="w-full bg-[#0a0a0a] border border-[#f9f9f9]/15 p-3 text-xs text-[#f9f9f9]"
               />
             </div>
 
             <button
               type="submit"
-              className="w-full py-3.5 bg-[#cfa156] text-[#070709] font-mono text-xs font-semibold uppercase tracking-[0.22em]"
+              className="w-full py-3.5 bg-[#f9f9f9] text-[#0a0a0a] font-mono text-xs font-semibold uppercase tracking-[0.22em]"
             >
               {editing ? 'Save Changes' : 'Publish Archive Piece'}
             </button>

@@ -45,11 +45,11 @@ export default function CartPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#070709] text-[#ece5d8] py-10 md:py-14">
+    <div className="min-h-screen bg-[#0a0a0a] text-[#f9f9f9] py-10 md:py-14">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <Breadcrumb items={[{ label: 'Archive', path: '/' }, { label: 'Vault Allocation Bag' }]} />
 
-        <h1 className="font-display text-4xl md:text-5xl text-[#ece5d8] pb-8 border-b border-[#ece5d8]/10 mb-10">
+        <h1 className="font-display text-4xl md:text-5xl text-[#f9f9f9] pb-8 border-b border-[#f9f9f9]/10 mb-10">
           Vault Allocation Bag
         </h1>
 
@@ -66,18 +66,18 @@ export default function CartPage() {
               {items.map(item => (
                 <div
                   key={item.id}
-                  className="p-4 sm:p-5 bg-[#111115] border border-[#ece5d8]/12 flex gap-5"
+                  className="p-4 sm:p-5 bg-[#111111] border border-[#f9f9f9]/12 flex gap-5"
                 >
                   <img
                     src={item.imageUrl || '/images/enigma/grail-sneaker-obsidian.jpg'}
                     alt={item.name}
-                    className="w-24 h-32 object-cover bg-[#070709] flex-shrink-0"
+                    className="w-24 h-32 object-cover bg-[#0a0a0a] flex-shrink-0"
                   />
                   <div className="flex-1 flex flex-col justify-between">
                     <div className="flex items-start justify-between gap-4">
                       <div>
-                        <h2 className="font-display text-2xl text-[#ece5d8]">{item.name}</h2>
-                        <p className="font-mono text-xs text-[#9a948a] uppercase tracking-wider mt-1">
+                        <h2 className="font-display text-2xl text-[#f9f9f9]">{item.name}</h2>
+                        <p className="font-mono text-xs text-[#a3a3a3] uppercase tracking-wider mt-1">
                           {item.size ? `Size: ${item.size}` : 'Vault Spec'}
                           {item.color ? ` · Finish: ${item.color}` : ''}
                         </p>
@@ -85,14 +85,14 @@ export default function CartPage() {
                       <button
                         type="button"
                         onClick={() => void removeItem(item.id)}
-                        className="text-[#9a948a] hover:text-red-400 transition"
+                        className="text-[#a3a3a3] hover:text-red-400 transition"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
 
-                    <div className="flex items-center justify-between pt-4 border-t border-[#ece5d8]/10">
-                      <div className="inline-flex items-center border border-[#ece5d8]/20 bg-[#070709]">
+                    <div className="flex items-center justify-between pt-4 border-t border-[#f9f9f9]/10">
+                      <div className="inline-flex items-center border border-[#f9f9f9]/20 bg-[#0a0a0a]">
                         <button
                           type="button"
                           onClick={() =>
@@ -100,7 +100,7 @@ export default function CartPage() {
                               ? void updateItem(item.id, item.quantity - 1)
                               : void removeItem(item.id)
                           }
-                          className="px-3 py-2 text-[#9a948a] hover:text-[#ece5d8]"
+                          className="px-3 py-2 text-[#a3a3a3] hover:text-[#f9f9f9]"
                         >
                           <Minus className="w-3.5 h-3.5" />
                         </button>
@@ -110,13 +110,13 @@ export default function CartPage() {
                         <button
                           type="button"
                           onClick={() => void updateItem(item.id, item.quantity + 1)}
-                          className="px-3 py-2 text-[#9a948a] hover:text-[#ece5d8]"
+                          className="px-3 py-2 text-[#a3a3a3] hover:text-[#f9f9f9]"
                         >
                           <Plus className="w-3.5 h-3.5" />
                         </button>
                       </div>
 
-                      <span className="font-mono text-base font-semibold text-[#ece5d8] tabular-nums">
+                      <span className="font-mono text-base font-semibold text-[#f9f9f9] tabular-nums">
                         {formatVnd(item.price * item.quantity)}
                       </span>
                     </div>
@@ -126,18 +126,18 @@ export default function CartPage() {
             </div>
 
             <aside className="lg:col-span-4">
-              <div className="bg-[#111115] border border-[#ece5d8]/15 p-6 space-y-6 sticky top-28">
-                <h2 className="font-display text-2xl text-[#ece5d8]">Valuation Summary</h2>
+              <div className="bg-[#111111] border border-[#f9f9f9]/15 p-6 space-y-6 sticky top-28">
+                <h2 className="font-display text-2xl text-[#f9f9f9]">Valuation Summary</h2>
 
                 {appliedVoucher ? (
-                  <div className="p-3.5 bg-[#070709] border border-[#cfa156]/50 flex items-center justify-between font-mono text-xs">
-                    <span className="inline-flex items-center gap-2 text-[#cfa156]">
+                  <div className="p-3.5 bg-[#0a0a0a] border border-[#f9f9f9]/50 flex items-center justify-between font-mono text-xs">
+                    <span className="inline-flex items-center gap-2 text-[#f9f9f9]">
                       <Tag className="w-3.5 h-3.5" /> {appliedVoucher.code} ACTIVE
                     </span>
                     <button
                       type="button"
                       onClick={removeVoucher}
-                      className="text-[10px] uppercase text-[#9a948a] hover:text-[#ece5d8]"
+                      className="text-[10px] uppercase text-[#a3a3a3] hover:text-[#f9f9f9]"
                     >
                       Remove
                     </button>
@@ -149,33 +149,33 @@ export default function CartPage() {
                       value={codeInput}
                       onChange={e => setCodeInput(e.target.value)}
                       placeholder="Privilege code (ENIGMA15)"
-                      className="flex-1 bg-[#070709] border border-[#ece5d8]/15 px-3 py-2.5 font-mono text-xs text-[#ece5d8] uppercase focus:outline-none focus:border-[#cfa156]"
+                      className="flex-1 bg-[#0a0a0a] border border-[#f9f9f9]/15 px-3 py-2.5 font-mono text-xs text-[#f9f9f9] uppercase focus:outline-none focus:border-[#f9f9f9]"
                     />
                     <button
                       type="submit"
-                      className="px-4 py-2.5 border border-[#cfa156] text-[#cfa156] font-mono text-xs uppercase tracking-widest hover:bg-[#cfa156] hover:text-[#070709] transition"
+                      className="px-4 py-2.5 border border-[#f9f9f9] text-[#f9f9f9] font-mono text-xs uppercase tracking-widest hover:bg-[#f9f9f9] hover:text-[#0a0a0a] transition"
                     >
                       Apply
                     </button>
                   </form>
                 )}
 
-                <div className="space-y-2.5 font-mono text-xs border-y border-[#ece5d8]/10 py-4">
-                  <div className="flex justify-between text-[#9a948a]">
+                <div className="space-y-2.5 font-mono text-xs border-y border-[#f9f9f9]/10 py-4">
+                  <div className="flex justify-between text-[#a3a3a3]">
                     <span>SUBTOTAL</span>
                     <span className="tabular-nums">{formatVnd(sub)}</span>
                   </div>
                   {disc > 0 && (
-                    <div className="flex justify-between text-[#cfa156]">
+                    <div className="flex justify-between text-[#f9f9f9]">
                       <span>PRIVILEGE CREDIT</span>
                       <span className="tabular-nums">-{formatVnd(disc)}</span>
                     </div>
                   )}
-                  <div className="flex justify-between text-[#9a948a]">
+                  <div className="flex justify-between text-[#a3a3a3]">
                     <span>INSURED DISPATCH</span>
                     <span>CALCULATED NEXT</span>
                   </div>
-                  <div className="flex justify-between text-base font-semibold text-[#ece5d8] pt-2 border-t border-[#ece5d8]/10">
+                  <div className="flex justify-between text-base font-semibold text-[#f9f9f9] pt-2 border-t border-[#f9f9f9]/10">
                     <span>TOTAL</span>
                     <span className="tabular-nums">{formatVnd(final)}</span>
                   </div>
@@ -185,13 +185,13 @@ export default function CartPage() {
                   id="cart-proceed-checkout-btn"
                   type="button"
                   onClick={() => navigate('/checkout')}
-                  className="w-full py-4 bg-[#cfa156] text-[#070709] font-mono text-xs font-semibold uppercase tracking-[0.24em] hover:bg-[#dec37b] transition flex items-center justify-center gap-2"
+                  className="w-full py-4 bg-[#f9f9f9] text-[#0a0a0a] font-mono text-xs font-semibold uppercase tracking-[0.24em] hover:bg-[#d9d9d9] transition flex items-center justify-center gap-2"
                 >
                   Proceed to Armored Checkout <ArrowRight className="w-4 h-4" />
                 </button>
 
-                <p className="flex items-center gap-2 font-mono text-[10px] text-[#9a948a] uppercase tracking-wider">
-                  <ShieldCheck className="w-4 h-4 text-[#cfa156]" />
+                <p className="flex items-center gap-2 font-mono text-[10px] text-[#a3a3a3] uppercase tracking-wider">
+                  <ShieldCheck className="w-4 h-4 text-[#f9f9f9]" />
                   NFC Provenance &amp; Tamper-Evident Vault Seal Included
                 </p>
               </div>

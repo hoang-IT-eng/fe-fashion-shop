@@ -67,18 +67,18 @@ export function QuickViewModal({ product, onClose }: QuickViewModalProps) {
     >
       <div
         onClick={e => e.stopPropagation()}
-        className="relative w-full max-w-3xl bg-[#111115] border border-[#ece5d8]/15 grid grid-cols-1 md:grid-cols-2 overflow-hidden shadow-2xl"
+        className="relative w-full max-w-3xl bg-[#111111] border border-[#f9f9f9]/15 grid grid-cols-1 md:grid-cols-2 overflow-hidden shadow-2xl"
       >
         <button
           type="button"
           onClick={onClose}
           aria-label="Close Quick Inspect"
-          className="absolute top-4 right-4 z-10 w-9 h-9 bg-[#070709]/80 border border-[#ece5d8]/20 flex items-center justify-center text-[#ece5d8] hover:border-[#cfa156]"
+          className="absolute top-4 right-4 z-10 w-9 h-9 bg-[#0a0a0a]/80 border border-[#f9f9f9]/20 flex items-center justify-center text-[#f9f9f9] hover:border-[#f9f9f9]"
         >
           <X className="w-4 h-4" />
         </button>
 
-        <div className="aspect-[4/5] bg-[#070709]">
+        <div className="aspect-[4/5] bg-[#0a0a0a]">
           {product.imageUrl && (
             <img
               src={product.imageUrl}
@@ -88,24 +88,24 @@ export function QuickViewModal({ product, onClose }: QuickViewModalProps) {
           )}
         </div>
 
-        <div className="p-6 md:p-8 flex flex-col justify-between gap-6 text-[#ece5d8]">
+        <div className="p-6 md:p-8 flex flex-col justify-between gap-6 text-[#f9f9f9]">
           <div>
-            <p className="font-mono text-[10px] tracking-[0.26em] uppercase text-[#cfa156] mb-2">
+            <p className="font-mono text-[10px] tracking-[0.26em] uppercase text-[#f9f9f9] mb-2">
               {product.brand || 'ENIGMA ATELIER'} · {product.authenticityCode || `ENG-00${product.id}`}
             </p>
             <h2 className="font-display text-2xl md:text-3xl leading-tight mb-3">{product.name}</h2>
-            <p className="font-mono text-xl text-[#ece5d8] font-semibold tabular-nums mb-4">
+            <p className="font-mono text-xl text-[#f9f9f9] font-semibold tabular-nums mb-4">
               {formatVnd(matchedVariant?.priceOverride || product.price)}
             </p>
-            <p className="text-xs text-[#9a948a] leading-relaxed line-clamp-3 mb-5">
+            <p className="text-xs text-[#a3a3a3] leading-relaxed line-clamp-3 mb-5">
               {product.description}
             </p>
 
             {/* Size Selector */}
             <div className="mb-4">
-              <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-widest text-[#9a948a] mb-2">
+              <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-widest text-[#a3a3a3] mb-2">
                 <span>Select Size</span>
-                <span className="text-[#cfa156] tabular-nums">{availableStock} IN VAULT</span>
+                <span className="text-[#f9f9f9] tabular-nums">{availableStock} IN VAULT</span>
               </div>
               <div className="flex flex-wrap gap-2">
                 {sizes.map(sz => (
@@ -115,8 +115,8 @@ export function QuickViewModal({ product, onClose }: QuickViewModalProps) {
                     onClick={() => setSelectedSize(sz)}
                     className={`px-3.5 py-2 font-mono text-xs border transition ${
                       activeSize === sz
-                        ? 'border-[#cfa156] bg-[#cfa156]/15 text-[#cfa156]'
-                        : 'border-[#ece5d8]/15 text-[#ece5d8] hover:border-[#ece5d8]/40'
+                        ? 'border-[#f9f9f9] bg-[#f9f9f9]/15 text-[#f9f9f9]'
+                        : 'border-[#f9f9f9]/15 text-[#f9f9f9] hover:border-[#f9f9f9]/40'
                     }`}
                   >
                     {sz}
@@ -128,7 +128,7 @@ export function QuickViewModal({ product, onClose }: QuickViewModalProps) {
             {/* Color Selector */}
             {colors.length > 1 && (
               <div>
-                <span className="block font-mono text-[10px] uppercase tracking-widest text-[#9a948a] mb-2">
+                <span className="block font-mono text-[10px] uppercase tracking-widest text-[#a3a3a3] mb-2">
                   Finish / Colorway
                 </span>
                 <div className="flex flex-wrap gap-2">
@@ -139,8 +139,8 @@ export function QuickViewModal({ product, onClose }: QuickViewModalProps) {
                       onClick={() => setSelectedColor(cl)}
                       className={`px-3 py-1.5 font-mono text-[11px] border transition ${
                         activeColor === cl
-                          ? 'border-[#cfa156] text-[#cfa156]'
-                          : 'border-[#ece5d8]/15 text-[#9a948a]'
+                          ? 'border-[#f9f9f9] text-[#f9f9f9]'
+                          : 'border-[#f9f9f9]/15 text-[#a3a3a3]'
                       }`}
                     >
                       {cl}
@@ -151,26 +151,26 @@ export function QuickViewModal({ product, onClose }: QuickViewModalProps) {
             )}
           </div>
 
-          <div className="space-y-3 pt-4 border-t border-[#ece5d8]/10">
+          <div className="space-y-3 pt-4 border-t border-[#f9f9f9]/10">
             <button
               type="button"
               disabled={availableStock <= 0 || adding}
               onClick={handleAdd}
-              className="w-full py-3.5 bg-[#cfa156] text-[#070709] font-mono text-xs font-semibold uppercase tracking-[0.24em] hover:bg-[#dec37b] disabled:opacity-40 transition flex items-center justify-center gap-2"
+              className="w-full py-3.5 bg-[#f9f9f9] text-[#0a0a0a] font-mono text-xs font-semibold uppercase tracking-[0.24em] hover:bg-[#d9d9d9] disabled:opacity-40 transition flex items-center justify-center gap-2"
             >
               <ShoppingBag className="w-4 h-4" />
               {availableStock <= 0 ? 'Vault Exhausted' : adding ? 'Reserving...' : 'Reserve in Vault Bag'}
             </button>
 
             <div className="flex items-center justify-between text-xs font-mono">
-              <span className="inline-flex items-center gap-1.5 text-[#9a948a]">
-                <ShieldCheck className="w-3.5 h-3.5 text-[#cfa156]" />
+              <span className="inline-flex items-center gap-1.5 text-[#a3a3a3]">
+                <ShieldCheck className="w-3.5 h-3.5 text-[#f9f9f9]" />
                 NFC Provenance Verified
               </span>
               <Link
                 to={`/products/${product.id}`}
                 onClick={onClose}
-                className="inline-flex items-center gap-1 text-[#ece5d8] hover:text-[#cfa156] uppercase tracking-wider"
+                className="inline-flex items-center gap-1 text-[#f9f9f9] hover:text-[#f9f9f9] uppercase tracking-wider"
               >
                 Full Dossier <ArrowUpRight className="w-3.5 h-3.5" />
               </Link>

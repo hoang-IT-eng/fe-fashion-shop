@@ -44,14 +44,14 @@ export default function MysteryVaultScene({
           camera.position.set(0, 1.4, 5.2)
           camera.lookAt(0, 0.1, 0)
 
-          const ambient = new THREE.AmbientLight(0xece5d8, 0.45)
+          const ambient = new THREE.AmbientLight(0xf9f9f9, 0.45)
           scene.add(ambient)
 
-          const spot = new THREE.DirectionalLight(0xece5d8, 1.8)
+          const spot = new THREE.DirectionalLight(0xf9f9f9, 1.8)
           spot.position.set(3, 5, 4)
           scene.add(spot)
 
-          const innerGlow = new THREE.PointLight(0xcfa156, 1.2, 6)
+          const innerGlow = new THREE.PointLight(0xf9f9f9, 1.2, 6)
           innerGlow.position.set(0, 0.35, 0)
           scene.add(innerGlow)
 
@@ -60,9 +60,9 @@ export default function MysteryVaultScene({
 
           const accentHex =
             tierSlug === 'grail-vault'
-              ? 0xcfa156
+              ? 0xf9f9f9
               : tierSlug === 'inner-circle-chest'
-                ? 0xece5d8
+                ? 0xf9f9f9
                 : 0x9a948a
 
           const bodyMat = new THREE.MeshStandardMaterial({
@@ -153,7 +153,7 @@ export default function MysteryVaultScene({
         <img
           src="/images/enigma/mystery-chest.jpg"
           alt="ENIGMA Anodized Mystery Vault Chest"
-          className="w-full h-full object-cover rounded border border-[#ece5d8]/15"
+          className="w-full h-full object-cover rounded border border-[#f9f9f9]/15"
         />
       )}
     </div>

@@ -54,15 +54,15 @@ export function CinematicPreloader() {
         }))
 
         const render = () => {
-          ctx.fillStyle = '#070709'
+          ctx.fillStyle = '#0a0a0a'
           ctx.fillRect(0, 0, w, h)
           for (const c of clouds) {
             c.x += c.vx + (w / 2 - c.x) * 0.002
             c.y += c.vy + (h / 2 - c.y) * 0.002
             const grad = ctx.createRadialGradient(c.x, c.y, 10, c.x, c.y, c.r)
-            grad.addColorStop(0, 'rgba(28, 29, 36, 0.42)')
-            grad.addColorStop(0.6, 'rgba(17, 17, 21, 0.18)')
-            grad.addColorStop(1, 'rgba(7, 7, 9, 0)')
+            grad.addColorStop(0, 'rgba(35, 35, 35, 0.42)')
+            grad.addColorStop(0.6, 'rgba(17, 17, 17, 0.18)')
+            grad.addColorStop(1, 'rgba(10, 10, 10, 0)')
             ctx.fillStyle = grad
             ctx.beginPath()
             ctx.arc(c.x, c.y, c.r, 0, Math.PI * 2)
@@ -122,25 +122,25 @@ export function CinematicPreloader() {
     <div
       id="enigma-preloader"
       aria-hidden="true"
-      className={`fixed inset-0 z-[120] flex flex-col items-center justify-center bg-[#070709] transition-opacity duration-300 ${
+      className={`fixed inset-0 z-[120] flex flex-col items-center justify-center bg-[#0a0a0a] transition-opacity duration-300 ${
         fading ? 'opacity-0 pointer-events-none' : 'opacity-100'
       }`}
     >
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full opacity-90" />
       <div className="relative z-10 flex flex-col items-center gap-6 px-6 text-center">
         <EnigmaCrest className="w-12 h-12" />
-        <p className="font-mono text-xs md:text-sm tracking-[0.36em] text-[#ece5d8] uppercase">
+        <p className="font-mono text-xs md:text-sm tracking-[0.36em] text-[#f9f9f9] uppercase">
           {headline}
         </p>
-        <div className="w-56 h-[1px] bg-[#1c1d24] overflow-hidden">
+        <div className="w-56 h-[1px] bg-[#232323] overflow-hidden">
           <div
-            className="h-full bg-[#cfa156] transition-all duration-75"
+            className="h-full bg-[#f9f9f9] transition-all duration-75"
             style={{ width: `${progress}%` }}
           />
         </div>
-        <div className="flex items-center gap-4 font-mono text-[11px] tracking-[0.28em] text-[#9a948a] tabular-nums">
+        <div className="flex items-center gap-4 font-mono text-[11px] tracking-[0.28em] text-[#a3a3a3] tabular-nums">
           <span>ENIGMA VAULT SEAL</span>
-          <span className="text-[#cfa156]">{String(progress).padStart(2, '0')} / 100</span>
+          <span className="text-[#f9f9f9]">{String(progress).padStart(2, '0')} / 100</span>
         </div>
       </div>
     </div>

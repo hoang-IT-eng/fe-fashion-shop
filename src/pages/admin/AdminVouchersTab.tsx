@@ -57,10 +57,10 @@ export default function AdminVouchersTab() {
   return (
     <div className="space-y-6">
       <div>
-        <p className="font-mono text-[10px] tracking-[0.28em] uppercase text-[#cfa156]">
+        <p className="font-mono text-[10px] tracking-[0.28em] uppercase text-[#f9f9f9]">
           INITIATION REWARDS &amp; PROMOTIONS
         </p>
-        <h2 className="font-display text-2xl md:text-3xl text-[#ece5d8]">
+        <h2 className="font-display text-2xl md:text-3xl text-[#f9f9f9]">
           Vault Privilege Codes ({vouchers.length})
         </h2>
       </div>
@@ -68,7 +68,7 @@ export default function AdminVouchersTab() {
       {/* Create Form */}
       <form
         onSubmit={handleCreate}
-        className="p-5 bg-[#111115] border border-[#ece5d8]/12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3"
+        className="p-5 bg-[#111111] border border-[#f9f9f9]/12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3"
       >
         <input
           type="text"
@@ -76,19 +76,19 @@ export default function AdminVouchersTab() {
           placeholder="CODE (e.g. ARCHIVE20)"
           value={code}
           onChange={e => setCode(e.target.value)}
-          className="bg-[#070709] border border-[#ece5d8]/15 px-3 py-2 font-mono text-xs text-[#ece5d8] uppercase"
+          className="bg-[#0a0a0a] border border-[#f9f9f9]/15 px-3 py-2 font-mono text-xs text-[#f9f9f9] uppercase"
         />
         <input
           type="text"
           placeholder="Description"
           value={description}
           onChange={e => setDescription(e.target.value)}
-          className="lg:col-span-2 bg-[#070709] border border-[#ece5d8]/15 px-3 py-2 text-xs text-[#ece5d8]"
+          className="lg:col-span-2 bg-[#0a0a0a] border border-[#f9f9f9]/15 px-3 py-2 text-xs text-[#f9f9f9]"
         />
         <select
           value={discountType}
           onChange={e => setDiscountType(e.target.value as any)}
-          className="bg-[#070709] border border-[#ece5d8]/15 px-3 py-2 font-mono text-xs text-[#ece5d8]"
+          className="bg-[#0a0a0a] border border-[#f9f9f9]/15 px-3 py-2 font-mono text-xs text-[#f9f9f9]"
         >
           <option value="percentage">Percentage (%)</option>
           <option value="fixed">Fixed VND</option>
@@ -99,11 +99,11 @@ export default function AdminVouchersTab() {
           placeholder="Value"
           value={discountValue}
           onChange={e => setDiscountValue(Number(e.target.value))}
-          className="bg-[#070709] border border-[#ece5d8]/15 px-3 py-2 font-mono text-xs text-[#ece5d8] tabular-nums"
+          className="bg-[#0a0a0a] border border-[#f9f9f9]/15 px-3 py-2 font-mono text-xs text-[#f9f9f9] tabular-nums"
         />
         <button
           type="submit"
-          className="bg-[#cfa156] text-[#070709] font-mono text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-1.5 py-2"
+          className="bg-[#f9f9f9] text-[#0a0a0a] font-mono text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-1.5 py-2"
         >
           <Plus className="w-3.5 h-3.5" /> Mint Code
         </button>
@@ -114,12 +114,12 @@ export default function AdminVouchersTab() {
         {vouchers.map(v => (
           <div
             key={v.id}
-            className={`p-5 bg-[#111115] border space-y-3 ${
-              v.isSecretInitiation ? 'border-[#cfa156]' : 'border-[#ece5d8]/12'
+            className={`p-5 bg-[#111111] border space-y-3 ${
+              v.isSecretInitiation ? 'border-[#f9f9f9]' : 'border-[#f9f9f9]/12'
             }`}
           >
             <div className="flex items-center justify-between">
-              <span className="inline-flex items-center gap-1.5 font-mono text-base font-semibold text-[#cfa156]">
+              <span className="inline-flex items-center gap-1.5 font-mono text-base font-semibold text-[#f9f9f9]">
                 {v.isSecretInitiation ? (
                   <KeyRound className="w-4 h-4" />
                 ) : (
@@ -133,29 +133,29 @@ export default function AdminVouchersTab() {
                 className={`px-2 py-0.5 font-mono text-[10px] uppercase border ${
                   v.isActive
                     ? 'border-emerald-400/40 text-emerald-300'
-                    : 'border-[#ece5d8]/15 text-[#9a948a]'
+                    : 'border-[#f9f9f9]/15 text-[#a3a3a3]'
                 }`}
               >
                 {v.isActive ? 'Active' : 'Paused'}
               </button>
             </div>
 
-            <p className="text-xs text-[#9a948a] leading-relaxed">{v.description}</p>
+            <p className="text-xs text-[#a3a3a3] leading-relaxed">{v.description}</p>
 
-            <div className="pt-2 border-t border-[#ece5d8]/10 flex items-center justify-between font-mono text-[11px] text-[#ece5d8] tabular-nums">
+            <div className="pt-2 border-t border-[#f9f9f9]/10 flex items-center justify-between font-mono text-[11px] text-[#f9f9f9] tabular-nums">
               <span>
                 {v.discountType === 'percentage'
                   ? `${v.discountValue}% OFF`
                   : `${formatVnd(v.discountValue)} OFF`}
               </span>
-              <span className="text-[#9a948a]">
+              <span className="text-[#a3a3a3]">
                 Used: {v.usedCount}/{v.usageLimit}
               </span>
               {!v.isSecretInitiation && (
                 <button
                   type="button"
                   onClick={() => void handleDelete(v.id)}
-                  className="text-[#9a948a] hover:text-red-400"
+                  className="text-[#a3a3a3] hover:text-red-400"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>

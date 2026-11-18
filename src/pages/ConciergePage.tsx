@@ -56,20 +56,20 @@ export default function ConciergePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#070709] text-[#ece5d8] py-10 md:py-14">
+    <div className="min-h-screen bg-[#0a0a0a] text-[#f9f9f9] py-10 md:py-14">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <Breadcrumb
           items={[{ label: 'Archive', path: '/' }, { label: 'Find It At My Price' }]}
         />
 
-        <div className="pb-10 border-b border-[#ece5d8]/10 mb-12">
-          <p className="font-mono text-xs tracking-[0.32em] uppercase text-[#cfa156] mb-2 inline-flex items-center gap-2">
+        <div className="pb-10 border-b border-[#f9f9f9]/10 mb-12">
+          <p className="font-mono text-xs tracking-[0.32em] uppercase text-[#f9f9f9] mb-2 inline-flex items-center gap-2">
             <Crosshair className="w-4 h-4" /> GLOBAL BUYER NETWORK · TOKYO / ANTWERP / SAIGON
           </p>
-          <h1 className="font-display text-4xl md:text-6xl text-[#ece5d8]">
+          <h1 className="font-display text-4xl md:text-6xl text-[#f9f9f9]">
             Find It At My Price
           </h1>
-          <p className="text-sm md:text-base text-[#9a948a] max-w-2xl mt-3 leading-relaxed">
+          <p className="text-sm md:text-base text-[#a3a3a3] max-w-2xl mt-3 leading-relaxed">
             Name your exact archive grail, runway sample, or deadstock sneaker and set the price you
             are willing to pay. Our sourcing curators negotiate directly with private vaults.
           </p>
@@ -79,13 +79,13 @@ export default function ConciergePage() {
           {/* Sourcing Form */}
           <form
             onSubmit={handleSubmit}
-            className="lg:col-span-6 bg-[#111115] border border-[#ece5d8]/15 p-6 md:p-8 space-y-5"
+            className="lg:col-span-6 bg-[#111111] border border-[#f9f9f9]/15 p-6 md:p-8 space-y-5"
           >
-            <h2 className="font-display text-2xl text-[#ece5d8]">Open a Sourcing Mandate</h2>
+            <h2 className="font-display text-2xl text-[#f9f9f9]">Open a Sourcing Mandate</h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block font-mono text-[10px] uppercase tracking-widest text-[#9a948a] mb-1.5">
+                <label className="block font-mono text-[10px] uppercase tracking-widest text-[#a3a3a3] mb-1.5">
                   Collector Name
                 </label>
                 <input
@@ -94,11 +94,11 @@ export default function ConciergePage() {
                   value={requesterName}
                   onChange={e => setRequesterName(e.target.value)}
                   placeholder="Kaelen Vinh"
-                  className="w-full bg-[#070709] border border-[#ece5d8]/15 px-3.5 py-2.5 text-xs text-[#ece5d8] focus:outline-none focus:border-[#cfa156]"
+                  className="w-full bg-[#0a0a0a] border border-[#f9f9f9]/15 px-3.5 py-2.5 text-xs text-[#f9f9f9] focus:outline-none focus:border-[#f9f9f9]"
                 />
               </div>
               <div>
-                <label className="block font-mono text-[10px] uppercase tracking-widest text-[#9a948a] mb-1.5">
+                <label className="block font-mono text-[10px] uppercase tracking-widest text-[#a3a3a3] mb-1.5">
                   Dispatch Email
                 </label>
                 <input
@@ -107,14 +107,14 @@ export default function ConciergePage() {
                   value={requesterEmail}
                   onChange={e => setRequesterEmail(e.target.value)}
                   placeholder="collector@enigma.cult"
-                  className="w-full bg-[#070709] border border-[#ece5d8]/15 px-3.5 py-2.5 text-xs text-[#ece5d8] focus:outline-none focus:border-[#cfa156]"
+                  className="w-full bg-[#0a0a0a] border border-[#f9f9f9]/15 px-3.5 py-2.5 text-xs text-[#f9f9f9] focus:outline-none focus:border-[#f9f9f9]"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="sm:col-span-2">
-                <label className="block font-mono text-[10px] uppercase tracking-widest text-[#9a948a] mb-1.5">
+                <label className="block font-mono text-[10px] uppercase tracking-widest text-[#a3a3a3] mb-1.5">
                   Exact Archive Item / Reference
                 </label>
                 <input
@@ -124,11 +124,11 @@ export default function ConciergePage() {
                   value={itemName}
                   onChange={e => setItemName(e.target.value)}
                   placeholder="e.g. Yohji Yamamoto Pour Homme AW02 Coat"
-                  className="w-full bg-[#070709] border border-[#ece5d8]/15 px-3.5 py-2.5 text-xs text-[#ece5d8] focus:outline-none focus:border-[#cfa156]"
+                  className="w-full bg-[#0a0a0a] border border-[#f9f9f9]/15 px-3.5 py-2.5 text-xs text-[#f9f9f9] focus:outline-none focus:border-[#f9f9f9]"
                 />
               </div>
               <div>
-                <label className="block font-mono text-[10px] uppercase tracking-widest text-[#9a948a] mb-1.5">
+                <label className="block font-mono text-[10px] uppercase tracking-widest text-[#a3a3a3] mb-1.5">
                   Size
                 </label>
                 <input
@@ -136,13 +136,13 @@ export default function ConciergePage() {
                   required
                   value={size}
                   onChange={e => setSize(e.target.value)}
-                  className="w-full bg-[#070709] border border-[#ece5d8]/15 px-3.5 py-2.5 font-mono text-xs text-[#ece5d8] focus:outline-none focus:border-[#cfa156]"
+                  className="w-full bg-[#0a0a0a] border border-[#f9f9f9]/15 px-3.5 py-2.5 font-mono text-xs text-[#f9f9f9] focus:outline-none focus:border-[#f9f9f9]"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block font-mono text-[10px] uppercase tracking-widest text-[#9a948a] mb-1.5">
+              <label className="block font-mono text-[10px] uppercase tracking-widest text-[#a3a3a3] mb-1.5">
                 House / Designer (Optional)
               </label>
               <input
@@ -150,14 +150,14 @@ export default function ConciergePage() {
                 value={brand}
                 onChange={e => setBrand(e.target.value)}
                 placeholder="Rick Owens / Maison Margiela / Undercover"
-                className="w-full bg-[#070709] border border-[#ece5d8]/15 px-3.5 py-2.5 text-xs text-[#ece5d8] focus:outline-none focus:border-[#cfa156]"
+                className="w-full bg-[#0a0a0a] border border-[#f9f9f9]/15 px-3.5 py-2.5 text-xs text-[#f9f9f9] focus:outline-none focus:border-[#f9f9f9]"
               />
             </div>
 
-            <div className="p-4 bg-[#070709] border border-[#ece5d8]/10 space-y-3">
+            <div className="p-4 bg-[#0a0a0a] border border-[#f9f9f9]/10 space-y-3">
               <div className="flex justify-between font-mono text-xs">
-                <span className="text-[#9a948a] uppercase">Your Target Offer</span>
-                <span className="text-[#cfa156] font-semibold tabular-nums">
+                <span className="text-[#a3a3a3] uppercase">Your Target Offer</span>
+                <span className="text-[#f9f9f9] font-semibold tabular-nums">
                   {formatVnd(targetPrice)}
                 </span>
               </div>
@@ -168,16 +168,16 @@ export default function ConciergePage() {
                 step={500000}
                 value={targetPrice}
                 onChange={e => setTargetPrice(Number(e.target.value))}
-                className="w-full accent-[#cfa156]"
+                className="w-full accent-[#f9f9f9]"
               />
-              <div className="flex justify-between font-mono text-[10px] text-[#9a948a] tabular-nums">
+              <div className="flex justify-between font-mono text-[10px] text-[#a3a3a3] tabular-nums">
                 <span>Live Secondary Benchmark: {formatVnd(marketEstimate)}</span>
-                <span className="text-[#ece5d8]">Savings: ~12%</span>
+                <span className="text-[#f9f9f9]">Savings: ~12%</span>
               </div>
             </div>
 
             <div>
-              <label className="block font-mono text-[10px] uppercase tracking-widest text-[#9a948a] mb-1.5">
+              <label className="block font-mono text-[10px] uppercase tracking-widest text-[#a3a3a3] mb-1.5">
                 Condition &amp; Packaging Requirements
               </label>
               <textarea
@@ -185,14 +185,14 @@ export default function ConciergePage() {
                 value={notes}
                 onChange={e => setNotes(e.target.value)}
                 placeholder="Specify deadstock vs archival patina, original tags, wooden box..."
-                className="w-full bg-[#070709] border border-[#ece5d8]/15 p-3 text-xs text-[#ece5d8] focus:outline-none focus:border-[#cfa156]"
+                className="w-full bg-[#0a0a0a] border border-[#f9f9f9]/15 p-3 text-xs text-[#f9f9f9] focus:outline-none focus:border-[#f9f9f9]"
               />
             </div>
 
             <button
               type="submit"
               disabled={submitting}
-              className="w-full py-3.5 bg-[#cfa156] text-[#070709] font-mono text-xs font-semibold uppercase tracking-[0.24em] hover:bg-[#dec37b] transition"
+              className="w-full py-3.5 bg-[#f9f9f9] text-[#0a0a0a] font-mono text-xs font-semibold uppercase tracking-[0.24em] hover:bg-[#d9d9d9] transition"
             >
               {submitting ? 'DISPATCHING MANDATE...' : 'SUBMIT TARGET-PRICE MANDATE'}
             </button>
@@ -201,10 +201,10 @@ export default function ConciergePage() {
           {/* Active Sourcing Ledger */}
           <div className="lg:col-span-6 space-y-5">
             <div className="flex items-center justify-between">
-              <h2 className="font-display text-2xl text-[#ece5d8]">
+              <h2 className="font-display text-2xl text-[#f9f9f9]">
                 Active Sourcing Mandates ({tickets.length})
               </h2>
-              <span className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-widest text-[#cfa156]">
+              <span className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-widest text-[#f9f9f9]">
                 <ShieldCheck className="w-3.5 h-3.5" /> Escrow Protected
               </span>
             </div>
@@ -212,50 +212,50 @@ export default function ConciergePage() {
             {tickets.map(ticket => (
               <article
                 key={ticket.id}
-                className="p-5 bg-[#111115] border border-[#ece5d8]/12 space-y-3"
+                className="p-5 bg-[#111111] border border-[#f9f9f9]/12 space-y-3"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <span className="font-mono text-[10px] text-[#9a948a] uppercase tracking-widest">
+                    <span className="font-mono text-[10px] text-[#a3a3a3] uppercase tracking-widest">
                       MANDATE #{ticket.id} · SIZE {ticket.size}
                     </span>
-                    <h3 className="font-display text-xl text-[#ece5d8] mt-0.5">
+                    <h3 className="font-display text-xl text-[#f9f9f9] mt-0.5">
                       {ticket.itemName}
                     </h3>
                   </div>
-                  <span className="px-2.5 py-1 bg-[#070709] border border-[#cfa156]/50 font-mono text-[10px] uppercase tracking-widest text-[#cfa156]">
+                  <span className="px-2.5 py-1 bg-[#0a0a0a] border border-[#f9f9f9]/50 font-mono text-[10px] uppercase tracking-widest text-[#f9f9f9]">
                     {ticket.status}
                   </span>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 py-2.5 border-y border-[#ece5d8]/10 font-mono text-xs">
+                <div className="grid grid-cols-2 gap-4 py-2.5 border-y border-[#f9f9f9]/10 font-mono text-xs">
                   <div>
-                    <span className="block text-[10px] text-[#9a948a] uppercase">Target Offer</span>
-                    <span className="text-[#ece5d8] tabular-nums">
+                    <span className="block text-[10px] text-[#a3a3a3] uppercase">Target Offer</span>
+                    <span className="text-[#f9f9f9] tabular-nums">
                       {formatVnd(ticket.targetPrice)}
                     </span>
                   </div>
                   <div>
-                    <span className="block text-[10px] text-[#9a948a] uppercase">
+                    <span className="block text-[10px] text-[#a3a3a3] uppercase">
                       {ticket.counterOfferPrice ? 'Curator Counter-Offer' : 'Market Benchmark'}
                     </span>
-                    <span className="text-[#cfa156] font-semibold tabular-nums">
+                    <span className="text-[#f9f9f9] font-semibold tabular-nums">
                       {formatVnd(ticket.counterOfferPrice || ticket.marketEstimate || ticket.targetPrice)}
                     </span>
                   </div>
                 </div>
 
                 {ticket.adminNotes && (
-                  <p className="text-xs text-[#ece5d8]/85 bg-[#070709] p-3 border-l-2 border-[#cfa156]">
+                  <p className="text-xs text-[#f9f9f9]/85 bg-[#0a0a0a] p-3 border-l-2 border-[#f9f9f9]">
                     Curator Desk: {ticket.adminNotes}
                   </p>
                 )}
 
-                <div className="flex items-center justify-between font-mono text-[10px] text-[#9a948a]">
+                <div className="flex items-center justify-between font-mono text-[10px] text-[#a3a3a3]">
                   <span className="inline-flex items-center gap-1">
                     <Clock className="w-3 h-3" /> {new Date(ticket.createdAt).toLocaleDateString()}
                   </span>
-                  <span className="inline-flex items-center gap-1 text-[#cfa156]">
+                  <span className="inline-flex items-center gap-1 text-[#f9f9f9]">
                     <CheckCircle2 className="w-3 h-3" /> Authenticity Included
                   </span>
                 </div>

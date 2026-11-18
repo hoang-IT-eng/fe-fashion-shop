@@ -47,7 +47,7 @@ export function CloudCurtainTransition() {
         opacity: 0,
         visibility: 'hidden',
         backgroundImage:
-          'radial-gradient(circle at 50% 35%, rgba(28,29,36,0.92), rgba(7,7,9,0.98)), url(/images/enigma/chiaroscuro-sky.jpg)',
+          'radial-gradient(circle at 50% 35%, rgba(35, 35, 35,0.92), rgba(10, 10, 10,0.98)), url(/images/enigma/chiaroscuro-sky.jpg)',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}

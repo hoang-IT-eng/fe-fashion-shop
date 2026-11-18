@@ -106,30 +106,30 @@ export default function ProductsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#070709] text-[#ece5d8] py-10 md:py-14">
+    <div className="min-h-screen bg-[#0a0a0a] text-[#f9f9f9] py-10 md:py-14">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <Breadcrumb items={[{ label: 'Archive', path: '/' }, { label: 'Curated Drops' }]} />
 
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-8 border-b border-[#ece5d8]/10 mb-10">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-8 border-b border-[#f9f9f9]/10 mb-10">
           <div>
-            <p className="font-mono text-xs tracking-[0.3em] uppercase text-[#cfa156] mb-2">
+            <p className="font-mono text-xs tracking-[0.3em] uppercase text-[#f9f9f9] mb-2">
               AUTHENTICATED ARCHIVE INDEX
             </p>
-            <h1 className="font-display text-4xl md:text-5xl text-[#ece5d8]">
+            <h1 className="font-display text-4xl md:text-5xl text-[#f9f9f9]">
               Curated Drops &amp; Grails
             </h1>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
             <div className="relative">
-              <Search className="w-4 h-4 text-[#9a948a] absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <Search className="w-4 h-4 text-[#a3a3a3] absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 id="catalog-search-input"
                 type="text"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder="Filter by title, SKU, leather..."
-                className="bg-[#111115] border border-[#ece5d8]/15 pl-10 pr-4 py-2.5 text-xs text-[#ece5d8] placeholder-[#9a948a] w-64 focus:outline-none focus:border-[#cfa156]"
+                className="bg-[#111111] border border-[#f9f9f9]/15 pl-10 pr-4 py-2.5 text-xs text-[#f9f9f9] placeholder-[#a3a3a3] w-64 focus:outline-none focus:border-[#f9f9f9]"
               />
             </div>
 
@@ -137,7 +137,7 @@ export default function ProductsPage() {
               id="catalog-sort-select"
               value={sort}
               onChange={e => setSort(e.target.value)}
-              className="bg-[#111115] border border-[#ece5d8]/15 px-3.5 py-2.5 font-mono text-xs text-[#ece5d8] uppercase tracking-wider focus:outline-none focus:border-[#cfa156]"
+              className="bg-[#111111] border border-[#f9f9f9]/15 px-3.5 py-2.5 font-mono text-xs text-[#f9f9f9] uppercase tracking-wider focus:outline-none focus:border-[#f9f9f9]"
             >
               <option value="newest">Sort: Latest Vault Entry</option>
               <option value="price_asc">Price: Low → High</option>
@@ -150,15 +150,15 @@ export default function ProductsPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
           {/* Left Precision Filter Rail */}
           <aside className="lg:col-span-3 space-y-7">
-            <div className="flex items-center justify-between pb-3 border-b border-[#ece5d8]/10">
-              <span className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.22em] text-[#ece5d8]">
-                <SlidersHorizontal className="w-3.5 h-3.5 text-[#cfa156]" />
+            <div className="flex items-center justify-between pb-3 border-b border-[#f9f9f9]/10">
+              <span className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.22em] text-[#f9f9f9]">
+                <SlidersHorizontal className="w-3.5 h-3.5 text-[#f9f9f9]" />
                 Specifications
               </span>
               <button
                 type="button"
                 onClick={resetFilters}
-                className="inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-widest text-[#9a948a] hover:text-[#cfa156]"
+                className="inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-widest text-[#a3a3a3] hover:text-[#f9f9f9]"
               >
                 <RotateCcw className="w-3 h-3" /> Reset
               </button>
@@ -166,7 +166,7 @@ export default function ProductsPage() {
 
             {/* Release Type */}
             <div>
-              <h2 className="font-mono text-[10px] uppercase tracking-[0.26em] text-[#cfa156] mb-3">
+              <h2 className="font-mono text-[10px] uppercase tracking-[0.26em] text-[#f9f9f9] mb-3">
                 Allocation Tier
               </h2>
               <div className="space-y-1.5">
@@ -177,8 +177,8 @@ export default function ProductsPage() {
                     onClick={() => setReleaseType(rt.value)}
                     className={`w-full text-left px-3 py-2 font-mono text-xs transition border ${
                       releaseType === rt.value
-                        ? 'border-[#cfa156] bg-[#cfa156]/10 text-[#cfa156]'
-                        : 'border-transparent text-[#9a948a] hover:text-[#ece5d8]'
+                        ? 'border-[#f9f9f9] bg-[#f9f9f9]/10 text-[#f9f9f9]'
+                        : 'border-transparent text-[#a3a3a3] hover:text-[#f9f9f9]'
                     }`}
                   >
                     {rt.label}
@@ -189,7 +189,7 @@ export default function ProductsPage() {
 
             {/* Category */}
             <div>
-              <h2 className="font-mono text-[10px] uppercase tracking-[0.26em] text-[#cfa156] mb-3">
+              <h2 className="font-mono text-[10px] uppercase tracking-[0.26em] text-[#f9f9f9] mb-3">
                 Category
               </h2>
               <div className="flex flex-wrap gap-1.5">
@@ -198,8 +198,8 @@ export default function ProductsPage() {
                   onClick={() => setCategory('')}
                   className={`px-3 py-1.5 font-mono text-[11px] border ${
                     !category
-                      ? 'border-[#cfa156] text-[#cfa156]'
-                      : 'border-[#ece5d8]/15 text-[#9a948a]'
+                      ? 'border-[#f9f9f9] text-[#f9f9f9]'
+                      : 'border-[#f9f9f9]/15 text-[#a3a3a3]'
                   }`}
                 >
                   All
@@ -211,8 +211,8 @@ export default function ProductsPage() {
                     onClick={() => setCategory(cat.name)}
                     className={`px-3 py-1.5 font-mono text-[11px] border ${
                       category.toLowerCase() === cat.name.toLowerCase()
-                        ? 'border-[#cfa156] text-[#cfa156]'
-                        : 'border-[#ece5d8]/15 text-[#9a948a] hover:text-[#ece5d8]'
+                        ? 'border-[#f9f9f9] text-[#f9f9f9]'
+                        : 'border-[#f9f9f9]/15 text-[#a3a3a3] hover:text-[#f9f9f9]'
                     }`}
                   >
                     {cat.name}
@@ -224,13 +224,13 @@ export default function ProductsPage() {
             {/* Brand */}
             {brands.length > 0 && (
               <div>
-                <h2 className="font-mono text-[10px] uppercase tracking-[0.26em] text-[#cfa156] mb-3">
+                <h2 className="font-mono text-[10px] uppercase tracking-[0.26em] text-[#f9f9f9] mb-3">
                   Atelier / Brand
                 </h2>
                 <select
                   value={brand}
                   onChange={e => setBrand(e.target.value)}
-                  className="w-full bg-[#111115] border border-[#ece5d8]/15 px-3 py-2 font-mono text-xs text-[#ece5d8]"
+                  className="w-full bg-[#111111] border border-[#f9f9f9]/15 px-3 py-2 font-mono text-xs text-[#f9f9f9]"
                 >
                   <option value="">All Houses</option>
                   {brands.map(b => (
@@ -244,7 +244,7 @@ export default function ProductsPage() {
 
             {/* Size */}
             <div>
-              <h2 className="font-mono text-[10px] uppercase tracking-[0.26em] text-[#cfa156] mb-3">
+              <h2 className="font-mono text-[10px] uppercase tracking-[0.26em] text-[#f9f9f9] mb-3">
                 Size Matrix
               </h2>
               <div className="flex flex-wrap gap-1.5">
@@ -255,8 +255,8 @@ export default function ProductsPage() {
                     onClick={() => setSize(size === sz ? '' : sz)}
                     className={`px-2.5 py-1 font-mono text-[11px] border ${
                       size === sz
-                        ? 'border-[#cfa156] bg-[#cfa156]/15 text-[#cfa156]'
-                        : 'border-[#ece5d8]/15 text-[#9a948a] hover:text-[#ece5d8]'
+                        ? 'border-[#f9f9f9] bg-[#f9f9f9]/15 text-[#f9f9f9]'
+                        : 'border-[#f9f9f9]/15 text-[#a3a3a3] hover:text-[#f9f9f9]'
                     }`}
                   >
                     {sz}
@@ -268,8 +268,8 @@ export default function ProductsPage() {
             {/* Price Ceiling */}
             <div>
               <div className="flex justify-between font-mono text-[10px] uppercase tracking-widest mb-2">
-                <span className="text-[#cfa156]">Price Ceiling</span>
-                <span className="text-[#ece5d8] tabular-nums">{formatVnd(maxPrice)}</span>
+                <span className="text-[#f9f9f9]">Price Ceiling</span>
+                <span className="text-[#f9f9f9] tabular-nums">{formatVnd(maxPrice)}</span>
               </div>
               <input
                 type="range"
@@ -278,14 +278,14 @@ export default function ProductsPage() {
                 step={500000}
                 value={maxPrice}
                 onChange={e => setMaxPrice(Number(e.target.value))}
-                className="w-full accent-[#cfa156]"
+                className="w-full accent-[#f9f9f9]"
               />
             </div>
           </aside>
 
           {/* Product Grid */}
           <div className="lg:col-span-9">
-            <div className="mb-5 font-mono text-xs text-[#9a948a] uppercase tracking-widest tabular-nums">
+            <div className="mb-5 font-mono text-xs text-[#a3a3a3] uppercase tracking-widest tabular-nums">
               SHOWING {filtered.length} AUTHENTICATED ARCHIVE PIECES
             </div>
 
@@ -294,7 +294,7 @@ export default function ProductsPage() {
                 {[1, 2, 3, 4, 5, 6].map(i => (
                   <div
                     key={i}
-                    className="aspect-[4/5] bg-[#111115] border border-[#ece5d8]/10 animate-pulse"
+                    className="aspect-[4/5] bg-[#111111] border border-[#f9f9f9]/10 animate-pulse"
                   />
                 ))}
               </div>

@@ -75,30 +75,30 @@ export default function AuctionsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#070709] text-[#ece5d8] py-10 md:py-14">
+    <div className="min-h-screen bg-[#0a0a0a] text-[#f9f9f9] py-10 md:py-14">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <Breadcrumb items={[{ label: 'Archive', path: '/' }, { label: 'Live Grail Auctions' }]} />
 
         {/* Header + Anti-Snipe Rule Banner */}
-        <div className="pb-10 border-b border-[#ece5d8]/10 mb-10 flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+        <div className="pb-10 border-b border-[#f9f9f9]/10 mb-10 flex flex-col lg:flex-row lg:items-end justify-between gap-6">
           <div>
-            <p className="font-mono text-xs tracking-[0.32em] uppercase text-[#cfa156] mb-2">
+            <p className="font-sans text-[11px] font-medium tracking-[0.18em] uppercase text-[#a3a3a3] mb-2">
               REAL-TIME COLLECTOR FLOOR · OPEN-BOOK LEDGER
             </p>
-            <h1 className="font-display text-4xl md:text-6xl text-[#ece5d8]">
+            <h1 className="font-display text-4xl md:text-6xl text-[#f9f9f9]">
               Live Grail Auctions
             </h1>
           </div>
 
-          <div className="p-4 bg-[#111115] border border-[#cfa156]/40 max-w-md flex items-start gap-3">
-            <ShieldAlert className="w-5 h-5 text-[#cfa156] flex-shrink-0 mt-0.5" />
+          <div className="p-4 bg-[#111111] border border-[#f9f9f9]/40 max-w-md flex items-start gap-3">
+            <ShieldAlert className="w-5 h-5 text-[#f9f9f9] flex-shrink-0 mt-0.5" />
             <div>
-              <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#cfa156]">
+              <p className="font-sans text-[11px] font-medium uppercase tracking-[0.16em] text-[#f9f9f9]">
                 60-Second Anti-Snipe Protocol
               </p>
-              <p className="text-xs text-[#9a948a] leading-relaxed mt-0.5">
+              <p className="text-xs text-[#a3a3a3] leading-relaxed mt-0.5">
                 Any valid bid placed with &lt;60s remaining automatically extends the lot timer by{' '}
-                <strong className="text-[#ece5d8]">+120 seconds</strong> to eliminate sniper bots.
+                <strong className="text-[#f9f9f9]">+120 seconds</strong> to eliminate sniper bots.
               </p>
             </div>
           </div>
@@ -115,13 +115,13 @@ export default function AuctionsPage() {
                   key={lot.id}
                   onMouseEnter={playTick}
                   onClick={() => setSelectedLotId(lot.id)}
-                  className={`cursor-pointer bg-[#111115] border transition grid grid-cols-1 sm:grid-cols-12 overflow-hidden ${
+                  className={`cursor-pointer border transition grid grid-cols-1 sm:grid-cols-12 overflow-hidden ${
                     isSelected
-                      ? 'border-[#cfa156]'
-                      : 'border-[#ece5d8]/12 hover:border-[#ece5d8]/35'
+                      ? 'border-[#f9f9f9]'
+                      : 'border-[#f9f9f9]/12 hover:border-[#f9f9f9]/35'
                   }`}
                 >
-                  <div className="sm:col-span-5 relative aspect-[4/3] sm:aspect-auto bg-[#070709]">
+                  <div className="sm:col-span-5 relative aspect-[4/3] sm:aspect-auto bg-[#0a0a0a]">
                     {lot.imageUrl && (
                       <img
                         src={lot.imageUrl}
@@ -130,10 +130,10 @@ export default function AuctionsPage() {
                       />
                     )}
                     <span
-                      className={`absolute top-3 left-3 px-2.5 py-1 font-mono text-[10px] uppercase tracking-widest border ${
+                      className={`absolute top-3 left-3 px-2.5 py-1 font-sans text-[10px] font-medium uppercase tracking-[0.16em] border ${
                         under60
-                          ? 'bg-[#cfa156] text-[#070709] border-[#cfa156] font-semibold'
-                          : 'bg-[#070709]/90 text-[#cfa156] border-[#cfa156]/40'
+                          ? 'bg-[#f9f9f9] text-[#0a0a0a] border-[#f9f9f9] font-semibold'
+                          : 'bg-[#0a0a0a]/90 text-[#f9f9f9] border-[#f9f9f9]/40'
                       }`}
                     >
                       {under60 ? 'ANTI-SNIPE ACTIVE (<60S)' : lot.status.toUpperCase()}
@@ -142,34 +142,34 @@ export default function AuctionsPage() {
 
                   <div className="sm:col-span-7 p-6 flex flex-col justify-between gap-4">
                     <div>
-                      <h2 className="font-display text-2xl text-[#ece5d8] leading-snug mb-1">
+                      <h2 className="font-display text-2xl text-[#f9f9f9] leading-snug mb-1">
                         {lot.title}
                       </h2>
-                      <p className="text-xs text-[#9a948a]">{lot.subtitle}</p>
+                      <p className="text-xs text-[#a3a3a3]">{lot.subtitle}</p>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4 py-3 border-y border-[#ece5d8]/10 font-mono">
+                    <div className="grid grid-cols-2 gap-4 py-3 border-y border-[#f9f9f9]/10 font-sans">
                       <div>
-                        <span className="block text-[10px] uppercase tracking-widest text-[#9a948a]">
+                        <span className="block text-[10px] uppercase tracking-widest text-[#a3a3a3]">
                           Current Bid ({lot.bidCount})
                         </span>
-                        <span className="text-lg font-semibold text-[#cfa156] tabular-nums">
+                        <span className="text-lg font-semibold text-[#f9f9f9] tabular-nums">
                           {formatVnd(lot.currentBid)}
                         </span>
                       </div>
                       <div>
-                        <span className="block text-[10px] uppercase tracking-widest text-[#9a948a]">
-                          Time Remaining
+                        <span className="block text-[10px] uppercase tracking-widest text-[#a3a3a3]">
+                          Time Left
                         </span>
-                        <span className="text-lg font-semibold text-[#ece5d8] tabular-nums inline-flex items-center gap-1.5">
-                          <Clock className="w-4 h-4 text-[#cfa156]" />
+                        <span className="text-lg font-semibold text-[#f9f9f9] tabular-nums inline-flex items-center gap-1.5">
+                          <Clock className="w-4 h-4 text-[#f9f9f9]" />
                           {formatCountdown(lot.remainingSeconds)}
                         </span>
                       </div>
                     </div>
 
                     <div className="flex items-center justify-between gap-3">
-                      <span className="font-mono text-[10px] uppercase tracking-widest text-[#9a948a]">
+                      <span className="font-sans text-[10px] font-medium uppercase tracking-[0.16em] text-[#a3a3a3]">
                         {lot.reserveMet ? '✓ RESERVE MET' : 'RESERVE PENDING'}
                         {lot.antiSnipeCount > 0 ? ` · +${lot.antiSnipeCount} EXTENSIONS` : ''}
                       </span>
@@ -180,7 +180,7 @@ export default function AuctionsPage() {
                           e.stopPropagation()
                           openBidModal(lot)
                         }}
-                        className="px-5 py-2.5 bg-[#cfa156] text-[#070709] font-mono text-xs font-semibold uppercase tracking-widest hover:bg-[#dec37b] disabled:opacity-40 transition inline-flex items-center gap-1.5"
+                        className="px-5 py-2.5 bg-[#f9f9f9] text-[#0a0a0a] font-sans text-xs font-semibold uppercase tracking-[0.14em] hover:bg-[#d9d9d9] disabled:opacity-40 transition inline-flex items-center gap-1.5"
                       >
                         <Gavel className="w-3.5 h-3.5" />
                         Bid {formatVnd(lot.nextMinimumBid)}
@@ -195,26 +195,26 @@ export default function AuctionsPage() {
           {/* Live Bid Ledger Inspector */}
           <aside className="lg:col-span-5">
             {activeLot && (
-              <div className="sticky top-28 bg-[#111115] border border-[#ece5d8]/15 p-6 md:p-7 space-y-6">
+              <div className="sticky top-28 bg-[#111111] border border-[#f9f9f9]/15 p-6 md:p-7 space-y-6">
                 <div>
-                  <p className="font-mono text-[10px] tracking-[0.26em] uppercase text-[#cfa156] mb-1">
+                  <p className="font-sans text-[10px] font-medium tracking-[0.16em] uppercase text-[#f9f9f9] mb-1">
                     LIVE LOT DOSSIER &amp; BID FEED
                   </p>
-                  <h2 className="font-display text-2xl text-[#ece5d8]">{activeLot.title}</h2>
+                  <h2 className="font-display text-2xl text-[#f9f9f9]">{activeLot.title}</h2>
                 </div>
 
-                <div className="grid grid-cols-3 gap-2 bg-[#070709] p-3.5 border border-[#ece5d8]/10 font-mono text-xs">
+                <div className="grid grid-cols-3 gap-2 bg-[#0a0a0a] p-3.5 border border-[#f9f9f9]/10 font-sans text-xs">
                   <div>
-                    <span className="block text-[9px] text-[#9a948a] uppercase">Start</span>
+                    <span className="block text-[9px] text-[#a3a3a3] uppercase">Start</span>
                     <span className="tabular-nums">{formatVnd(activeLot.startingBid)}</span>
                   </div>
                   <div>
-                    <span className="block text-[9px] text-[#9a948a] uppercase">Increment</span>
+                    <span className="block text-[9px] text-[#a3a3a3] uppercase">Increment</span>
                     <span className="tabular-nums">+{formatVnd(activeLot.minIncrement)}</span>
                   </div>
                   <div>
-                    <span className="block text-[9px] text-[#9a948a] uppercase">Next Min</span>
-                    <span className="text-[#cfa156] tabular-nums">
+                    <span className="block text-[9px] text-[#a3a3a3] uppercase">Next Min</span>
+                    <span className="text-[#f9f9f9] tabular-nums">
                       {formatVnd(activeLot.nextMinimumBid)}
                     </span>
                   </div>
@@ -225,7 +225,7 @@ export default function AuctionsPage() {
                   <button
                     type="button"
                     onClick={() => openBidModal(activeLot, activeLot.nextMinimumBid)}
-                    className="py-3 bg-[#cfa156] text-[#070709] font-mono text-xs font-semibold uppercase tracking-wider hover:bg-[#dec37b] transition tabular-nums"
+                    className="py-3 bg-[#f9f9f9] text-[#0a0a0a] font-sans text-xs font-semibold uppercase tracking-[0.14em] hover:bg-[#d9d9d9] transition tabular-nums"
                   >
                     Min: {formatVnd(activeLot.nextMinimumBid)}
                   </button>
@@ -237,7 +237,7 @@ export default function AuctionsPage() {
                         activeLot.nextMinimumBid + activeLot.minIncrement * 2
                       )
                     }
-                    className="py-3 border border-[#cfa156] text-[#cfa156] font-mono text-xs uppercase tracking-wider hover:bg-[#cfa156]/15 transition tabular-nums"
+                    className="py-3 border border-[#f9f9f9] text-[#f9f9f9] font-sans text-xs font-medium uppercase tracking-[0.14em] hover:bg-[#f9f9f9]/15 transition tabular-nums"
                   >
                     Power: {formatVnd(activeLot.nextMinimumBid + activeLot.minIncrement * 2)}
                   </button>
@@ -245,8 +245,8 @@ export default function AuctionsPage() {
 
                 {/* Bid History Feed */}
                 <div>
-                  <div className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-widest text-[#ece5d8] mb-3">
-                    <History className="w-3.5 h-3.5 text-[#cfa156]" />
+                  <div className="flex items-center gap-2 font-sans text-[11px] font-medium uppercase tracking-[0.16em] text-[#f9f9f9] mb-3">
+                    <History className="w-3.5 h-3.5 text-[#f9f9f9]" />
                     Verified Bid History ({activeLot.bids?.length || 0})
                   </div>
                   <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
@@ -255,29 +255,29 @@ export default function AuctionsPage() {
                         key={bid.id}
                         className={`p-3 border flex items-center justify-between font-mono text-xs ${
                           idx === 0
-                            ? 'bg-[#070709] border-[#cfa156]/50 text-[#ece5d8]'
-                            : 'bg-[#070709]/60 border-[#ece5d8]/10 text-[#9a948a]'
+                            ? 'bg-[#0a0a0a] border-[#f9f9f9]/50 text-[#f9f9f9]'
+                            : 'bg-[#0a0a0a]/60 border-[#f9f9f9]/10 text-[#a3a3a3]'
                         }`}
                       >
                         <div>
                           <div className="flex items-center gap-2">
                             <span className="font-semibold">{bid.bidderAlias}</span>
                             {idx === 0 && (
-                              <span className="text-[9px] px-1.5 py-0.5 bg-[#cfa156] text-[#070709] font-bold">
+                              <span className="text-[9px] px-1.5 py-0.5 bg-[#f9f9f9] text-[#0a0a0a] font-bold">
                                 LEADING
                               </span>
                             )}
                             {bid.triggeredExtension && (
-                              <span className="text-[9px] px-1.5 py-0.5 border border-[#cfa156]/60 text-[#cfa156]">
+                              <span className="text-[9px] px-1.5 py-0.5 border border-[#f9f9f9]/60 text-[#f9f9f9]">
                                 +120S SNIPE GUARD
                               </span>
                             )}
                           </div>
-                          <span className="text-[10px] text-[#9a948a]">
+                          <span className="text-[10px] text-[#a3a3a3]">
                             {new Date(bid.createdAt).toLocaleTimeString()}
                           </span>
                         </div>
-                        <span className="font-semibold text-[#cfa156] tabular-nums">
+                        <span className="font-semibold text-[#f9f9f9] tabular-nums">
                           {formatVnd(bid.amount)}
                         </span>
                       </div>
@@ -302,11 +302,11 @@ export default function AuctionsPage() {
           <form
             onClick={e => e.stopPropagation()}
             onSubmit={handleConfirmBid}
-            className="w-full max-w-md bg-[#111115] border border-[#cfa156]/60 p-6 md:p-8 space-y-5 text-[#ece5d8]"
+            className="w-full max-w-md bg-[#111111] border border-[#f9f9f9]/60 p-6 md:p-8 space-y-5 text-[#f9f9f9]"
           >
             <div className="flex items-start justify-between">
               <div>
-                <p className="font-mono text-[10px] tracking-[0.26em] uppercase text-[#cfa156]">
+                <p className="font-sans text-[10px] font-medium tracking-[0.16em] uppercase text-[#f9f9f9]">
                   SEAT-HOLD AUTHORIZATION
                 </p>
                 <h2 className="font-display text-2xl mt-1">{confirmBidLot.title}</h2>
@@ -314,14 +314,14 @@ export default function AuctionsPage() {
               <button
                 type="button"
                 onClick={() => setConfirmBidLot(null)}
-                className="text-[#9a948a] hover:text-[#ece5d8]"
+                className="text-[#a3a3a3] hover:text-[#f9f9f9]"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <div>
-              <label className="block font-mono text-[10px] uppercase tracking-widest text-[#9a948a] mb-1.5">
+              <label className="block font-sans text-[10px] font-medium uppercase tracking-[0.16em] text-[#a3a3a3] mb-1.5">
                 Collector Floor Alias (Optional)
               </label>
               <input
@@ -329,12 +329,12 @@ export default function AuctionsPage() {
                 placeholder="e.g. SAIGON_VAULT_07"
                 value={bidderAlias}
                 onChange={e => setBidderAlias(e.target.value)}
-                className="w-full bg-[#070709] border border-[#ece5d8]/15 px-3.5 py-2.5 font-mono text-xs text-[#ece5d8] uppercase focus:outline-none focus:border-[#cfa156]"
+                className="w-full bg-[#0a0a0a] border border-[#f9f9f9]/15 px-3.5 py-2.5 font-mono text-xs text-[#f9f9f9] uppercase focus:outline-none focus:border-[#f9f9f9]"
               />
             </div>
 
             <div>
-              <label className="block font-mono text-[10px] uppercase tracking-widest text-[#9a948a] mb-1.5">
+              <label className="block font-sans text-[10px] font-medium uppercase tracking-[0.16em] text-[#a3a3a3] mb-1.5">
                 Binding Bid Amount (Min {formatVnd(confirmBidLot.nextMinimumBid)})
               </label>
               <input
@@ -344,12 +344,12 @@ export default function AuctionsPage() {
                 step={confirmBidLot.minIncrement}
                 value={bidAmount}
                 onChange={e => setBidAmount(e.target.value)}
-                className="w-full bg-[#070709] border border-[#cfa156]/50 px-4 py-3 font-mono text-lg text-[#cfa156] font-semibold tabular-nums focus:outline-none"
+                className="w-full bg-[#0a0a0a] border border-[#f9f9f9]/50 px-4 py-3 font-mono text-lg text-[#f9f9f9] font-semibold tabular-nums focus:outline-none"
               />
             </div>
 
-            <div className="flex items-start gap-2.5 text-xs text-[#9a948a] bg-[#070709] p-3 border border-[#ece5d8]/10">
-              <CheckCircle2 className="w-4 h-4 text-[#cfa156] flex-shrink-0 mt-0.5" />
+            <div className="flex items-start gap-2.5 text-xs text-[#a3a3a3] bg-[#0a0a0a] p-3 border border-[#f9f9f9]/10">
+              <CheckCircle2 className="w-4 h-4 text-[#f9f9f9] flex-shrink-0 mt-0.5" />
               <span>
                 Seat-hold verified. Winning lots include complimentary NFC provenance certification
                 and insured vault courier.
@@ -359,7 +359,7 @@ export default function AuctionsPage() {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full py-3.5 bg-[#cfa156] text-[#070709] font-mono text-xs font-semibold uppercase tracking-[0.24em] hover:bg-[#dec37b] transition"
+              className="w-full py-3.5 bg-[#f9f9f9] text-[#0a0a0a] font-sans text-xs font-semibold uppercase tracking-[0.14em] hover:bg-[#d9d9d9] transition"
             >
               {submitting ? 'EXECUTING BID...' : 'SEAL BINDING BID'}
             </button>

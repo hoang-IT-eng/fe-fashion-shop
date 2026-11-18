@@ -185,7 +185,7 @@ export default function ProductDetailPage() {
 
   if (loading || !product) {
     return (
-      <div className="min-h-screen bg-[#070709] flex items-center justify-center font-mono text-xs tracking-[0.3em] text-[#9a948a]">
+      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center font-sans text-[11px] font-medium tracking-[0.18em] uppercase text-[#a3a3a3]">
         LOADING PROVENANCE DOSSIER...
       </div>
     )
@@ -194,7 +194,7 @@ export default function ProductDetailPage() {
   const isFootwear = (product.sizes || []).some(s => ['40', '41', '42', '43', '44'].includes(s))
 
   return (
-    <div className="min-h-screen bg-[#070709] text-[#ece5d8] py-10 md:py-14">
+    <div className="min-h-screen bg-[#0a0a0a] text-[#f9f9f9] py-10 md:py-14">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <Breadcrumb
           items={[
@@ -205,10 +205,10 @@ export default function ProductDetailPage() {
         />
 
         {/* TOP PRODUCT DOSSIER */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 pb-20 border-b border-[#ece5d8]/10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 pb-20 border-b border-[#f9f9f9]/10">
           {/* High-Res Gallery */}
           <div className="lg:col-span-7 space-y-4">
-            <div className="relative aspect-[4/5] bg-[#111115] border border-[#ece5d8]/12 overflow-hidden">
+            <div className="relative aspect-[4/5] bg-[#111111] border border-[#f9f9f9]/12 overflow-hidden">
               {product.imageUrl && (
                 <img
                   src={product.imageUrl}
@@ -216,7 +216,7 @@ export default function ProductDetailPage() {
                   className="w-full h-full object-cover"
                 />
               )}
-              <div className="absolute top-4 left-4 px-3 py-1.5 bg-[#070709]/90 border border-[#cfa156]/50 font-mono text-[10px] tracking-[0.24em] uppercase text-[#cfa156]">
+              <div className="absolute top-4 left-4 px-3 py-1.5 bg-[#0a0a0a]/90 border border-[#f9f9f9]/50 font-sans text-[10px] font-medium tracking-[0.16em] uppercase text-[#f9f9f9]">
                 {(product.releaseType || 'ARCHIVE').toUpperCase()} · {product.condition || 'DEADSTOCK'}
               </div>
             </div>
@@ -225,41 +225,41 @@ export default function ProductDetailPage() {
           {/* Specification & SKU Matrix */}
           <div className="lg:col-span-5 space-y-7">
             <div>
-              <p className="font-mono text-xs tracking-[0.28em] uppercase text-[#cfa156] mb-2">
+              <p className="font-sans text-[11px] font-medium tracking-[0.18em] uppercase text-[#f9f9f9] mb-2">
                 {product.brand || 'ENIGMA ATELIER'} · {product.authenticityCode || `ENG-2026-00${product.id}`}
               </p>
-              <h1 className="font-display text-3xl md:text-5xl text-[#ece5d8] leading-tight mb-4">
+              <h1 className="font-display text-3xl md:text-5xl text-[#f9f9f9] leading-tight mb-4">
                 {product.name}
               </h1>
               <div className="flex items-baseline gap-4">
-                <span className="font-mono text-2xl md:text-3xl font-semibold text-[#ece5d8] tabular-nums">
+                <span className="font-sans text-2xl md:text-3xl font-semibold text-[#f9f9f9] tabular-nums">
                   {formatVnd(unitPrice)}
                 </span>
-                <span className="font-mono text-xs text-[#9a948a] inline-flex items-center gap-1">
-                  <Star className="w-3.5 h-3.5 text-[#cfa156] fill-current" />
+                <span className="font-mono text-xs text-[#a3a3a3] inline-flex items-center gap-1">
+                  <Star className="w-3.5 h-3.5 text-[#f9f9f9] fill-current" />
                   {ratingStats.avg} ({ratingStats.total} verified)
                 </span>
               </div>
             </div>
 
-            <p className="text-sm text-[#9a948a] leading-relaxed border-y border-[#ece5d8]/10 py-5">
+            <p className="text-sm text-[#a3a3a3] leading-relaxed border-y border-[#f9f9f9]/10 py-5">
               {product.description}
             </p>
 
             {/* SKU Size Selector + Fit Calculator Trigger */}
             <div>
               <div className="flex items-center justify-between mb-3">
-                <span className="font-mono text-xs uppercase tracking-[0.22em] text-[#ece5d8]">
+                <span className="font-sans text-[11px] font-medium uppercase tracking-[0.16em] text-[#f9f9f9]">
                   Select Size{' '}
                   {activeVariant?.sku && (
-                    <span className="text-[#9a948a] ml-2">({activeVariant.sku})</span>
+                    <span className="text-[#a3a3a3] ml-2">({activeVariant.sku})</span>
                   )}
                 </span>
                 <button
                   id="open-size-calculator-btn"
                   type="button"
                   onClick={() => setFitModalOpen(true)}
-                  className="inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-wider text-[#cfa156] hover:underline"
+                  className="inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-wider text-[#f9f9f9] hover:underline"
                 >
                   <Ruler className="w-3.5 h-3.5" />
                   Size &amp; Fit Calculator
@@ -276,12 +276,12 @@ export default function ProductDetailPage() {
                       type="button"
                       disabled={out}
                       onClick={() => setSelectedSize(sz)}
-                      className={`py-2.5 font-mono text-xs border transition tabular-nums ${
+                      className={`py-2.5 font-sans text-xs border transition tabular-nums ${
                         selectedSize === sz
-                          ? 'border-[#cfa156] bg-[#cfa156]/15 text-[#cfa156] font-semibold'
+                          ? 'border-[#f9f9f9] bg-[#f9f9f9]/15 text-[#f9f9f9] font-semibold'
                           : out
-                            ? 'border-[#ece5d8]/10 text-[#9a948a]/40 line-through'
-                            : 'border-[#ece5d8]/15 text-[#ece5d8] hover:border-[#ece5d8]/45'
+                            ? 'border-[#f9f9f9]/10 text-[#a3a3a3]/40 line-through'
+                            : 'border-[#f9f9f9]/15 text-[#f9f9f9] hover:border-[#f9f9f9]/45'
                       }`}
                     >
                       {sz}
@@ -294,8 +294,8 @@ export default function ProductDetailPage() {
             {/* Colorway Selector */}
             {(product.colors?.length || 0) > 0 && (
               <div>
-                <span className="block font-mono text-xs uppercase tracking-[0.22em] text-[#ece5d8] mb-2.5">
-                  Finish / Colorway: <span className="text-[#9a948a]">{selectedColor}</span>
+                <span className="block font-sans text-[11px] font-medium uppercase tracking-[0.16em] text-[#f9f9f9] mb-2.5">
+                  Finish / Colorway: <span className="text-[#a3a3a3]">{selectedColor}</span>
                 </span>
                 <div className="flex flex-wrap gap-2">
                   {(product.colors || []).map(cl => (
@@ -303,10 +303,10 @@ export default function ProductDetailPage() {
                       key={cl}
                       type="button"
                       onClick={() => setSelectedColor(cl)}
-                      className={`px-3.5 py-2 font-mono text-xs border transition ${
+                      className={`px-3.5 py-2 font-sans text-xs border transition ${
                         selectedColor === cl
-                          ? 'border-[#cfa156] text-[#cfa156] bg-[#cfa156]/10'
-                          : 'border-[#ece5d8]/15 text-[#9a948a] hover:text-[#ece5d8]'
+                          ? 'border-[#f9f9f9] text-[#f9f9f9] bg-[#f9f9f9]/10'
+                          : 'border-[#f9f9f9]/15 text-[#a3a3a3] hover:text-[#f9f9f9]'
                       }`}
                     >
                       {cl}
@@ -319,10 +319,10 @@ export default function ProductDetailPage() {
             {/* Live Stock + Quantity + Actions */}
             <div className="space-y-4 pt-2">
               <div className="flex items-center justify-between font-mono text-xs">
-                <span className="text-[#9a948a] uppercase tracking-widest">Vault Allocation</span>
+                <span className="text-[#a3a3a3] uppercase tracking-widest">Vault Allocation</span>
                 <span
                   className={`tabular-nums ${
-                    availableStock > 0 ? 'text-[#cfa156]' : 'text-red-400'
+                    availableStock > 0 ? 'text-[#f9f9f9]' : 'text-red-400'
                   }`}
                 >
                   {availableStock > 0
@@ -332,11 +332,11 @@ export default function ProductDetailPage() {
               </div>
 
               <div className="flex gap-3">
-                <div className="inline-flex items-center border border-[#ece5d8]/20 bg-[#111115]">
+                <div className="inline-flex items-center border border-[#f9f9f9]/20 bg-[#111111]">
                   <button
                     type="button"
                     onClick={() => setQuantity(q => Math.max(1, q - 1))}
-                    className="px-3.5 py-3.5 text-[#9a948a] hover:text-[#ece5d8]"
+                    className="px-3.5 py-3.5 text-[#a3a3a3] hover:text-[#f9f9f9]"
                   >
                     <Minus className="w-3.5 h-3.5" />
                   </button>
@@ -344,7 +344,7 @@ export default function ProductDetailPage() {
                   <button
                     type="button"
                     onClick={() => setQuantity(q => Math.min(Math.max(1, availableStock), q + 1))}
-                    className="px-3.5 py-3.5 text-[#9a948a] hover:text-[#ece5d8]"
+                    className="px-3.5 py-3.5 text-[#a3a3a3] hover:text-[#f9f9f9]"
                   >
                     <Plus className="w-3.5 h-3.5" />
                   </button>
@@ -355,7 +355,7 @@ export default function ProductDetailPage() {
                   type="button"
                   disabled={availableStock <= 0 || adding}
                   onClick={() => void handleAddToCart()}
-                  className="flex-1 py-4 bg-[#cfa156] text-[#070709] font-mono text-xs font-semibold uppercase tracking-[0.24em] hover:bg-[#dec37b] disabled:opacity-40 transition flex items-center justify-center gap-2"
+                  className="flex-1 py-4 bg-[#f9f9f9] text-[#0a0a0a] font-sans text-xs font-semibold uppercase tracking-[0.14em] hover:bg-[#d9d9d9] disabled:opacity-40 transition flex items-center justify-center gap-2"
                 >
                   <ShoppingBag className="w-4 h-4" />
                   {availableStock <= 0 ? 'Sold Out' : adding ? 'Reserving...' : 'Reserve in Vault Bag'}
@@ -370,8 +370,8 @@ export default function ProductDetailPage() {
                   aria-label="Toggle Wishlist"
                   className={`px-4 border transition flex items-center justify-center ${
                     wished
-                      ? 'border-[#cfa156] bg-[#cfa156] text-[#070709]'
-                      : 'border-[#ece5d8]/20 text-[#ece5d8] hover:border-[#cfa156]'
+                      ? 'border-[#f9f9f9] bg-[#f9f9f9] text-[#0a0a0a]'
+                      : 'border-[#f9f9f9]/20 text-[#f9f9f9] hover:border-[#f9f9f9]'
                   }`}
                 >
                   <Heart className={`w-4 h-4 ${wished ? 'fill-current' : ''}`} />
@@ -380,13 +380,13 @@ export default function ProductDetailPage() {
             </div>
 
             {/* Authentication Guarantee Seal */}
-            <div className="p-4 bg-[#111115] border border-[#cfa156]/35 flex items-start gap-3.5">
-              <ShieldCheck className="w-5 h-5 text-[#cfa156] flex-shrink-0 mt-0.5" />
+            <div className="p-4 bg-[#111111] border border-[#f9f9f9]/35 flex items-start gap-3.5">
+              <ShieldCheck className="w-5 h-5 text-[#f9f9f9] flex-shrink-0 mt-0.5" />
               <div className="space-y-1">
-                <p className="font-mono text-xs uppercase tracking-[0.2em] text-[#ece5d8]">
+                <p className="font-sans text-[11px] font-medium uppercase tracking-[0.16em] text-[#f9f9f9]">
                   ENIGMA Multi-Stage Authentication Guarantee
                 </p>
-                <p className="text-xs text-[#9a948a] leading-relaxed">
+                <p className="text-xs text-[#a3a3a3] leading-relaxed">
                   Verified for textile weight, hardware metallurgy, stitch cadence, and cryptographic
                   NFC tag ({product.authenticityCode || `ENG-2026-00${product.id}`}) prior to armored dispatch.
                 </p>
@@ -396,23 +396,23 @@ export default function ProductDetailPage() {
         </div>
 
         {/* VERIFIED BUYER REVIEWS */}
-        <section className="py-16 border-b border-[#ece5d8]/10 grid grid-cols-1 lg:grid-cols-12 gap-12">
+        <section className="py-16 border-b border-[#f9f9f9]/10 grid grid-cols-1 lg:grid-cols-12 gap-12">
           <div className="lg:col-span-4 space-y-6">
             <div>
-              <p className="font-mono text-xs tracking-[0.28em] uppercase text-[#cfa156] mb-2">
+              <p className="font-sans text-[11px] font-medium tracking-[0.18em] uppercase text-[#f9f9f9] mb-2">
                 PROVENANCE LEDGER
               </p>
-              <h2 className="font-display text-3xl text-[#ece5d8]">
+              <h2 className="font-display text-3xl text-[#f9f9f9]">
                 Verified Collector Reviews
               </h2>
             </div>
 
-            <div className="p-6 bg-[#111115] border border-[#ece5d8]/10 space-y-4">
+            <div className="p-6 bg-[#111111] border border-[#f9f9f9]/10 space-y-4">
               <div className="flex items-baseline gap-3">
-                <span className="font-mono text-4xl font-semibold text-[#cfa156] tabular-nums">
+                <span className="font-sans text-4xl font-semibold text-[#f9f9f9] tabular-nums">
                   {ratingStats.avg}
                 </span>
-                <span className="font-mono text-xs text-[#9a948a] uppercase tracking-widest">
+                <span className="font-mono text-xs text-[#a3a3a3] uppercase tracking-widest">
                   / 5.0 ({ratingStats.total} REVIEWS)
                 </span>
               </div>
@@ -425,11 +425,11 @@ export default function ProductDetailPage() {
                       : 0
                   return (
                     <div key={row.star} className="flex items-center gap-3 font-mono text-xs">
-                      <span className="w-8 text-[#9a948a] tabular-nums">{row.star}★</span>
-                      <div className="flex-1 h-1.5 bg-[#070709] overflow-hidden">
-                        <div className="h-full bg-[#cfa156]" style={{ width: `${pct}%` }} />
+                      <span className="w-8 text-[#a3a3a3] tabular-nums">{row.star}★</span>
+                      <div className="flex-1 h-1.5 bg-[#0a0a0a] overflow-hidden">
+                        <div className="h-full bg-[#f9f9f9]" style={{ width: `${pct}%` }} />
                       </div>
-                      <span className="w-8 text-right text-[#9a948a] tabular-nums">{row.count}</span>
+                      <span className="w-8 text-right text-[#a3a3a3] tabular-nums">{row.count}</span>
                     </div>
                   )
                 })}
@@ -439,9 +439,9 @@ export default function ProductDetailPage() {
             {/* Write Review Form */}
             <form
               onSubmit={handleSubmitReview}
-              className="p-6 bg-[#111115] border border-[#ece5d8]/10 space-y-4"
+              className="p-6 bg-[#111111] border border-[#f9f9f9]/10 space-y-4"
             >
-              <h3 className="font-mono text-xs uppercase tracking-[0.22em] text-[#ece5d8]">
+              <h3 className="font-sans text-[11px] font-medium uppercase tracking-[0.16em] text-[#f9f9f9]">
                 Record Collector Note
               </h3>
               <div className="flex gap-1.5">
@@ -452,8 +452,8 @@ export default function ProductDetailPage() {
                     onClick={() => setRating(st)}
                     className={`p-1.5 border ${
                       st <= rating
-                        ? 'border-[#cfa156] text-[#cfa156]'
-                        : 'border-[#ece5d8]/15 text-[#9a948a]'
+                        ? 'border-[#f9f9f9] text-[#f9f9f9]'
+                        : 'border-[#f9f9f9]/15 text-[#a3a3a3]'
                     }`}
                   >
                     <Star className="w-3.5 h-3.5 fill-current" />
@@ -470,12 +470,12 @@ export default function ProductDetailPage() {
                     ? 'Document fit, leather grain, or packaging provenance...'
                     : 'Share your collector note...'
                 }
-                className="w-full bg-[#070709] border border-[#ece5d8]/15 p-3 text-xs text-[#ece5d8] placeholder-[#9a948a] focus:outline-none focus:border-[#cfa156]"
+                className="w-full bg-[#0a0a0a] border border-[#f9f9f9]/15 p-3 text-xs text-[#f9f9f9] placeholder-[#a3a3a3] focus:outline-none focus:border-[#f9f9f9]"
               />
               <button
                 type="submit"
                 disabled={submittingReview}
-                className="w-full py-2.5 bg-[#cfa156] text-[#070709] font-mono text-xs font-semibold uppercase tracking-widest"
+                className="w-full py-2.5 bg-[#f9f9f9] text-[#0a0a0a] font-sans text-xs font-semibold uppercase tracking-[0.14em]"
               >
                 {submittingReview ? 'Submitting...' : 'Publish Provenance Note'}
               </button>
@@ -484,29 +484,29 @@ export default function ProductDetailPage() {
 
           <div className="lg:col-span-8 space-y-4">
             {reviews.length === 0 ? (
-              <div className="p-10 bg-[#111115] border border-[#ece5d8]/10 text-center text-sm text-[#9a948a]">
+              <div className="p-10 bg-[#111111] border border-[#f9f9f9]/10 text-center text-sm text-[#a3a3a3]">
                 No collector notes logged yet for this drop. Be the first to document fit &amp; finish.
               </div>
             ) : (
               reviews.map(rev => (
                 <article
                   key={rev.id}
-                  className="p-6 bg-[#111115] border border-[#ece5d8]/10 space-y-2.5"
+                  className="p-6 bg-[#111111] border border-[#f9f9f9]/10 space-y-2.5"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <span className="font-medium text-sm text-[#ece5d8]">
+                      <span className="font-medium text-sm text-[#f9f9f9]">
                         {rev.userName || `Collector #${rev.userId}`}
                       </span>
-                      <span className="px-2 py-0.5 bg-[#cfa156]/15 border border-[#cfa156]/40 font-mono text-[9px] uppercase tracking-widest text-[#cfa156]">
+                      <span className="px-2 py-0.5 bg-[#f9f9f9]/15 border border-[#f9f9f9]/40 font-mono text-[9px] uppercase tracking-widest text-[#f9f9f9]">
                         Verified Collector
                       </span>
                     </div>
-                    <span className="font-mono text-xs text-[#cfa156]">
+                    <span className="font-mono text-xs text-[#f9f9f9]">
                       {'★'.repeat(rev.rating)}
                     </span>
                   </div>
-                  <p className="text-sm text-[#9a948a] leading-relaxed">{rev.comment}</p>
+                  <p className="text-sm text-[#a3a3a3] leading-relaxed">{rev.comment}</p>
                 </article>
               ))
             )}
@@ -516,10 +516,10 @@ export default function ProductDetailPage() {
         {/* RELATED GRAILS */}
         {related.length > 0 && (
           <section className="pt-16">
-            <p className="font-mono text-xs tracking-[0.3em] uppercase text-[#cfa156] mb-2">
+            <p className="font-sans text-[11px] font-medium tracking-[0.18em] uppercase text-[#f9f9f9] mb-2">
               COMPLEMENTARY ROTATION
             </p>
-            <h2 className="font-display text-3xl md:text-4xl text-[#ece5d8] mb-8">
+            <h2 className="font-display text-3xl md:text-4xl text-[#f9f9f9] mb-8">
               Related Archive Grails
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -542,11 +542,11 @@ export default function ProductDetailPage() {
         >
           <div
             onClick={e => e.stopPropagation()}
-            className="w-full max-w-lg bg-[#111115] border border-[#cfa156]/50 p-6 md:p-8 space-y-6 text-[#ece5d8]"
+            className="w-full max-w-lg bg-[#111111] border border-[#f9f9f9]/50 p-6 md:p-8 space-y-6 text-[#f9f9f9]"
           >
             <div className="flex items-start justify-between">
               <div>
-                <p className="font-mono text-[10px] tracking-[0.28em] uppercase text-[#cfa156]">
+                <p className="font-mono text-[10px] tracking-[0.28em] uppercase text-[#f9f9f9]">
                   ATELIER PROPORTION ENGINE
                 </p>
                 <h2 className="font-display text-2xl md:text-3xl mt-1">
@@ -556,7 +556,7 @@ export default function ProductDetailPage() {
               <button
                 type="button"
                 onClick={() => setFitModalOpen(false)}
-                className="text-[#9a948a] hover:text-[#ece5d8]"
+                className="text-[#a3a3a3] hover:text-[#f9f9f9]"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -565,8 +565,8 @@ export default function ProductDetailPage() {
             {isFootwear ? (
               <div>
                 <div className="flex justify-between font-mono text-xs mb-2">
-                  <span className="text-[#9a948a] uppercase">Foot Length (cm)</span>
-                  <span className="text-[#cfa156] tabular-nums">{footCm.toFixed(1)} cm</span>
+                  <span className="text-[#a3a3a3] uppercase">Foot Length (cm)</span>
+                  <span className="text-[#f9f9f9] tabular-nums">{footCm.toFixed(1)} cm</span>
                 </div>
                 <input
                   type="range"
@@ -575,15 +575,15 @@ export default function ProductDetailPage() {
                   step={0.2}
                   value={footCm}
                   onChange={e => setFootCm(Number(e.target.value))}
-                  className="w-full accent-[#cfa156]"
+                  className="w-full accent-[#f9f9f9]"
                 />
               </div>
             ) : (
               <div className="space-y-4">
                 <div>
                   <div className="flex justify-between font-mono text-xs mb-1.5">
-                    <span className="text-[#9a948a] uppercase">Height</span>
-                    <span className="text-[#cfa156] tabular-nums">{heightCm} cm</span>
+                    <span className="text-[#a3a3a3] uppercase">Height</span>
+                    <span className="text-[#f9f9f9] tabular-nums">{heightCm} cm</span>
                   </div>
                   <input
                     type="range"
@@ -591,13 +591,13 @@ export default function ProductDetailPage() {
                     max={198}
                     value={heightCm}
                     onChange={e => setHeightCm(Number(e.target.value))}
-                    className="w-full accent-[#cfa156]"
+                    className="w-full accent-[#f9f9f9]"
                   />
                 </div>
                 <div>
                   <div className="flex justify-between font-mono text-xs mb-1.5">
-                    <span className="text-[#9a948a] uppercase">Weight</span>
-                    <span className="text-[#cfa156] tabular-nums">{weightKg} kg</span>
+                    <span className="text-[#a3a3a3] uppercase">Weight</span>
+                    <span className="text-[#f9f9f9] tabular-nums">{weightKg} kg</span>
                   </div>
                   <input
                     type="range"
@@ -605,14 +605,14 @@ export default function ProductDetailPage() {
                     max={110}
                     value={weightKg}
                     onChange={e => setWeightKg(Number(e.target.value))}
-                    className="w-full accent-[#cfa156]"
+                    className="w-full accent-[#f9f9f9]"
                   />
                 </div>
               </div>
             )}
 
             <div>
-              <span className="block font-mono text-[10px] uppercase tracking-widest text-[#9a948a] mb-2">
+              <span className="block font-sans text-[10px] font-medium uppercase tracking-[0.16em] text-[#a3a3a3] mb-2">
                 Desired Silhouette Drape
               </span>
               <div className="grid grid-cols-3 gap-2">
@@ -623,8 +623,8 @@ export default function ProductDetailPage() {
                     onClick={() => setFitPref(pref)}
                     className={`py-2.5 font-mono text-xs uppercase border ${
                       fitPref === pref
-                        ? 'border-[#cfa156] bg-[#cfa156]/15 text-[#cfa156]'
-                        : 'border-[#ece5d8]/15 text-[#9a948a]'
+                        ? 'border-[#f9f9f9] bg-[#f9f9f9]/15 text-[#f9f9f9]'
+                        : 'border-[#f9f9f9]/15 text-[#a3a3a3]'
                     }`}
                   >
                     {pref}
@@ -633,12 +633,12 @@ export default function ProductDetailPage() {
               </div>
             </div>
 
-            <div className="p-4 bg-[#070709] border border-[#cfa156]/40 flex items-center justify-between">
+            <div className="p-4 bg-[#0a0a0a] border border-[#f9f9f9]/40 flex items-center justify-between">
               <div>
-                <span className="block font-mono text-[10px] uppercase tracking-widest text-[#9a948a]">
+                <span className="block font-sans text-[10px] font-medium uppercase tracking-[0.16em] text-[#a3a3a3]">
                   Recommended Atelier Spec
                 </span>
-                <span className="font-display text-3xl text-[#cfa156]">Size {recommendedSize}</span>
+                <span className="font-display text-3xl text-[#f9f9f9]">Size {recommendedSize}</span>
               </div>
               <button
                 type="button"
@@ -647,7 +647,7 @@ export default function ProductDetailPage() {
                   setFitModalOpen(false)
                   toast(`Applied recommended Size ${recommendedSize}.`, 'success')
                 }}
-                className="px-5 py-3 bg-[#cfa156] text-[#070709] font-mono text-xs font-semibold uppercase tracking-widest inline-flex items-center gap-1.5"
+                className="px-5 py-3 bg-[#f9f9f9] text-[#0a0a0a] font-sans text-xs font-semibold uppercase tracking-[0.14em] inline-flex items-center gap-1.5"
               >
                 <Check className="w-4 h-4" /> Apply Size
               </button>
