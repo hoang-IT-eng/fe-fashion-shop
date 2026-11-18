@@ -1,8 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import {
+  ArrowDown,
   ArrowRight,
   ArrowUpRight,
   Clock,
@@ -19,11 +20,58 @@ import { REBORN_JOURNAL_STORIES } from '../api/enigmaDemoData'
 import { formatCountdown, formatVnd, secondsUntil } from '../lib/format'
 import ProductCard from '../components/ProductCard'
 import { QuickViewModal } from '../components/QuickViewModal'
+import { HeroScene, heroState } from '../components/experience/HeroMonolithScene'
+import { useRevealScope } from '../components/experience/useReveal'
+import { getLenis, motionDisabled } from '../lib/motion'
 import { useSoundStore } from '../store/useSoundStore'
 import { useToast } from '../components/Toast'
 
 if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
   gsap.registerPlugin(ScrollTrigger)
+}
+
+/**
+ * Split a headline's text into per-word mask spans at runtime (the JSX
+ * keeps the plain text node, so no-JS / test / reduced-motion renders
+ * read exactly as authored). Returns the inner word elements.
+ */
+function splitHeadlineWords(el: HTMLElement): HTMLElement[] {
+  const process = (node: Node) => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      const frag = document.createDocumentFragment()
+      const parts = (node.textContent || '').split(/(\s+)/)
+      for (const part of parts) {
+        if (!part) continue
+        if (/^\s+$/.test(part)) {
+          frag.appendChild(document.createTextNode(' '))
+        } else {
+          const mask = document.createElement('span')
+          mask.className = 'hero-mask'
+          const inner = document.createElement('span')
+          inner.className = 'hero-word'
+          inner.textContent = part
+          mask.appendChild(inner)
+          frag.appendChild(mask)
+        }
+      }
+      node.parentNode?.replaceChild(frag, node)
+    } else if (node.nodeType === Node.ELEMENT_NODE) {
+      Array.from(node.childNodes).forEach(process)
+    }
+  }
+  Array.from(el.childNodes).forEach(process)
+  return Array.from(el.querySelectorAll<HTMLElement>('.hero-word'))
+}
+
+function SectionNumeral({ value, className = '' }: { value: string; className?: string }) {
+  return (
+    <span
+      aria-hidden="true"
+      className={`pointer-events-none select-none absolute font-display italic leading-none text-[#f9f9f9]/[0.05] text-[8.5rem] md:text-[12rem] ${className}`}
+    >
+      {value}
+    </span>
+  )
 }
 
 export default function HomePage() {
@@ -47,6 +95,133 @@ export default function HomePage() {
   const [submittingConcierge, setSubmittingConcierge] = useState(false)
 
   const manifestoRef = useRef<HTMLElement | null>(null)
+
+  /* ---------------- hero intro gating ---------------- */
+  const [staticHero] = useState(() => motionDisabled())
+  const [canvasReady, setCanvasReady] = useState(false)
+  const [sceneFailed, setSceneFailed] = useState(false)
+  const [preloaderDone, setPreloaderDone] = useState(false)
+  const [forceReveal, setForceReveal] = useState(false)
+  const useScene = !staticHero && !sceneFailed
+  const heroRevealed =
+    forceReveal || (preloaderDone && (!useScene || canvasReady))
+
+  const heroRef = useRef<HTMLElement | null>(null)
+  const headlineRef = useRef<HTMLHeadingElement | null>(null)
+  const topBarRef = useRef<HTMLDivElement | null>(null)
+  const bottomBarRef = useRef<HTMLDivElement | null>(null)
+  const heroTlRef = useRef<gsap.core.Timeline | null>(null)
+  const splitDoneRef = useRef(false)
+
+  const journalRef = useRef<HTMLElement | null>(null)
+  const journalTrackRef = useRef<HTMLDivElement | null>(null)
+
+  const dataReady = products.length > 0 || auctions.length > 0 || boxes.length > 0
+  const pageRef = useRevealScope<HTMLDivElement>(dataReady)
+
+  /* The interface reveals only once the CinematicPreloader has left the
+     DOM (it unmounts itself) — watch for its removal, with a time cap. */
+  useEffect(() => {
+    if (typeof document === 'undefined' || !document.getElementById('enigma-preloader')) {
+      setPreloaderDone(true)
+      return
+    }
+    const observer = new MutationObserver(() => {
+      if (!document.getElementById('enigma-preloader')) {
+        setPreloaderDone(true)
+        observer.disconnect()
+      }
+    })
+    observer.observe(document.body, { childList: true, subtree: true })
+    const cap = window.setTimeout(() => setPreloaderDone(true), 3200)
+    return () => {
+      observer.disconnect()
+      window.clearTimeout(cap)
+    }
+  }, [])
+
+  /* Safety net: never leave the hero interface hidden. */
+  useEffect(() => {
+    const t = window.setTimeout(() => setForceReveal(true), 4000)
+    return () => window.clearTimeout(t)
+  }, [])
+
+  /* Build the (paused) hero intro timeline: letterbox bars retract,
+     headline words rise line by line, interface fades settle in.
+     Initial states are set here — never in CSS — so any failure path
+     leaves the hero fully visible. */
+  useLayoutEffect(() => {
+    if (!useScene) return
+    const hero = heroRef.current
+    const h1 = headlineRef.current
+    if (!hero || !h1) return
+
+    const ctx = gsap.context(() => {
+      if (!splitDoneRef.current) {
+        splitHeadlineWords(h1)
+        splitDoneRef.current = true
+      }
+      const words = Array.from(h1.querySelectorAll<HTMLElement>('.hero-word'))
+
+      const lines: HTMLElement[][] = []
+      let lastTop: number | null = null
+      words.forEach(w => {
+        const top = w.offsetTop
+        if (lastTop === null || Math.abs(top - lastTop) > 2) {
+          lines.push([])
+          lastTop = top
+        }
+        lines[lines.length - 1].push(w)
+      })
+
+      const fades = hero.querySelectorAll('.hero-fade')
+      const bars = [topBarRef.current, bottomBarRef.current].filter(
+        Boolean
+      ) as HTMLElement[]
+
+      gsap.set(bars, { scaleY: 1 })
+      gsap.set(words, { yPercent: 118 })
+      gsap.set(fades, { opacity: 0, y: 18 })
+
+      const tl = gsap.timeline({ paused: true })
+      tl.to(bars, { scaleY: 0, duration: 0.95, ease: 'power4.inOut' }, 0)
+      lines.forEach((line, li) => {
+        line.forEach((w, wi) => {
+          tl.to(
+            w,
+            { yPercent: 0, duration: 1.15, ease: 'power4.out' },
+            0.3 + li * 0.14 + wi * 0.035
+          )
+        })
+      })
+      tl.to(
+        fades,
+        { opacity: 1, y: 0, duration: 0.85, ease: 'power3.out', stagger: 0.07 },
+        0.75
+      )
+      heroTlRef.current = tl
+    }, hero)
+
+    return () => {
+      ctx.revert()
+      heroTlRef.current = null
+    }
+  }, [useScene])
+
+  useEffect(() => {
+    if (heroRevealed) heroTlRef.current?.play()
+  }, [heroRevealed])
+
+  const scrollToManifesto = () => {
+    const target = manifestoRef.current
+    if (!target) return
+    const lenis = getLenis()
+    if (lenis) {
+      lenis.scrollTo(target, { duration: 1.6 })
+    } else {
+      target.scrollIntoView({ behavior: motionDisabled() ? 'auto' : 'smooth' })
+    }
+  }
 
   useEffect(() => {
     void Promise.all([
@@ -110,6 +285,56 @@ export default function HomePage() {
     return () => ctx.revert()
   }, [])
 
+  /* Journal: horizontal-scroll gallery pinned to vertical scroll,
+     desktop only. Below lg the track keeps its natural grid/stack. */
+  useEffect(() => {
+    if (motionDisabled()) return
+    const section = journalRef.current
+    const track = journalTrackRef.current
+    if (!section || !track) return
+
+    const mm = gsap.matchMedia()
+    mm.add('(min-width: 1024px)', () => {
+      const cards = Array.from(track.children) as HTMLElement[]
+      gsap.set(track, {
+        display: 'flex',
+        flexDirection: 'row',
+        flexWrap: 'nowrap',
+        width: 'max-content',
+      })
+      gsap.set(cards, { width: '30rem', flexShrink: 0 })
+      const getAmount = () => {
+        const parent = track.parentElement
+        if (!parent) return Math.max(0, track.scrollWidth - section.clientWidth)
+        const cs = window.getComputedStyle(parent)
+        const pads =
+          parseFloat(cs.paddingLeft || '0') + parseFloat(cs.paddingRight || '0')
+        return Math.max(0, track.scrollWidth - parent.clientWidth + pads)
+      }
+      const tween = gsap.to(track, {
+        x: () => -getAmount(),
+        ease: 'none',
+        scrollTrigger: {
+          trigger: section,
+          start: 'top top',
+          end: () => `+=${getAmount()}`,
+          pin: true,
+          scrub: 1,
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
+        },
+      })
+      return () => {
+        tween.scrollTrigger?.kill()
+        tween.kill()
+        gsap.set(track, { clearProps: 'all' })
+        gsap.set(cards, { clearProps: 'all' })
+      }
+    })
+
+    return () => mm.revert()
+  }, [])
+
   const openQuickBid = (lot: AuctionLot) => {
     setQuickBidLot(lot)
     setBidAmount(String(lot.nextMinimumBid))
@@ -164,78 +389,107 @@ export default function HomePage() {
   }
 
   return (
-    <div className="bg-[#0a0a0a] text-[#f9f9f9]">
-      {/* 1. HERO — EDITORIAL TYPOGRAPHY + 3-IMAGE COLLAGE */}
-      <section className="relative border-b border-[#f9f9f9]/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-12 lg:pt-24 lg:pb-16">
-          <p className="font-sans text-[11px] font-medium tracking-[0.18em] uppercase text-[#a3a3a3] mb-6">
-            ENIGMA CULT ARCHIVE · AUTUMN / WINTER 2026
+    <div ref={pageRef} className="bg-[#0a0a0a] text-[#f9f9f9]">
+      {/* 1. HERO — THREE.JS NIGHT GALLERY + RESTRAINED INTERFACE LAYER */}
+      <section ref={heroRef} className="relative overflow-hidden bg-[#0a0a0a]">
+        {useScene ? (
+          <HeroScene
+            onReady={() => setCanvasReady(true)}
+            onFallback={() => setSceneFailed(true)}
+          />
+        ) : (
+          <div className="absolute inset-0" aria-hidden="true">
+            <img
+              src="/images/enigma/grail-sneaker-obsidian.jpg"
+              alt=""
+              className="film-grade h-full w-full object-cover"
+            />
+          </div>
+        )}
+
+        {/* Legibility shade + vignette over the scene */}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-[#0a0a0a]/60" />
+        <div className="vignette pointer-events-none absolute inset-0" />
+
+        {/* Letterbox bars — GSAP scales them open for the reveal; their
+            resting (no-JS / fallback) state is fully retracted */}
+        <div
+          ref={topBarRef}
+          aria-hidden="true"
+          className="absolute inset-x-0 top-0 z-30 h-[8vh] origin-top scale-y-0 bg-black"
+        />
+        <div
+          ref={bottomBarRef}
+          aria-hidden="true"
+          className="absolute inset-x-0 bottom-0 z-30 h-[8vh] origin-bottom scale-y-0 bg-black"
+        />
+
+        {/* Film-credit corner labels */}
+        <span className="hero-fade pointer-events-none absolute left-5 top-5 z-20 font-sans text-[10px] font-medium uppercase tracking-[0.28em] text-[#f9f9f9]/70 md:left-8 md:top-7">
+          Enigma — Cult Archive
+        </span>
+        <span className="hero-fade pointer-events-none absolute right-5 top-5 z-20 font-sans text-[10px] font-medium uppercase tracking-[0.28em] text-[#f9f9f9]/70 md:right-8 md:top-7">
+          Autumn / Winter 2026
+        </span>
+        <span className="hero-fade pointer-events-none absolute bottom-5 left-5 z-20 font-sans text-[10px] font-medium uppercase tracking-[0.28em] text-[#f9f9f9]/70 md:bottom-7 md:left-8">
+          Reel N°01 — The Vault Issue
+        </span>
+        <span className="hero-fade pointer-events-none absolute bottom-5 right-5 z-20 font-sans text-[10px] font-medium uppercase tracking-[0.28em] text-[#f9f9f9]/70 md:bottom-7 md:right-8">
+          Saigon · Antwerp · Osaka
+        </span>
+
+        {/* Interface layer */}
+        <div className="pointer-events-none relative z-10 flex min-h-[100svh] flex-col items-center justify-center px-6 py-24 text-center">
+          <p className="hero-fade mb-7 font-sans text-[11px] font-medium uppercase tracking-[0.3em] text-[#f9f9f9]/75">
+            The Vault Issue — N°01
           </p>
           <h1
-            className="font-display text-[#f9f9f9] leading-[0.98] tracking-tight max-w-5xl"
-            style={{ fontSize: 'clamp(2.9rem, 7vw, 6.6rem)' }}
+            ref={headlineRef}
+            className="relative max-w-6xl font-display leading-[0.98] tracking-tight text-[#f9f9f9]"
+            style={{ fontSize: 'clamp(3rem, 8vw, 7.25rem)' }}
           >
             Authenticated Grails, Nocturnal Auctions &amp; <em>Reborn Customs.</em>
           </h1>
-          <p className="text-base md:text-lg text-[#a3a3a3] max-w-xl leading-relaxed mt-7">
-            Every garment, timepiece, and 1-of-1 horsehide reconstruction enters our vault
-            cryptographically sealed. Acquire drops outright, bid under 60-second anti-snipe
-            protection, or decode your 8-step Taste Codex.
+          <p className="hero-fade mt-8 max-w-xl text-base leading-relaxed text-[#f9f9f9]/70 md:text-lg">
+            Every garment, timepiece, and 1-of-1 horsehide reconstruction enters our
+            vault cryptographically sealed.
           </p>
-
-          <div className="flex flex-wrap items-center gap-4 pt-9">
-            <Link
-              id="hero-explore-drops-cta"
-              to="/products"
-              className="px-8 py-4 bg-[#f9f9f9] text-[#0a0a0a] font-sans text-xs font-semibold uppercase tracking-[0.14em] hover:bg-[#d9d9d9] transition inline-flex items-center gap-2.5"
-            >
-              Explore Archive Drops <ArrowRight className="w-4 h-4" />
-            </Link>
-            <Link
-              id="hero-decode-style-cta"
-              to="/mystery-boxes"
-              className="px-7 py-4 border border-[#f9f9f9]/25 text-[#f9f9f9] font-sans text-[11px] font-medium uppercase tracking-[0.16em] hover:border-[#f9f9f9] transition inline-flex items-center gap-2"
-            >
-              <Compass className="w-4 h-4 text-[#f9f9f9]" />
-              Decode Your Style
-            </Link>
-          </div>
-        </div>
-
-        {/* Editorial collage — large left frame, stacked right frames */}
-        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 pb-16 lg:pb-24 grid grid-cols-1 md:grid-cols-12 gap-4">
-          <div className="md:col-span-7 aspect-[4/3] overflow-hidden bg-[#111111]">
-            <img
-              src="/images/enigma/grail-sneaker-obsidian.jpg"
-              alt="Obsidian grail sneaker from the Enigma archive"
-              className="w-full h-full object-cover"
-            />
-          </div>
-          <div className="md:col-span-5 grid grid-rows-2 gap-4">
-            <div className="relative overflow-hidden bg-[#111111] min-h-[180px]">
-              <img
-                src="/images/enigma/grail-leather-bomber.jpg"
-                alt="Horsehide leather bomber from the Enigma archive"
-                className="absolute inset-0 w-full h-full object-cover"
-              />
-            </div>
-            <div className="relative overflow-hidden bg-[#111111] min-h-[180px]">
-              <img
-                src="/images/enigma/grail-trench-monolith.jpg"
-                alt="Monolith trench from the Reborn archive"
-                className="absolute inset-0 w-full h-full object-cover"
-              />
-            </div>
-          </div>
+          <button
+            type="button"
+            aria-label="Scroll down to the manifesto"
+            onClick={scrollToManifesto}
+            onPointerEnter={() => {
+              heroState.hoverTarget = 1
+            }}
+            onPointerLeave={() => {
+              heroState.hoverTarget = 0
+            }}
+            onFocus={() => {
+              heroState.hoverTarget = 1
+            }}
+            onBlur={() => {
+              heroState.hoverTarget = 0
+            }}
+            className="hero-fade pointer-events-auto mt-12 flex h-16 w-16 items-center justify-center rounded-full border border-[#f9f9f9]/40 bg-[#0a0a0a]/20 text-[#f9f9f9] backdrop-blur-sm transition-colors duration-300 hover:border-[#f9f9f9]"
+          >
+            <ArrowDown className="h-5 w-5" />
+          </button>
         </div>
       </section>
 
       {/* 2. GSAP SCROLL MANIFESTO */}
       <section
         ref={manifestoRef}
-        className="py-24 md:py-32 border-b border-[#f9f9f9]/10"
+        id="manifesto"
+        className="relative overflow-hidden py-24 md:py-32 border-b border-[#f9f9f9]/10"
       >
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+        <span
+          aria-hidden="true"
+          className="pointer-events-none select-none absolute right-2 top-6 font-display italic leading-none text-[#f9f9f9]/[0.04] text-[11rem] md:right-14 md:text-[16rem]"
+        >
+          I
+        </span>
+        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
           <p className="font-sans text-[11px] font-medium tracking-[0.18em] uppercase text-[#a3a3a3]">
             HOUSE MANIFESTO · CHAPTER I
           </p>
@@ -264,9 +518,10 @@ export default function HomePage() {
       </section>
 
       {/* 3. CURATED GRAIL DROPS */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-24">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-12">
-          <div>
+      <section className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-24">
+        <div className="relative flex flex-col md:flex-row md:items-end justify-between gap-4 mb-12">
+          <SectionNumeral value="01" className="-top-16 right-0 md:-top-24" />
+          <div data-reveal className="relative">
             <p className="font-sans text-[11px] font-medium tracking-[0.18em] uppercase text-[#a3a3a3] mb-2">
               VAULT ALLOCATION · 01
             </p>
@@ -276,13 +531,13 @@ export default function HomePage() {
           </div>
           <Link
             to="/products"
-            className="inline-flex items-center gap-2 font-sans text-[11px] font-medium uppercase tracking-[0.16em] text-[#f9f9f9] hover:text-[#f9f9f9] transition"
+            className="relative inline-flex items-center gap-2 font-sans text-[11px] font-medium uppercase tracking-[0.16em] text-[#f9f9f9] hover:text-[#f9f9f9] transition"
           >
             Inspect Full Archive ({products.length}) <ArrowUpRight className="w-4 h-4" />
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div data-reveal className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {products.slice(0, 8).map(product => (
             <ProductCard
               key={product.id}
@@ -293,10 +548,41 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* 3.5 FULL-BLEED PARALLAX BAND */}
+      <section className="relative border-y border-[#f9f9f9]/10">
+        <div className="relative h-[54vh] md:h-[66vh] overflow-hidden" data-parallax="12">
+          <img
+            src="/images/enigma/reborn-atelier.jpg"
+            alt="Inside the Reborn atelier"
+            className="film-grade absolute inset-0 h-full w-full object-cover"
+          />
+          <div className="absolute inset-0 bg-[#0a0a0a]/50" />
+          <div className="relative z-10 flex h-full flex-col items-center justify-center px-6 text-center">
+            <p
+              data-reveal
+              className="mb-5 font-sans text-[11px] font-medium uppercase tracking-[0.3em] text-[#f9f9f9]/75"
+            >
+              The Reborn Atelier
+            </p>
+            <p
+              data-reveal
+              className="max-w-3xl font-display text-[#f9f9f9] leading-[1.1]"
+              style={{ fontSize: 'clamp(1.9rem, 4.2vw, 3.6rem)' }}
+            >
+              “Every stitch carries <em>provenance</em>.”
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* 4. LIVE TRENDING GRAIL AUCTIONS */}
-      <section className="border-y border-[#f9f9f9]/10 py-20 md:py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-12">
+      <section className="relative border-b border-[#f9f9f9]/10 py-20 md:py-24">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <SectionNumeral value="02" className="-top-6 right-4 md:right-8" />
+          <div
+            data-reveal
+            className="relative flex flex-col md:flex-row md:items-end justify-between gap-4 mb-12"
+          >
             <div>
               <p className="font-sans text-[11px] font-medium tracking-[0.18em] uppercase text-[#a3a3a3] mb-2">
                 LIVE BIDDING ROOM · ANTI-SNIPE PROTECTED
@@ -313,7 +599,7 @@ export default function HomePage() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div data-reveal className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {auctions.slice(0, 3).map(lot => {
               const underMinute = lot.remainingSeconds > 0 && lot.remainingSeconds < 60
               return (
@@ -327,7 +613,7 @@ export default function HomePage() {
                       <img
                         src={lot.imageUrl}
                         alt={lot.title}
-                        className="w-full h-full object-cover"
+                        className="film-grade w-full h-full object-cover"
                       />
                     )}
                     <div className="absolute top-3 left-3 px-2.5 py-1 bg-[#0a0a0a]/90 border border-[#f9f9f9]/50 font-sans text-[10px] font-medium tracking-[0.16em] uppercase text-[#f9f9f9]">
@@ -391,33 +677,47 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 5. MYSTERY BOXES & TASTE CODEX SHOWCASE */}
+      {/* 5. MYSTERY BOXES & TASTE CODEX SHOWCASE — ASYMMETRIC OFFSET */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-24">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center mb-12">
-          <div className="lg:col-span-7">
-            <p className="font-sans text-[11px] font-medium tracking-[0.18em] uppercase text-[#a3a3a3] mb-2">
+          <div className="lg:col-span-5">
+            <div
+              className="relative aspect-[3/4] overflow-hidden bg-[#111111]"
+              data-reveal-img
+            >
+              <img
+                src="/images/enigma/grail-leather-bomber.jpg"
+                alt="Horsehide leather bomber from the Enigma archive"
+                className="film-grade absolute inset-0 h-full w-full object-cover"
+              />
+            </div>
+          </div>
+          <div
+            data-reveal
+            className="relative lg:col-span-7 lg:-ml-24 lg:mt-40 lg:bg-[#0a0a0a] lg:p-10 lg:border lg:border-[#f9f9f9]/10"
+          >
+            <SectionNumeral value="03" className="-top-20 right-2 hidden lg:block" />
+            <p className="relative font-sans text-[11px] font-medium tracking-[0.18em] uppercase text-[#a3a3a3] mb-2">
               8-STEP AI STYLE CALIBRATION
             </p>
-            <h2 className="font-display text-3xl md:text-5xl text-[#f9f9f9] mb-4">
+            <h2 className="relative font-display text-3xl md:text-5xl text-[#f9f9f9] mb-4">
               Sealed Mystery Vaults Matched to Your Taste Codex
             </h2>
-            <p className="text-sm md:text-base text-[#a3a3a3] max-w-2xl leading-relaxed">
+            <p className="relative text-sm md:text-base text-[#a3a3a3] max-w-2xl leading-relaxed mb-7">
               Answer eight questions across silhouette, chromatic register, fabric weight, and
               era lineage. Our engine computes your Taste Codex archetype and unlocks sealed chests
               with guaranteed value floors up to 24,500,000₫.
             </p>
-          </div>
-          <div className="lg:col-span-5 flex lg:justify-end">
             <Link
               to="/mystery-boxes"
-              className="px-7 py-4 bg-[#f9f9f9] text-[#0a0a0a] font-sans text-xs font-semibold uppercase tracking-[0.14em] hover:bg-[#d9d9d9] transition inline-flex items-center gap-2"
+              className="relative px-7 py-4 bg-[#f9f9f9] text-[#0a0a0a] font-sans text-xs font-semibold uppercase tracking-[0.14em] hover:bg-[#d9d9d9] transition inline-flex items-center gap-2"
             >
               Start 8-Step Style Quiz <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div data-reveal className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {boxes.map((box, idx) => (
             <div
               key={box.id}
@@ -431,7 +731,7 @@ export default function HomePage() {
                 <img
                   src={box.imageUrl || '/images/enigma/mystery-chest.jpg'}
                   alt={box.name}
-                  className="w-full h-48 object-cover mb-5"
+                  className="film-grade w-full h-48 object-cover mb-5"
                 />
                 <h3 className="font-display text-2xl text-[#f9f9f9] mb-1">{box.name}</h3>
                 <p className="text-xs text-[#a3a3a3] leading-relaxed mb-4">{box.description}</p>
@@ -459,9 +759,10 @@ export default function HomePage() {
       </section>
 
       {/* 6. INTERACTIVE "FIND IT AT MY PRICE" CONCIERGE SOURCING BUILDER */}
-      <section className="border-y border-[#f9f9f9]/10 py-20 md:py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          <div className="lg:col-span-6 space-y-5">
+      <section className="relative border-y border-[#f9f9f9]/10 py-20 md:py-24">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          <SectionNumeral value="04" className="-top-10 right-4 md:right-8" />
+          <div data-reveal className="relative lg:col-span-6 space-y-5">
             <p className="font-sans text-[11px] font-medium tracking-[0.18em] uppercase text-[#a3a3a3] inline-flex items-center gap-2">
               <Crosshair className="w-4 h-4" /> PRIVATE SOURCING DESK
             </p>
@@ -484,8 +785,9 @@ export default function HomePage() {
           </div>
 
           <form
+            data-reveal
             onSubmit={handleConciergeSubmit}
-            className="lg:col-span-6 bg-[#0a0a0a] border border-[#f9f9f9]/15 p-6 md:p-8 space-y-5"
+            className="relative lg:col-span-6 bg-[#0a0a0a] border border-[#f9f9f9]/15 p-6 md:p-8 space-y-5"
           >
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="sm:col-span-2">
@@ -560,58 +862,67 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 7. LATEST FROM REBORN EDITORIAL JOURNAL */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-24">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-12">
-          <div>
-            <p className="font-sans text-[11px] font-medium tracking-[0.18em] uppercase text-[#a3a3a3] mb-2">
-              REBORN ATELIER CHRONICLES
-            </p>
-            <h2 className="font-display text-3xl md:text-5xl text-[#f9f9f9]">
-              Latest from Reborn
-            </h2>
-          </div>
-          <Link
-            to="/journal"
-            className="inline-flex items-center gap-2 font-sans text-[11px] font-medium uppercase tracking-[0.16em] text-[#f9f9f9] hover:text-[#f9f9f9]"
+      {/* 7. LATEST FROM REBORN EDITORIAL JOURNAL — HORIZONTAL GALLERY ON DESKTOP */}
+      <section ref={journalRef} className="relative py-20 md:py-24 overflow-hidden">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <SectionNumeral value="05" className="-top-16 right-0 md:-top-20" />
+          <div
+            data-reveal
+            className="relative flex flex-col md:flex-row md:items-end justify-between gap-4 mb-12"
           >
-            Read All Dossiers <ArrowUpRight className="w-4 h-4" />
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {REBORN_JOURNAL_STORIES.map(story => (
+            <div>
+              <p className="font-sans text-[11px] font-medium tracking-[0.18em] uppercase text-[#a3a3a3] mb-2">
+                REBORN ATELIER CHRONICLES
+              </p>
+              <h2 className="font-display text-3xl md:text-5xl text-[#f9f9f9]">
+                Latest from Reborn
+              </h2>
+            </div>
             <Link
-              key={story.slug}
-              to={`/journal?story=${story.slug}`}
-              className="group flex flex-col overflow-hidden"
+              to="/journal"
+              className="inline-flex items-center gap-2 font-sans text-[11px] font-medium uppercase tracking-[0.16em] text-[#f9f9f9] hover:text-[#f9f9f9]"
             >
-              <div className="aspect-[16/10] bg-[#0a0a0a] overflow-hidden">
-                <img
-                  src={story.imageUrl}
-                  alt={story.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                />
-              </div>
-              <div className="pt-5 flex-1 flex flex-col justify-between gap-4">
-                <div>
-                  <p className="font-sans text-[10px] font-medium tracking-[0.16em] uppercase text-[#a3a3a3] mb-2">
-                    {story.kicker}
-                  </p>
-                  <h3 className="font-display text-2xl text-[#f9f9f9] leading-snug mb-2">
-                    {story.title}
-                  </h3>
-                  <p className="text-xs text-[#a3a3a3] leading-relaxed line-clamp-3">
-                    {story.excerpt}
-                  </p>
-                </div>
-                <div className="pt-3 border-t border-[#f9f9f9]/10 flex items-center justify-between font-sans text-[10px] text-[#a3a3a3] uppercase tracking-widest">
-                  <span>{story.author}</span>
-                  <span>{story.readTime}</span>
-                </div>
-              </div>
+              Read All Dossiers <ArrowUpRight className="w-4 h-4" />
             </Link>
-          ))}
+          </div>
+
+          <div
+            ref={journalTrackRef}
+            className="grid grid-cols-1 md:grid-cols-3 gap-6"
+          >
+            {REBORN_JOURNAL_STORIES.map(story => (
+              <Link
+                key={story.slug}
+                to={`/journal?story=${story.slug}`}
+                className="group flex flex-col overflow-hidden"
+              >
+                <div className="aspect-[16/10] bg-[#0a0a0a] overflow-hidden">
+                  <img
+                    src={story.imageUrl}
+                    alt={story.title}
+                    className="film-grade w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  />
+                </div>
+                <div className="pt-5 flex-1 flex flex-col justify-between gap-4">
+                  <div>
+                    <p className="font-sans text-[10px] font-medium tracking-[0.16em] uppercase text-[#a3a3a3] mb-2">
+                      {story.kicker}
+                    </p>
+                    <h3 className="font-display text-2xl text-[#f9f9f9] leading-snug mb-2">
+                      {story.title}
+                    </h3>
+                    <p className="text-xs text-[#a3a3a3] leading-relaxed line-clamp-3">
+                      {story.excerpt}
+                    </p>
+                  </div>
+                  <div className="pt-3 border-t border-[#f9f9f9]/10 flex items-center justify-between font-sans text-[10px] text-[#a3a3a3] uppercase tracking-widest">
+                    <span>{story.author}</span>
+                    <span>{story.readTime}</span>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
 

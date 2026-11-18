@@ -41,7 +41,8 @@ export default function ProductCard({ product, onQuickView }: Props) {
   return (
     <article
       onClick={() => navigate(`/products/${product.id}`)}
-      className="group cursor-pointer flex flex-col"
+      data-cursor="view"
+      className="group relative cursor-pointer flex flex-col"
     >
       <div className="relative aspect-[4/5] bg-[#0a0a0a] overflow-hidden">
         {product.imageUrl ? (
@@ -49,7 +50,7 @@ export default function ProductCard({ product, onQuickView }: Props) {
             src={product.imageUrl}
             alt={product.name}
             loading="lazy"
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+            className="film-grade w-full h-full object-cover group-hover:scale-[1.07] transition-transform duration-[1200ms] ease-[cubic-bezier(0.22,1,0.36,1)]"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center font-mono text-xs text-[#a3a3a3]">
@@ -88,7 +89,7 @@ export default function ProductCard({ product, onQuickView }: Props) {
           <button
             type="button"
             onClick={handleQuickView}
-            className="absolute inset-x-3 bottom-3 py-2.5 bg-[#0a0a0a]/92 border border-[#f9f9f9]/50 text-[#f9f9f9] font-sans text-[11px] font-medium uppercase tracking-[0.16em] opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all flex items-center justify-center gap-2 hover:bg-[#f9f9f9] hover:text-[#0a0a0a]"
+            className="absolute inset-x-3 bottom-3 z-20 py-2.5 bg-[#0a0a0a]/92 border border-[#f9f9f9]/50 text-[#f9f9f9] font-sans text-[11px] font-medium uppercase tracking-[0.16em] opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all flex items-center justify-center gap-2 hover:bg-[#f9f9f9] hover:text-[#0a0a0a]"
           >
             <Eye className="w-3.5 h-3.5" />
             Quick Inspect
@@ -96,7 +97,15 @@ export default function ProductCard({ product, onQuickView }: Props) {
         )}
       </div>
 
-      <div className="pt-4 flex-1 flex flex-col justify-between gap-3">
+      {/* Meta: static under the image on small screens; on desktop it
+          becomes an overlay that slides up over the image's lower edge
+          on hover (deep bottom pad clears the Quick Inspect bar when
+          one is present) */}
+      <div
+        className={`pt-4 flex-1 flex flex-col justify-between gap-3 lg:absolute lg:inset-x-0 lg:bottom-0 lg:z-10 lg:p-4 lg:pt-16 lg:bg-gradient-to-t lg:from-[#0a0a0a]/92 lg:via-[#0a0a0a]/45 lg:to-transparent lg:opacity-0 lg:translate-y-5 lg:pointer-events-none lg:transition-all lg:duration-700 lg:ease-[cubic-bezier(0.22,1,0.36,1)] lg:group-hover:opacity-100 lg:group-hover:translate-y-0 ${
+          onQuickView ? 'lg:pb-[4.5rem]' : 'lg:pb-4'
+        }`}
+      >
         <div>
           <div className="flex items-center justify-between gap-2 font-sans text-[10px] font-medium tracking-[0.16em] uppercase text-[#a3a3a3] mb-1">
             <span className="truncate">{product.brand || product.category || 'ENIGMA'}</span>

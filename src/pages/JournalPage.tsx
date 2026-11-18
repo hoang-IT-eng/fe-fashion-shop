@@ -34,7 +34,7 @@ export default function JournalPage() {
             <img
               src={activeStory.imageUrl}
               alt={activeStory.title}
-              className="w-full aspect-[4/3] object-cover border border-[#f9f9f9]/12"
+              className="film-grade w-full aspect-[4/3] object-cover border border-[#f9f9f9]/12"
             />
           </div>
           <div className="lg:col-span-6 flex flex-col justify-between space-y-6">

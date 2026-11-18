@@ -213,7 +213,7 @@ export default function ProductDetailPage() {
                 <img
                   src={product.imageUrl}
                   alt={product.name}
-                  className="w-full h-full object-cover"
+                  className="film-grade w-full h-full object-cover"
                 />
               )}
               <div className="absolute top-4 left-4 px-3 py-1.5 bg-[#0a0a0a]/90 border border-[#f9f9f9]/50 font-sans text-[10px] font-medium tracking-[0.16em] uppercase text-[#f9f9f9]">

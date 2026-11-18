@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
 import gsap from 'gsap'
+import { scrollToTop } from '../../lib/motion'
 
 export function CloudCurtainTransition() {
   const location = useLocation()
@@ -8,7 +9,7 @@ export function CloudCurtainTransition() {
   const firstRender = useRef(true)
 
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'auto' })
+    scrollToTop()
 
     if (firstRender.current) {
       firstRender.current = false
