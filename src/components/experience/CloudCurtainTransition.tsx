@@ -39,12 +39,12 @@ export function CloudCurtainTransition() {
   }, [])
 
   useEffect(() => {
-    scrollToTop()
-
+    // first render: the browser already put us where we belong (no forced layout at boot)
     if (firstRender.current) {
       firstRender.current = false
       return
     }
+    scrollToTop()
     if (motionDisabled()) return
 
     if (getCloudWorld()) {

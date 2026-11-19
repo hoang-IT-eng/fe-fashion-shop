@@ -226,7 +226,7 @@ export interface AiChatResponsePayload {
   type: 'text' | 'product_recommendations' | 'generative_ui'
   sessionId: string
   message: string
-  engine?: 'gemini-tools' | 'hybrid-local-rag'
+  engine?: 'gemini-tools' | 'hybrid-local-rag' | 'gemini-2.5-flash'
   toolsInvoked?: string[]
   uiBlocks?: GenerativeUiBlock[]
 }

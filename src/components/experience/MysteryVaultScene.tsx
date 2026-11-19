@@ -35,7 +35,7 @@ export default function MysteryVaultScene({
 
           const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true })
           renderer.setSize(width, height)
-          renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2))
+          renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5))
           container.innerHTML = ''
           container.appendChild(renderer.domElement)
 

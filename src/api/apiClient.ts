@@ -1,4 +1,5 @@
 import { rebrand } from '../lib/format'
+import { correctProductImages } from '../lib/productImages'
 
 // The offline demo vault (~90 KB of engine + seed data) is only needed when no
 // live API is configured or the network fails, so it is loaded on demand.
@@ -6,7 +7,7 @@ type DemoHandler = typeof import('./enigmaDemoEngine').demoHandleRequest
 let demoModule: Promise<typeof import('./enigmaDemoEngine')> | null = null
 async function demoHandleRequest<T>(...args: Parameters<DemoHandler>): Promise<T> {
   demoModule ??= import('./enigmaDemoEngine')
-  return (await demoModule).demoHandleRequest<T>(...args)
+  return correctProductImages(await (await demoModule).demoHandleRequest<T>(...args))
 }
 
 const REBRAND_KEYS = new Set(['name', 'brand', 'title', 'subtitle', 'description'])
@@ -88,7 +89,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
       throw new Error(message || 'Request failed')
     }
 
-    return (method === 'GET' ? rebrandPayload(data) : data) as T
+    return correctProductImages(method === 'GET' ? rebrandPayload(data) : data) as T
   } catch (err) {
     // Preserve explicit 4xx validation errors from live API, but fall back seamlessly on network/offline errors
     if (

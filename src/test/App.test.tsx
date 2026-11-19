@@ -28,8 +28,8 @@ describe('NOCTURNE Storefront & Admin Routing', () => {
     expect(
       await screen.findByText(/Authenticated Grails, Nocturnal Auctions/i)
     ).toBeInTheDocument()
-    expect(screen.getByText(/Curated Grail Drops/i)).toBeInTheDocument()
-    expect(screen.getByText(/Trending Grail Auctions/i)).toBeInTheDocument()
+    expect(await screen.findByText(/Curated Grail Drops/i)).toBeInTheDocument()
+    expect(await screen.findByText(/Live auctions,/i)).toBeInTheDocument()
   })
 
   it('unlocks Night Order Initiation modal and auto-applies NOCTURNE15 when typing NOCTURNE', async () => {

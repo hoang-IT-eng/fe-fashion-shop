@@ -7,7 +7,7 @@ import { NocturneMark, NocturneWordmark } from './brand/NocturneMark'
 import { ResponsiveImage } from './media/ResponsiveImage'
 import { CloudHost, useCloudLive } from './experience/cloud/CloudHost'
 import { cloud, cloudsSupported } from './experience/cloud/cloudState'
-import { getLenis, motionDisabled } from '../lib/motion'
+import { afterIdle, getLenis, motionDisabled } from '../lib/motion'
 
 /** The footer coda: the camera looks back up into the clouds — an ascent that closes the reel. */
 function FooterCoda() {
@@ -16,16 +16,18 @@ function FooterCoda() {
   useEffect(() => {
     const el = ref.current
     if (!el || !cloudsSupported()) return
-    gsap.registerPlugin(ScrollTrigger)
-    const st = ScrollTrigger.create({
-      trigger: el,
-      start: 'top bottom',
-      end: 'bottom bottom',
-      onUpdate: self => {
-        cloud.footer = self.progress
-      },
-    })
-    return () => st.kill()
+    return afterIdle(() => {
+      gsap.registerPlugin(ScrollTrigger)
+      const st = ScrollTrigger.create({
+        trigger: el,
+        start: 'top bottom',
+        end: 'bottom bottom',
+        onUpdate: self => {
+          cloud.footer = self.progress
+        },
+      })
+      return () => st.kill()
+    }, 1500)
   }, [])
   const ascend = () => {
     const lenis = getLenis()

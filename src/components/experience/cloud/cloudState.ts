@@ -71,15 +71,10 @@ export function cloudsSupported(): boolean {
     (nav.deviceMemory !== undefined && nav.deviceMemory <= 2) ||
     Boolean(nav.connection?.saveData)
   if (lowEnd && flag !== 'live') return (supportCache = false)
-  try {
-    const c = document.createElement('canvas')
-    const gl = c.getContext('webgl2') || c.getContext('webgl')
-    if (!gl) return (supportCache = false)
-    ;(gl as WebGLRenderingContext).getExtension('WEBGL_lose_context')?.loseContext()
-  } catch {
-    return (supportCache = false)
-  }
-  return (supportCache = true)
+  // Cheap capability check only: creating a probe GL context costs a
+  // noticeable slice of the boot task. If the real context later fails,
+  // loadCloudWorld() falls back to the painted poster.
+  return (supportCache = typeof window.WebGLRenderingContext !== 'undefined')
 }
 
 /** Test hook. */

@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { ArrowRight } from 'lucide-react'
-import { REBORN_JOURNAL_STORIES } from '../api/enigmaDemoData'
+import { REBORN_JOURNAL_STORIES } from '../content/journal'
 import Breadcrumb from '../components/Breadcrumb'
 
 export default function JournalPage() {

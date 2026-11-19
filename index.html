@@ -28,11 +28,15 @@
     </script>
     <style>
       #boot{position:fixed;inset:0;z-index:119;background:#0b0908;overflow:hidden;pointer-events:none}
-      #boot picture img{width:100%;height:100%;object-fit:cover;filter:brightness(.5)}
-      #boot .s{position:absolute;inset:0;background:radial-gradient(ellipse 70% 45% at 50% 82%,rgba(200,134,74,.32),rgba(200,134,74,0) 70%),radial-gradient(ellipse 90% 70% at 50% 40%,rgba(11,9,8,.2),rgba(11,9,8,.75) 80%)}
+      #boot picture img{position:absolute;left:0;top:64px;width:100%;height:calc(100% - 64px);object-fit:cover}
+      #boot .s{position:absolute;inset:0;background:linear-gradient(rgba(11,9,8,.5),rgba(11,9,8,.5)),radial-gradient(ellipse 70% 45% at 50% 82%,rgba(200,134,74,.32),rgba(200,134,74,0) 70%),radial-gradient(ellipse 90% 70% at 50% 40%,rgba(11,9,8,.2),rgba(11,9,8,.75) 80%)}
       #boot .w{position:absolute;left:50%;top:50%;height:28px;transform:translate(-50%,-80%)}
       @media (min-width:768px){#boot .w{height:40px}}
       .no-boot #boot{display:none}
+      /* Pre-rendered hero painting (home only): painted before the JS bundle and adopted by <DescentHero> */
+      #lcp-hero{position:absolute;left:0;right:0;top:65px;height:100svh;overflow:hidden;pointer-events:none}
+      @media (min-width:768px){#lcp-hero{top:81px}}
+      #lcp-hero img{width:100%;height:100%;object-fit:cover}
     </style>
   </head>
   <body class="bg-ink text-bone antialiased selection:bg-bone selection:text-ink">
@@ -46,6 +50,17 @@
       <div class="s"></div>
       <img class="w" src="/nocturne-wordmark.svg" alt="" />
     </div>
+    <div id="lcp-hero" aria-hidden="true">
+      <picture>
+        <source media="(max-aspect-ratio: 4/5)" type="image/avif" srcset="/images/nocturne/hero-sky-mobile-540.avif 540w, /images/nocturne/hero-sky-mobile-810.avif 810w, /images/nocturne/hero-sky-mobile-1080.avif 1080w" sizes="100vw" />
+        <source media="(max-aspect-ratio: 4/5)" type="image/webp" srcset="/images/nocturne/hero-sky-mobile-540.webp 540w, /images/nocturne/hero-sky-mobile-810.webp 810w, /images/nocturne/hero-sky-mobile-1080.webp 1080w" sizes="100vw" />
+        <source type="image/avif" srcset="/images/nocturne/hero-sky-desktop-960.avif 960w, /images/nocturne/hero-sky-desktop-1440.avif 1440w, /images/nocturne/hero-sky-desktop-1920.avif 1920w" sizes="100vw" />
+        <img src="/images/nocturne/hero-sky-desktop-1440.webp" alt="" width="1920" height="1080" fetchpriority="high" decoding="sync" class="h-full w-full object-cover" />
+      </picture>
+    </div>
+    <script>
+      if (location.pathname !== '/') document.getElementById('lcp-hero').remove()
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

@@ -9,6 +9,16 @@
     "height": 1152,
     "lqip": "data:image/webp;base64,UklGRk4AAABXRUJQVlA4IEIAAACwAwCdASoQABUAPu1iqk2ppaQiMAgBMB2JYwC06B6VEKv1FSDjQAD+fKJyaQ4z0p66kF+jq/uLhaRsQctUV+VIAAA="
   },
+  "grail-chain-sanctum": {
+    "base": "/images/nocturne/grail-chain-sanctum",
+    "widths": [
+      480,
+      864
+    ],
+    "width": 864,
+    "height": 1152,
+    "lqip": "data:image/webp;base64,UklGRlIAAABXRUJQVlA4IEYAAADQAwCdASoQABUAPu1iqU2ppaOiMAgBMB2JYwC7ACHetes1PvQAjqAA/tpy1RpcMRGHFQMKHVZTroU6X52fJmV3gQGAAAAA"
+  },
   "grail-chronograph-relic": {
     "base": "/images/nocturne/grail-chronograph-relic",
     "widths": [
@@ -18,6 +28,16 @@
     "width": 864,
     "height": 1152,
     "lqip": "data:image/webp;base64,UklGRkgAAABXRUJQVlA4IDwAAAAwAwCdASoQABUAPu1iqU2ppaOiMAgBMB2JZwDG9DKHaergAP7wW8roXTplvWD2WHhVs6ulJuzJsxhQAAA="
+  },
+  "grail-denim-kuroki": {
+    "base": "/images/nocturne/grail-denim-kuroki",
+    "widths": [
+      480,
+      864
+    ],
+    "width": 864,
+    "height": 1152,
+    "lqip": "data:image/webp;base64,UklGRk4AAABXRUJQVlA4IEIAAABwAwCdASoQABUAPu1kqU4ppaOiMAgBMB2JYwC06DBir6LrEiAA/u/qaYzBchklvO7aKnekArYqdht7pq5O0rQAAAA="
   },
   "grail-hoodie-shadow": {
     "base": "/images/nocturne/grail-hoodie-shadow",
@@ -58,6 +78,16 @@
     "width": 864,
     "height": 1152,
     "lqip": "data:image/webp;base64,UklGRlIAAABXRUJQVlA4IEYAAACQAwCdASoQABUAPu1iqk2ppaQiMAgBMB2JYwAASU51bav+fkXAAP5zMIug4NC5cMdKx+zR8czy189D+foKOPTkykVTeoAA"
+  },
+  "grail-tee-chiaroscuro": {
+    "base": "/images/nocturne/grail-tee-chiaroscuro",
+    "widths": [
+      480,
+      864
+    ],
+    "width": 864,
+    "height": 1152,
+    "lqip": "data:image/webp;base64,UklGRkoAAABXRUJQVlA4ID4AAADQAwCdASoQABUAPu1iqk4ppaQiMAgBMB2JYwC/OCHhaYsQ8NfbCAAA/tp1wCszLuY50fokiou1i13xa1AAAA=="
   },
   "grail-trench-monolith": {
     "base": "/images/nocturne/grail-trench-monolith",
