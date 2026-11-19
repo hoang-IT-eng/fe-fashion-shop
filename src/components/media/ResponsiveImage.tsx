@@ -60,7 +60,7 @@ export function ResponsiveImage({
         width={entry.width}
         height={entry.height}
         loading={loading}
-        decoding={priority ? 'sync' : 'async'}
+        decoding="async"
         // React 19 supports the lowercase attribute name.
         fetchPriority={fetchPriority}
         className={className}
@@ -91,7 +91,7 @@ export function HeroPoster({ className = '', alt = '' }: { className?: string; a
         width={d.width}
         height={d.height}
         loading="eager"
-        decoding="sync"
+        decoding="async"
         fetchPriority="high"
         className={className}
         style={{ backgroundImage: `url("${d.lqip}")`, backgroundSize: 'cover' }}

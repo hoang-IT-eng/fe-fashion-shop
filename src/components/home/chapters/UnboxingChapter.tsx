@@ -59,11 +59,11 @@ export function UnboxingChapter() {
     if (!near) return
     let alive = true
     void Promise.all([
-      api.get<QuizStep[]>('/mystery-boxes/quiz-questions').catch(() => []),
+      api.get<QuizStep[] | { steps?: QuizStep[] }>('/mystery-boxes/quiz-questions').catch(() => []),
       api.get<MysteryBoxTier[]>('/mystery-boxes').catch(() => []),
     ]).then(([q, b]) => {
       if (!alive) return
-      setSteps(Array.isArray(q) ? q : [])
+      setSteps(Array.isArray(q) ? q : Array.isArray(q?.steps) ? q.steps : [])
       setBoxes(Array.isArray(b) ? b : [])
     })
     return () => {
@@ -115,7 +115,7 @@ export function UnboxingChapter() {
           <h2 id="unboxing-title" className="font-display text-4xl leading-[1.02] text-bone md:text-6xl">
             A sealed chest, <em>matched to you</em>.
           </h2>
-          <div className="relative mt-8 aspect-[4/3.4] overflow-hidden border border-bone/10 bg-ink-deep">
+          <div className="relative mt-8 aspect-[4/3.4] overflow-hidden border border-bone/10 bg-ink-deep bg-[radial-gradient(ellipse_70%_55%_at_50%_62%,rgba(200,134,74,0.22),transparent_70%)]">
             {near && live3d ? (
               <Suspense fallback={<div className="h-full w-full bg-ink-deep" />}>
                 <div className="absolute inset-0 [&>div]:h-full">

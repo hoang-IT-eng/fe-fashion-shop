@@ -33,10 +33,11 @@ export default function MysteryBoxesPage() {
   useEffect(() => {
     void Promise.all([
       api.get<MysteryBoxTier[]>('/mystery-boxes'),
-      api.get<QuizStep[]>('/mystery-boxes/quiz-questions').catch(() => DEMO_QUIZ_STEPS),
+      api.get<QuizStep[] | { steps?: QuizStep[] }>('/mystery-boxes/quiz-questions').catch(() => DEMO_QUIZ_STEPS),
     ]).then(([boxRes, stepRes]) => {
       setBoxes(Array.isArray(boxRes) ? boxRes : [])
-      if (Array.isArray(stepRes) && stepRes.length > 0) setSteps(stepRes)
+      const live = Array.isArray(stepRes) ? stepRes : stepRes?.steps
+      if (Array.isArray(live) && live.length > 0) setSteps(live)
     })
   }, [])
 
