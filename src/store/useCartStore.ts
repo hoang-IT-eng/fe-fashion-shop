@@ -22,6 +22,8 @@ interface CartState {
   openDrawer: () => void
   closeDrawer: () => void
   fetchCart: () => Promise<void>
+  /** Push a guest bag into the signed-in cart after login, then reload it. */
+  mergeGuestBag: () => Promise<void>
   addItem: (item: AddItemPayload, openBag?: boolean) => Promise<void>
   updateItem: (itemId: number, quantity: number) => Promise<void>
   removeItem: (itemId: number) => Promise<void>
@@ -35,6 +37,47 @@ interface CartState {
 }
 
 const VOUCHER_STORAGE_KEY = 'enigma_active_voucher'
+export const GUEST_BAG_STORAGE_KEY = 'nocturne_guest_bag_v1'
+
+/** A visitor is "signed in" only when a session token is stored. */
+function hasSession(): boolean {
+  if (typeof window === 'undefined') return false
+  try {
+    return Boolean(window.localStorage.getItem('accessToken'))
+  } catch {
+    return false
+  }
+}
+
+function loadGuestBag(): CartItem[] {
+  if (typeof window === 'undefined') return []
+  try {
+    const raw = window.localStorage.getItem(GUEST_BAG_STORAGE_KEY)
+    const parsed = raw ? JSON.parse(raw) : []
+    return Array.isArray(parsed) ? parsed : []
+  } catch {
+    return []
+  }
+}
+
+function saveGuestBag(items: CartItem[]): void {
+  if (typeof window === 'undefined') return
+  try {
+    if (items.length) window.localStorage.setItem(GUEST_BAG_STORAGE_KEY, JSON.stringify(items))
+    else window.localStorage.removeItem(GUEST_BAG_STORAGE_KEY)
+  } catch {
+    // storage full or blocked: the bag still lives in memory for this visit
+  }
+}
+
+function sameLine(a: CartItem, b: AddItemPayload): boolean {
+  return (
+    a.productId === b.productId &&
+    (a.variantId ?? null) === (b.variantId ?? null) &&
+    (a.size ?? null) === (b.size ?? null) &&
+    (a.color ?? null) === (b.color ?? null)
+  )
+}
 
 function loadStoredVoucher(): VoucherValidation | null {
   if (typeof window === 'undefined') return null
@@ -66,6 +109,10 @@ export const useCartStore = create<CartState>((set, get) => ({
   closeDrawer: () => set({ drawerOpen: false }),
 
   fetchCart: async () => {
+    if (!hasSession()) {
+      set({ items: loadGuestBag(), loading: false })
+      return
+    }
     try {
       set({ loading: true })
       const data = await api.get<any>('/cart')
@@ -88,7 +135,44 @@ export const useCartStore = create<CartState>((set, get) => ({
     }
   },
 
+  mergeGuestBag: async () => {
+    const guest = loadGuestBag()
+    if (!hasSession()) return
+    for (const line of guest) {
+      try {
+        await get().addItem(
+          {
+            productId: line.productId,
+            variantId: line.variantId,
+            name: line.name,
+            price: line.price,
+            quantity: line.quantity,
+            size: line.size,
+            color: line.color,
+            imageUrl: line.imageUrl,
+          },
+          false,
+        )
+      } catch {
+        // a line that can no longer be added (sold out, removed) is dropped
+      }
+    }
+    saveGuestBag([])
+    await get().fetchCart()
+  },
+
   addItem: async (item, openBag = true) => {
+    if (!hasSession()) {
+      const current = loadGuestBag()
+      const existing = current.find(ci => sameLine(ci, item))
+      const next = existing
+        ? current.map(ci => (ci === existing ? { ...ci, quantity: ci.quantity + item.quantity } : ci))
+        : [...current, { ...item, id: Date.now() + Math.floor(Math.random() * 1000) }]
+      saveGuestBag(next)
+      set({ items: next })
+      if (openBag) set({ drawerOpen: true })
+      return
+    }
     const body: Record<string, unknown> = {
       productId: item.productId,
       name: item.name,
@@ -117,17 +201,32 @@ export const useCartStore = create<CartState>((set, get) => ({
   },
 
   updateItem: async (itemId, quantity) => {
+    if (!hasSession()) {
+      const next = loadGuestBag()
+        .map(ci => (ci.id === itemId ? { ...ci, quantity } : ci))
+        .filter(ci => ci.quantity > 0)
+      saveGuestBag(next)
+      set({ items: next })
+      return
+    }
     await api.put(`/cart/${itemId}`, { quantity })
     await get().fetchCart()
   },
 
   removeItem: async (itemId) => {
+    if (!hasSession()) {
+      const next = loadGuestBag().filter(ci => ci.id !== itemId)
+      saveGuestBag(next)
+      set({ items: next })
+      return
+    }
     await api.delete(`/cart/${itemId}`)
     set(state => ({ items: state.items.filter(i => i.id !== itemId) }))
   },
 
   clear: () => {
-    void api.delete('/cart').catch(() => {})
+    if (hasSession()) void api.delete('/cart').catch(() => {})
+    saveGuestBag([])
     persistVoucher(null)
     set({ items: [], appliedVoucher: null })
   },
@@ -158,7 +257,7 @@ export const useCartStore = create<CartState>((set, get) => ({
       v.discountType === 'percentage'
         ? Math.round((sub * v.discountValue) / 100)
         : Math.round(v.discountValue)
-    if (v.code.toUpperCase() === 'ENIGMA15') {
+    if (['NOCTURNE15', 'ENIGMA15'].includes(v.code.toUpperCase())) {
       disc = Math.min(disc, 2500000)
     }
     return Math.min(disc, sub)

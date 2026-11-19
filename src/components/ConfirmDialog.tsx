@@ -29,26 +29,26 @@ export default function ConfirmDialog({
       aria-modal="true"
       className="fixed inset-0 z-[110] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
     >
-      <div className="bg-[#111111] border border-[#f9f9f9]/15 w-full max-w-md p-6 shadow-2xl text-[#f9f9f9]">
+      <div className="bg-ink-raised border border-bone/15 w-full max-w-md p-6 shadow-2xl text-bone">
         <div className="flex items-start gap-4 mb-6">
           <div
             className={`w-10 h-10 border flex items-center justify-center flex-shrink-0 ${
               danger
                 ? 'border-red-500/40 bg-red-950/40 text-red-400'
-                : 'border-[#f9f9f9]/40 bg-[#f9f9f9]/10 text-[#f9f9f9]'
+                : 'border-bone/40 bg-bone/10 text-bone'
             }`}
           >
             <AlertTriangle className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="font-display text-xl text-[#f9f9f9] mb-1">{title}</h3>
-            <p className="text-sm text-[#a3a3a3] leading-relaxed">{message}</p>
+            <h3 className="font-display text-xl text-bone mb-1">{title}</h3>
+            <p className="text-sm text-bone-muted leading-relaxed">{message}</p>
           </div>
         </div>
         <div className="flex gap-3">
           <button
             onClick={onCancel}
-            className="flex-1 border border-[#f9f9f9]/20 py-2.5 font-mono text-xs uppercase tracking-widest text-[#f9f9f9] hover:border-[#f9f9f9]/50 transition"
+            className="flex-1 border border-bone/20 py-2.5 font-mono text-xs uppercase tracking-widest text-bone hover:border-bone/50 transition"
           >
             {cancelLabel}
           </button>
@@ -57,7 +57,7 @@ export default function ConfirmDialog({
             className={`flex-1 py-2.5 font-mono text-xs font-semibold uppercase tracking-widest transition ${
               danger
                 ? 'bg-red-600 text-white hover:bg-red-500'
-                : 'bg-[#f9f9f9] text-[#0a0a0a] hover:bg-[#d9d9d9]'
+                : 'bg-bone text-ink hover:bg-bone-dim'
             }`}
           >
             {confirmLabel}

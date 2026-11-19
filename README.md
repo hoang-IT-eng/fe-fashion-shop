@@ -1,6 +1,10 @@
-# ENIGMA — Cult-Dark Authenticated Streetwear, Grail Auctions & Reborn Customs
+# NOCTURNE — Night Archive · Authenticated Streetwear, Grail Auctions & Afterlife Customs
 
-Frontend storefront and Dribbble-grade Executive Admin Console for **ENIGMA**, inspired by `enigmascult.com` chiaroscuro high-fashion editorial design and Linear / Shopify Plus studio precision.
+> Renamed from ENIGMA in Nov 2026. Repo names stay `fe-fashion-shop` / `be-fashion-shop`; internal identifiers (`enigmaDemoEngine`, storage keys) keep their names to avoid breaking saved sessions.
+
+**Foundations (PR "NOCTURNE foundations")**: public storefront (guests never hit the login wall; only checkout/orders/profile/admin require a session), local guest bag merged on login, route-level code splitting, self-hosted variable fonts with full Vietnamese coverage (Cormorant Garamond, Manrope, JetBrains Mono), AVIF/WebP image pipeline (`npm run images`), NOCTURNE art tokens (`ink #0b0908`, `bone #efe9df`, `umber #3a2216`, `ember #c8864a`) and the eclipse wordmark (`scripts/build-wordmark.py`).
+
+Frontend storefront and Dribbble-grade Executive Admin Console for **ENIGMA**, with an original chiaroscuro "Nocturne Fresco" art direction.
 
 ---
 

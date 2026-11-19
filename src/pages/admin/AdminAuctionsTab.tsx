@@ -84,17 +84,17 @@ export default function AdminAuctionsTab() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <p className="font-mono text-[10px] tracking-[0.28em] uppercase text-[#f9f9f9]">
+          <p className="font-mono text-[10px] tracking-[0.28em] uppercase text-bone">
             LIVE AUCTION FLOOR CONTROL
           </p>
-          <h2 className="font-display text-2xl md:text-3xl text-[#f9f9f9]">
+          <h2 className="font-display text-2xl md:text-3xl text-bone">
             Grail Lots &amp; Anti-Snipe Monitor ({lots.length})
           </h2>
         </div>
         <button
           type="button"
           onClick={() => setShowCreate(v => !v)}
-          className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#f9f9f9] text-[#0a0a0a] font-mono text-xs font-semibold uppercase tracking-[0.2em]"
+          className="inline-flex items-center gap-2 px-4 py-2.5 bg-bone text-ink font-mono text-xs font-semibold uppercase tracking-[0.2em]"
         >
           <Plus className="w-4 h-4" /> Launch Grail Lot
         </button>
@@ -103,22 +103,22 @@ export default function AdminAuctionsTab() {
       {showCreate && (
         <form
           onSubmit={handleCreate}
-          className="p-6 bg-[#111111] border border-[#f9f9f9]/40 grid grid-cols-1 md:grid-cols-3 gap-4"
+          className="p-6 bg-ink-raised border border-bone/40 grid grid-cols-1 md:grid-cols-3 gap-4"
         >
           <input
             type="text"
             required
-            placeholder="Lot Title (e.g. LOT 04 · Reborn Sample)"
+            placeholder="Lot Title (e.g. LOT 04 · Afterlife Sample)"
             value={title}
             onChange={e => setTitle(e.target.value)}
-            className="md:col-span-2 bg-[#0a0a0a] border border-[#f9f9f9]/15 px-3.5 py-2.5 text-xs text-[#f9f9f9]"
+            className="md:col-span-2 bg-ink border border-bone/15 px-3.5 py-2.5 text-xs text-bone"
           />
           <input
             type="text"
             placeholder="Image URL"
             value={imageUrl}
             onChange={e => setImageUrl(e.target.value)}
-            className="bg-[#0a0a0a] border border-[#f9f9f9]/15 px-3.5 py-2.5 font-mono text-xs text-[#f9f9f9]"
+            className="bg-ink border border-bone/15 px-3.5 py-2.5 font-mono text-xs text-bone"
           />
           <input
             type="number"
@@ -126,7 +126,7 @@ export default function AdminAuctionsTab() {
             placeholder="Starting Bid"
             value={startingBid}
             onChange={e => setStartingBid(Number(e.target.value))}
-            className="bg-[#0a0a0a] border border-[#f9f9f9]/15 px-3.5 py-2.5 font-mono text-xs text-[#f9f9f9] tabular-nums"
+            className="bg-ink border border-bone/15 px-3.5 py-2.5 font-mono text-xs text-bone tabular-nums"
           />
           <input
             type="number"
@@ -134,7 +134,7 @@ export default function AdminAuctionsTab() {
             placeholder="Min Increment"
             value={minIncrement}
             onChange={e => setMinIncrement(Number(e.target.value))}
-            className="bg-[#0a0a0a] border border-[#f9f9f9]/15 px-3.5 py-2.5 font-mono text-xs text-[#f9f9f9] tabular-nums"
+            className="bg-ink border border-bone/15 px-3.5 py-2.5 font-mono text-xs text-bone tabular-nums"
           />
           <div className="flex gap-2">
             <input
@@ -144,11 +144,11 @@ export default function AdminAuctionsTab() {
               placeholder="Mins"
               value={durationMinutes}
               onChange={e => setDurationMinutes(Number(e.target.value))}
-              className="w-24 bg-[#0a0a0a] border border-[#f9f9f9]/15 px-3 py-2.5 font-mono text-xs text-[#f9f9f9] tabular-nums"
+              className="w-24 bg-ink border border-bone/15 px-3 py-2.5 font-mono text-xs text-bone tabular-nums"
             />
             <button
               type="submit"
-              className="flex-1 bg-[#f9f9f9] text-[#0a0a0a] font-mono text-xs font-semibold uppercase tracking-wider"
+              className="flex-1 bg-bone text-ink font-mono text-xs font-semibold uppercase tracking-wider"
             >
               Open Lot
             </button>
@@ -162,23 +162,23 @@ export default function AdminAuctionsTab() {
             <div
               key={lot.id}
               onClick={() => setSelectedLot(lot)}
-              className={`cursor-pointer p-4 bg-[#111111] border transition flex flex-wrap items-center justify-between gap-4 ${
-                selectedLot?.id === lot.id ? 'border-[#f9f9f9]' : 'border-[#f9f9f9]/12'
+              className={`cursor-pointer p-4 bg-ink-raised border transition flex flex-wrap items-center justify-between gap-4 ${
+                selectedLot?.id === lot.id ? 'border-bone' : 'border-bone/12'
               }`}
             >
               <div className="space-y-1 min-w-0">
                 <div className="flex items-center gap-2 font-mono text-[10px] uppercase">
-                  <span className="px-2 py-0.5 bg-[#0a0a0a] border border-[#f9f9f9]/40 text-[#f9f9f9]">
+                  <span className="px-2 py-0.5 bg-ink border border-bone/40 text-bone">
                     {lot.status}
                   </span>
-                  <span className="text-[#a3a3a3] tabular-nums">
+                  <span className="text-bone-muted tabular-nums">
                     {lot.bidCount} bids · +{lot.antiSnipeCount || 0} snipe guards
                   </span>
                 </div>
-                <h3 className="font-medium text-sm text-[#f9f9f9] truncate">{lot.title}</h3>
-                <p className="font-mono text-xs text-[#f9f9f9] tabular-nums">
+                <h3 className="font-medium text-sm text-bone truncate">{lot.title}</h3>
+                <p className="font-mono text-xs text-bone tabular-nums">
                   Current: {formatVnd(lot.currentBid)} ·{' '}
-                  <Clock className="w-3 h-3 inline text-[#a3a3a3]" />{' '}
+                  <Clock className="w-3 h-3 inline text-bone-muted" />{' '}
                   {formatCountdown(lot.remainingSeconds)}
                 </p>
               </div>
@@ -190,7 +190,7 @@ export default function AdminAuctionsTab() {
                     e.stopPropagation()
                     void handleExtend(lot.id, 120)
                   }}
-                  className="px-2.5 py-1.5 border border-[#f9f9f9]/20 hover:border-[#f9f9f9] text-[#f9f9f9] uppercase"
+                  className="px-2.5 py-1.5 border border-bone/20 hover:border-bone text-bone uppercase"
                 >
                   +120s
                 </button>
@@ -201,7 +201,7 @@ export default function AdminAuctionsTab() {
                       e.stopPropagation()
                       void handleSettle(lot.id)
                     }}
-                    className="px-2.5 py-1.5 bg-[#f9f9f9] text-[#0a0a0a] font-semibold uppercase inline-flex items-center gap-1"
+                    className="px-2.5 py-1.5 bg-bone text-ink font-semibold uppercase inline-flex items-center gap-1"
                   >
                     <CheckCircle2 className="w-3 h-3" /> Settle
                   </button>
@@ -212,7 +212,7 @@ export default function AdminAuctionsTab() {
                     e.stopPropagation()
                     void handleDelete(lot.id)
                   }}
-                  className="p-1.5 text-[#a3a3a3] hover:text-red-400"
+                  className="p-1.5 text-bone-muted hover:text-red-400"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
@@ -222,35 +222,35 @@ export default function AdminAuctionsTab() {
         </div>
 
         {/* Bid Log Inspector */}
-        <div className="lg:col-span-5 bg-[#111111] border border-[#f9f9f9]/12 p-5 space-y-4">
+        <div className="lg:col-span-5 bg-ink-raised border border-bone/12 p-5 space-y-4">
           <div className="flex items-center gap-2">
-            <Gavel className="w-4 h-4 text-[#f9f9f9]" />
-            <h3 className="font-display text-xl text-[#f9f9f9]">
+            <Gavel className="w-4 h-4 text-bone" />
+            <h3 className="font-display text-xl text-bone">
               {selectedLot ? `Bid Audit Log · Lot #${selectedLot.id}` : 'Select a Lot'}
             </h3>
           </div>
 
           <div className="space-y-2 max-h-80 overflow-y-auto">
             {(selectedLot?.bids || []).length === 0 ? (
-              <p className="font-mono text-xs text-[#a3a3a3]">NO BIDS RECORDED YET</p>
+              <p className="font-mono text-xs text-bone-muted">NO BIDS RECORDED YET</p>
             ) : (
               selectedLot?.bids.map(b => (
                 <div
                   key={b.id}
-                  className="p-3 bg-[#0a0a0a] border border-[#f9f9f9]/10 flex items-center justify-between font-mono text-xs"
+                  className="p-3 bg-ink border border-bone/10 flex items-center justify-between font-mono text-xs"
                 >
                   <div>
-                    <span className="text-[#f9f9f9] font-semibold">{b.bidderAlias}</span>
+                    <span className="text-bone font-semibold">{b.bidderAlias}</span>
                     {b.triggeredExtension && (
-                      <span className="ml-2 text-[9px] text-[#f9f9f9] border border-[#f9f9f9]/50 px-1.5 py-0.5">
+                      <span className="ml-2 text-[9px] text-bone border border-bone/50 px-1.5 py-0.5">
                         +120S EXTENDED
                       </span>
                     )}
-                    <span className="block text-[10px] text-[#a3a3a3]">
+                    <span className="block text-[10px] text-bone-muted">
                       {new Date(b.createdAt).toLocaleTimeString()}
                     </span>
                   </div>
-                  <span className="text-[#f9f9f9] tabular-nums">{formatVnd(b.amount)}</span>
+                  <span className="text-bone tabular-nums">{formatVnd(b.amount)}</span>
                 </div>
               ))
             )}

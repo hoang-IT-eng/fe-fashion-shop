@@ -45,7 +45,7 @@ export function CustomCursor() {
     const applyRing = () => {
       const scale = (labelText ? 2.15 : hovering ? 1.7 : 1) * (pressed ? 0.88 : 1)
       ring.style.transform = `translate3d(${ringPos.x}px, ${ringPos.y}px, 0) translate(-50%, -50%) scale(${scale})`
-      ring.style.backgroundColor = labelText ? 'rgba(249, 249, 249, 0.96)' : 'transparent'
+      ring.style.backgroundColor = labelText ? 'rgba(239, 233, 223, 0.96)' : 'transparent'
       ring.style.mixBlendMode = labelText ? 'normal' : 'difference'
       if (label) {
         label.style.opacity = labelText ? '1' : '0'
@@ -122,18 +122,18 @@ export function CustomCursor() {
       <div
         ref={ringRef}
         aria-hidden="true"
-        className="pointer-events-none fixed left-0 top-0 z-[300] flex h-9 w-9 items-center justify-center rounded-full border border-[#f9f9f9] opacity-0 transition-opacity duration-300"
+        className="pointer-events-none fixed left-0 top-0 z-[300] flex h-9 w-9 items-center justify-center rounded-full border border-bone opacity-0 transition-opacity duration-300"
         style={{ mixBlendMode: 'difference' }}
       >
         <span
           ref={labelRef}
-          className="font-sans text-[9px] font-semibold uppercase tracking-[0.22em] text-[#0a0a0a] opacity-0 transition-opacity duration-200"
+          className="font-sans text-[9px] font-semibold uppercase tracking-[0.22em] text-ink opacity-0 transition-opacity duration-200"
         />
       </div>
       <div
         ref={dotRef}
         aria-hidden="true"
-        className="pointer-events-none fixed left-0 top-0 z-[301] h-1.5 w-1.5 rounded-full bg-[#f9f9f9] opacity-0 transition-opacity duration-300"
+        className="pointer-events-none fixed left-0 top-0 z-[301] h-1.5 w-1.5 rounded-full bg-bone opacity-0 transition-opacity duration-300"
         style={{ mixBlendMode: 'difference' }}
       />
     </>

@@ -8,7 +8,7 @@ import { resetDemoVault } from '../api/enigmaDemoEngine'
 import { useAuthStore } from '../store/useAuthStore'
 import { useCartStore } from '../store/useCartStore'
 
-describe('ENIGMA Storefront & Admin Routing', () => {
+describe('NOCTURNE Storefront & Admin Routing', () => {
   beforeEach(() => {
     localStorage.clear()
     resetDemoVault()
@@ -32,7 +32,7 @@ describe('ENIGMA Storefront & Admin Routing', () => {
     expect(screen.getByText(/Trending Grail Auctions/i)).toBeInTheDocument()
   })
 
-  it('unlocks Inner Circle Initiation modal and auto-applies ENIGMA15 when typing ENIGMA', async () => {
+  it('unlocks Night Order Initiation modal and auto-applies NOCTURNE15 when typing NOCTURNE', async () => {
     render(
       <ToastProvider>
         <MemoryRouter initialEntries={['/products']}>
@@ -41,7 +41,7 @@ describe('ENIGMA Storefront & Admin Routing', () => {
       </ToastProvider>
     )
 
-    for (const ch of ['E', 'N', 'I', 'G', 'M', 'A']) {
+    for (const ch of 'NOCTURNE'.split('')) {
       fireEvent.keyDown(window, { key: ch })
     }
 
@@ -50,7 +50,7 @@ describe('ENIGMA Storefront & Admin Routing', () => {
     ).toBeInTheDocument()
 
     await waitFor(() => {
-      expect(useCartStore.getState().appliedVoucher?.code).toBe('ENIGMA15')
+      expect(useCartStore.getState().appliedVoucher?.code).toBe('NOCTURNE15')
     })
   })
 
@@ -66,7 +66,7 @@ describe('ENIGMA Storefront & Admin Routing', () => {
     )
 
     expect(
-      await screen.findByText(/ENIGMA Executive Commerce & Grail Desk/i)
+      await screen.findByText(/NOCTURNE Executive Commerce & Grail Desk/i)
     ).toBeInTheDocument()
     expect(
       await screen.findByText(/Revenue, Velocity & Vault Risk/i)

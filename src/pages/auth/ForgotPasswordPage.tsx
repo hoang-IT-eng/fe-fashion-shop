@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../../api/apiClient'
-import { EnigmaCrest } from '../../components/EnigmaCrest'
+import { NocturneMark } from '../../components/brand/NocturneMark'
 import { useToast } from '../../components/Toast'
 
 export default function ForgotPasswordPage() {
@@ -21,19 +21,19 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-h-[75vh] bg-[#0a0a0a] text-[#f9f9f9] flex items-center justify-center px-4">
-      <div className="w-full max-w-md bg-[#111111] border border-[#f9f9f9]/15 p-8 space-y-6 text-center">
-        <EnigmaCrest className="w-10 h-10 mx-auto" />
+    <div className="min-h-[75vh] bg-ink text-bone flex items-center justify-center px-4">
+      <div className="w-full max-w-md bg-ink-raised border border-bone/15 p-8 space-y-6 text-center">
+        <NocturneMark className="w-10 h-10 mx-auto" />
         <h1 className="font-display text-3xl">Passkey Recovery</h1>
         {sent ? (
-          <p className="text-xs text-[#a3a3a3] leading-relaxed">
-            If <strong className="text-[#f9f9f9]">{email}</strong> is registered in the ENIGMA
+          <p className="text-xs text-bone-muted leading-relaxed">
+            If <strong className="text-bone">{email}</strong> is registered in the NOCTURNE
             Vault, a recovery link has been dispatched.
           </p>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4 text-left">
             <div>
-              <label className="block font-mono text-[10px] uppercase tracking-widest text-[#a3a3a3] mb-1.5">
+              <label className="block font-mono text-[10px] uppercase tracking-widest text-bone-muted mb-1.5">
                 Registered Collector Email
               </label>
               <input
@@ -41,12 +41,12 @@ export default function ForgotPasswordPage() {
                 required
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                className="w-full bg-[#0a0a0a] border border-[#f9f9f9]/15 px-3.5 py-2.5 text-sm text-[#f9f9f9] focus:outline-none focus:border-[#f9f9f9]"
+                className="w-full bg-ink border border-bone/15 px-3.5 py-2.5 text-sm text-bone focus:outline-none focus:border-bone"
               />
             </div>
             <button
               type="submit"
-              className="w-full py-3 bg-[#f9f9f9] text-[#0a0a0a] font-mono text-xs font-semibold uppercase tracking-widest"
+              className="w-full py-3 bg-bone text-ink font-mono text-xs font-semibold uppercase tracking-widest"
             >
               Send Recovery Cipher
             </button>
@@ -54,7 +54,7 @@ export default function ForgotPasswordPage() {
         )}
         <Link
           to="/auth"
-          className="inline-block font-mono text-xs uppercase tracking-widest text-[#f9f9f9]"
+          className="inline-block font-mono text-xs uppercase tracking-widest text-bone"
         >
           ← Back to Sign In
         </Link>

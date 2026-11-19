@@ -1,7 +1,7 @@
 import process from 'node:process'
 
 /**
- * Server-Side ENIGMA Grail Stylist Proxy (Netlify Serverless Function).
+ * Server-Side NOCTURNE Grail Stylist Proxy (Netlify Serverless Function).
  * Reads GEMINI_API_KEY strictly from server environment variables — never exposed to browser or localStorage.
  */
 export default async req => {
@@ -50,7 +50,7 @@ export default async req => {
         role: 'user',
         parts: [
           {
-            text: `You are ENIGMA — an avant-garde luxury streetwear & grail auction stylist. Reply in the user's language (Vietnamese or English) in 1-2 crisp editorial sentences grounded strictly in: ${JSON.stringify({ fallbackText, blockKinds })}.\nUser message: ${message}`,
+            text: `You are NOCTURNE — an avant-garde luxury streetwear & grail auction stylist. Reply in the user's language (Vietnamese or English) in 1-2 crisp editorial sentences grounded strictly in: ${JSON.stringify({ fallbackText, blockKinds })}.\nUser message: ${message}`,
           },
         ],
       },

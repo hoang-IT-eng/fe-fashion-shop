@@ -5,6 +5,7 @@ import { Product } from '../types/product'
 import { formatVnd } from '../lib/format'
 import { useWishlistStore } from '../store/useWishlistStore'
 import { useToast } from './Toast'
+import { ResponsiveImage } from './media/ResponsiveImage'
 
 interface Props {
   product: Product
@@ -13,7 +14,7 @@ interface Props {
 
 const RELEASE_BADGES: Record<string, string> = {
   grail: 'GRAIL ALLOCATION',
-  reborn: 'REBORN 1-OF-12',
+  reborn: 'AFTERLIFE 1-OF-12',
   archive: 'VAULT ARCHIVE',
   drop: 'LIMITED DROP',
 }
@@ -44,23 +45,24 @@ export default function ProductCard({ product, onQuickView }: Props) {
       data-cursor="view"
       className="group relative cursor-pointer flex flex-col"
     >
-      <div className="relative aspect-[4/5] bg-[#0a0a0a] overflow-hidden">
+      <div className="relative aspect-[4/5] bg-ink overflow-hidden">
         {product.imageUrl ? (
-          <img
+          <ResponsiveImage
+                  sizes="(min-width: 1280px) 25vw, (min-width: 768px) 33vw, 50vw"
             src={product.imageUrl}
             alt={product.name}
             loading="lazy"
             className="film-grade w-full h-full object-cover group-hover:scale-[1.07] transition-transform duration-[1200ms] ease-[cubic-bezier(0.22,1,0.36,1)]"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center font-mono text-xs text-[#a3a3a3]">
+          <div className="w-full h-full flex items-center justify-center font-mono text-xs text-bone-muted">
             VAULT IMAGE
           </div>
         )}
 
         {/* Release Badge */}
         <div className="absolute top-3 left-3 flex flex-col gap-1.5">
-          <span className="px-2.5 py-1 bg-[#f9f9f9] font-sans text-[10px] font-semibold tracking-[0.14em] uppercase text-[#0a0a0a]">
+          <span className="px-2.5 py-1 bg-bone font-sans text-[10px] font-semibold tracking-[0.14em] uppercase text-ink">
             {RELEASE_BADGES[product.releaseType || 'drop'] || 'ARCHIVE'}
           </span>
           {product.stock === 0 && (
@@ -77,8 +79,8 @@ export default function ProductCard({ product, onQuickView }: Props) {
           aria-label={`Toggle wishlist for ${product.name}`}
           className={`absolute top-3 right-3 w-9 h-9 flex items-center justify-center border backdrop-blur-sm transition ${
             wished
-              ? 'bg-[#f9f9f9] border-[#f9f9f9] text-[#0a0a0a]'
-              : 'bg-[#0a0a0a]/80 border-[#f9f9f9]/20 text-[#f9f9f9] hover:border-[#f9f9f9]'
+              ? 'bg-bone border-bone text-ink'
+              : 'bg-ink/80 border-bone/20 text-bone hover:border-bone'
           }`}
         >
           <Heart className={`w-4 h-4 ${wished ? 'fill-current' : ''}`} />
@@ -89,7 +91,7 @@ export default function ProductCard({ product, onQuickView }: Props) {
           <button
             type="button"
             onClick={handleQuickView}
-            className="absolute inset-x-3 bottom-3 z-20 py-2.5 bg-[#0a0a0a]/92 border border-[#f9f9f9]/50 text-[#f9f9f9] font-sans text-[11px] font-medium uppercase tracking-[0.16em] opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all flex items-center justify-center gap-2 hover:bg-[#f9f9f9] hover:text-[#0a0a0a]"
+            className="absolute inset-x-3 bottom-3 z-20 py-2.5 bg-ink/92 border border-bone/50 text-bone font-sans text-[11px] font-medium uppercase tracking-[0.16em] opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all flex items-center justify-center gap-2 hover:bg-bone hover:text-ink"
           >
             <Eye className="w-3.5 h-3.5" />
             Quick Inspect
@@ -102,27 +104,27 @@ export default function ProductCard({ product, onQuickView }: Props) {
           on hover (deep bottom pad clears the Quick Inspect bar when
           one is present) */}
       <div
-        className={`pt-4 flex-1 flex flex-col justify-between gap-3 lg:absolute lg:inset-x-0 lg:bottom-0 lg:z-10 lg:p-4 lg:pt-16 lg:bg-gradient-to-t lg:from-[#0a0a0a]/92 lg:via-[#0a0a0a]/45 lg:to-transparent lg:opacity-0 lg:translate-y-5 lg:pointer-events-none lg:transition-all lg:duration-700 lg:ease-[cubic-bezier(0.22,1,0.36,1)] lg:group-hover:opacity-100 lg:group-hover:translate-y-0 ${
+        className={`pt-4 flex-1 flex flex-col justify-between gap-3 lg:absolute lg:inset-x-0 lg:bottom-0 lg:z-10 lg:p-4 lg:pt-16 lg:bg-gradient-to-t lg:from-ink/92 lg:via-ink/45 lg:to-transparent lg:opacity-0 lg:translate-y-5 lg:pointer-events-none lg:transition-all lg:duration-700 lg:ease-[cubic-bezier(0.22,1,0.36,1)] lg:group-hover:opacity-100 lg:group-hover:translate-y-0 ${
           onQuickView ? 'lg:pb-[4.5rem]' : 'lg:pb-4'
         }`}
       >
         <div>
-          <div className="flex items-center justify-between gap-2 font-sans text-[10px] font-medium tracking-[0.16em] uppercase text-[#a3a3a3] mb-1">
-            <span className="truncate">{product.brand || product.category || 'ENIGMA'}</span>
+          <div className="flex items-center justify-between gap-2 font-sans text-[10px] font-medium tracking-[0.16em] uppercase text-bone-muted mb-1">
+            <span className="truncate">{product.brand || product.category || 'NOCTURNE'}</span>
             {product.stock > 0 && product.stock <= 5 && (
-              <span className="text-[#f9f9f9] tabular-nums">{product.stock} LEFT</span>
+              <span className="text-bone tabular-nums">{product.stock} LEFT</span>
             )}
           </div>
-          <h3 className="font-sans text-base font-medium leading-snug text-[#f9f9f9] line-clamp-2">
+          <h3 className="font-sans text-base font-medium leading-snug text-bone line-clamp-2">
             {product.name}
           </h3>
         </div>
 
         <div className="flex items-center justify-between">
-          <span className="font-sans text-sm font-semibold text-[#f9f9f9] tabular-nums">
+          <span className="font-sans text-sm font-semibold text-bone tabular-nums">
             {formatVnd(product.price)}
           </span>
-          <span className="font-sans text-[10px] text-[#a3a3a3] uppercase tracking-[0.14em]">
+          <span className="font-sans text-[10px] text-bone-muted uppercase tracking-[0.14em]">
             {(product.sizes || []).slice(0, 3).join(' · ')}
           </span>
         </div>

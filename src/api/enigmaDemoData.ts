@@ -25,7 +25,7 @@ export interface JournalStory {
 export const REBORN_JOURNAL_STORIES: JournalStory[] = [
   {
     slug: 'horsehide-alchemists-of-tokyo',
-    kicker: 'REBORN ATELIER · DOSSIER 04',
+    kicker: 'AFTERLIFE ATELIER · DOSSIER 04',
     title: 'Horsehide Patina & The Architecture of Scarred Leather',
     excerpt:
       'Inside the subterranean workshop reconstructing 1990s Japanese flight shells with oxidized Riri hardware and hand-waxed storm seams.',
@@ -34,7 +34,7 @@ export const REBORN_JOURNAL_STORIES: JournalStory[] = [
     imageUrl: '/images/enigma/reborn-atelier.jpg',
     author: 'Curator S. Moreau',
     body: [
-      'Mass luxury polishes away every trace of friction. Inside the Reborn Atelier, hides are selected precisely for grain density, natural striation, and decades of earned creases.',
+      'Mass luxury polishes away every trace of friction. Inside the Afterlife Atelier, hides are selected precisely for grain density, natural striation, and decades of earned creases.',
       'Each 1-of-12 Flight Bomber undergoes forty-two hours of disassembly, vegetable re-tanning, and cold-wax sealing before an engraved titanium provenance plate is riveted inside the lining.',
       'Wear does not diminish an archival piece—it completes the pattern.',
     ],
@@ -42,7 +42,7 @@ export const REBORN_JOURNAL_STORIES: JournalStory[] = [
   {
     slug: 'anti-snipe-auction-theory',
     kicker: 'GRAIL DESK · PROTOCOL',
-    title: 'Why Every ENIGMA Lot Enforces the 60-Second Anti-Snipe Rule',
+    title: 'Why Every NOCTURNE Lot Enforces the 60-Second Anti-Snipe Rule',
     excerpt:
       'Algorithmic bots ruined sneaker drops and timed auctions. Our open-book +120s extension restores collector conviction.',
     readTime: '04 MIN READ',
@@ -51,7 +51,7 @@ export const REBORN_JOURNAL_STORIES: JournalStory[] = [
     author: 'Kaelen Vinh',
     body: [
       'True valuation occurs in daylight—or rather, under museum spotlights—never in millisecond script wars.',
-      'Whenever a verified collector places a bid inside the final sixty seconds of an ENIGMA lot, the clock extends by two full minutes, giving rival vaults a transparent window to respond.',
+      'Whenever a verified collector places a bid inside the final sixty seconds of an NOCTURNE lot, the clock extends by two full minutes, giving rival vaults a transparent window to respond.',
     ],
   },
   {
@@ -77,17 +77,17 @@ export const INITIAL_CATEGORIES: Category[] = [
   { id: 3, name: 'Hoodies', slug: 'Hoodies', imageUrl: '/images/enigma/grail-hoodie-shadow.jpg', isActive: true },
   { id: 4, name: 'Bottoms', slug: 'Bottoms', imageUrl: '/images/enigma/grail-cargo-vanguard.jpg', isActive: true },
   { id: 5, name: 'Relics', slug: 'Relics', imageUrl: '/images/enigma/grail-chronograph-relic.jpg', isActive: true },
-  { id: 6, name: 'Reborn Archive', slug: 'Reborn Archive', imageUrl: '/images/enigma/grail-trench-monolith.jpg', isActive: true },
+  { id: 6, name: 'Afterlife Archive', slug: 'Afterlife Archive', imageUrl: '/images/enigma/grail-trench-monolith.jpg', isActive: true },
 ]
 
 export const INITIAL_PRODUCTS: Product[] = [
   {
     id: 1,
-    name: 'ENIGMA 01 "Obsidian Monolith" High-Top',
-    brand: 'ENIGMA ATELIER',
+    name: 'NOCTURNE 01 "Obsidian Monolith" High-Top',
+    brand: 'NOCTURNE ATELIER',
     releaseType: 'grail',
     condition: 'Deadstock · Vault Sealed',
-    authenticityCode: 'ENG-2026-SNK-001',
+    authenticityCode: 'NCT-2026-SNK-001',
     description:
       'Hand-lasted full-grain Italian calfskin high-top resting on an aged warm-bone Vibram cup sole. Individually numbered inner tongue with NFC provenance seal.',
     price: 8900000,
@@ -97,11 +97,11 @@ export const INITIAL_PRODUCTS: Product[] = [
     sizes: ['40', '41', '42', '43', '44'],
     colors: ['Obsidian', 'Aged Bone'],
     variants: [
-      { id: 101, productId: 1, size: '40', color: 'Obsidian', stock: 2, sku: 'ENG-1-40-OBS' },
-      { id: 102, productId: 1, size: '41', color: 'Obsidian', stock: 4, sku: 'ENG-1-41-OBS' },
-      { id: 103, productId: 1, size: '42', color: 'Obsidian', stock: 5, sku: 'ENG-1-42-OBS' },
-      { id: 104, productId: 1, size: '43', color: 'Obsidian', stock: 4, sku: 'ENG-1-43-OBS' },
-      { id: 105, productId: 1, size: '44', color: 'Aged Bone', stock: 3, sku: 'ENG-1-44-BON' },
+      { id: 101, productId: 1, size: '40', color: 'Obsidian', stock: 2, sku: 'NCT-1-40-OBS' },
+      { id: 102, productId: 1, size: '41', color: 'Obsidian', stock: 4, sku: 'NCT-1-41-OBS' },
+      { id: 103, productId: 1, size: '42', color: 'Obsidian', stock: 5, sku: 'NCT-1-42-OBS' },
+      { id: 104, productId: 1, size: '43', color: 'Obsidian', stock: 4, sku: 'NCT-1-43-OBS' },
+      { id: 105, productId: 1, size: '44', color: 'Aged Bone', stock: 3, sku: 'NCT-1-44-BON' },
     ],
     isActive: true,
     createdAt: '2026-11-10T10:00:00.000Z',
@@ -109,11 +109,11 @@ export const INITIAL_PRODUCTS: Product[] = [
   },
   {
     id: 2,
-    name: 'Reborn Horsehide Flight Bomber [1-of-12]',
-    brand: 'REBORN BY ENIGMA',
+    name: 'Afterlife Horsehide Flight Bomber [1-of-12]',
+    brand: 'AFTERLIFE BY NOCTURNE',
     releaseType: 'reborn',
-    condition: 'Reborn 1-of-12 Custom',
-    authenticityCode: 'ENG-2026-RBN-002',
+    condition: 'Afterlife 1-of-12 Custom',
+    authenticityCode: 'NCT-2026-RBN-002',
     description:
       'Reconstructed from vintage heavyweight Japanese horsehide with oxidized Riri gunmetal hardware, articulated shoulder gussets, and hand-waxed storm seams.',
     price: 14500000,
@@ -123,10 +123,10 @@ export const INITIAL_PRODUCTS: Product[] = [
     sizes: ['S', 'M', 'L', 'XL'],
     colors: ['Obsidian Patina'],
     variants: [
-      { id: 201, productId: 2, size: 'S', color: 'Obsidian Patina', stock: 1, sku: 'ENG-2-S-PAT' },
-      { id: 202, productId: 2, size: 'M', color: 'Obsidian Patina', stock: 3, sku: 'ENG-2-M-PAT' },
-      { id: 203, productId: 2, size: 'L', color: 'Obsidian Patina', stock: 3, sku: 'ENG-2-L-PAT' },
-      { id: 204, productId: 2, size: 'XL', color: 'Obsidian Patina', stock: 2, sku: 'ENG-2-XL-PAT' },
+      { id: 201, productId: 2, size: 'S', color: 'Obsidian Patina', stock: 1, sku: 'NCT-2-S-PAT' },
+      { id: 202, productId: 2, size: 'M', color: 'Obsidian Patina', stock: 3, sku: 'NCT-2-M-PAT' },
+      { id: 203, productId: 2, size: 'L', color: 'Obsidian Patina', stock: 3, sku: 'NCT-2-L-PAT' },
+      { id: 204, productId: 2, size: 'XL', color: 'Obsidian Patina', stock: 2, sku: 'NCT-2-XL-PAT' },
     ],
     isActive: true,
     createdAt: '2026-11-11T10:00:00.000Z',
@@ -135,10 +135,10 @@ export const INITIAL_PRODUCTS: Product[] = [
   {
     id: 3,
     name: 'Shadow Archive 650gsm Sun-Faded Hoodie',
-    brand: 'ENIGMA ARCHIVE',
+    brand: 'NOCTURNE ARCHIVE',
     releaseType: 'drop',
     condition: 'Deadstock',
-    authenticityCode: 'ENG-2026-HD-003',
+    authenticityCode: 'NCT-2026-HD-003',
     description:
       'Ultra-dense 650gsm loopwheel French terry enzyme-washed to a smoked charcoal finish with raw-edge drop shoulders and architectural double hood.',
     price: 3450000,
@@ -148,10 +148,10 @@ export const INITIAL_PRODUCTS: Product[] = [
     sizes: ['S', 'M', 'L', 'XL'],
     colors: ['Smoked Charcoal', 'Obsidian'],
     variants: [
-      { id: 301, productId: 3, size: 'S', color: 'Smoked Charcoal', stock: 5, sku: 'ENG-3-S-CHR' },
-      { id: 302, productId: 3, size: 'M', color: 'Smoked Charcoal', stock: 7, sku: 'ENG-3-M-CHR' },
-      { id: 303, productId: 3, size: 'L', color: 'Obsidian', stock: 8, sku: 'ENG-3-L-OBS' },
-      { id: 304, productId: 3, size: 'XL', color: 'Obsidian', stock: 4, sku: 'ENG-3-XL-OBS' },
+      { id: 301, productId: 3, size: 'S', color: 'Smoked Charcoal', stock: 5, sku: 'NCT-3-S-CHR' },
+      { id: 302, productId: 3, size: 'M', color: 'Smoked Charcoal', stock: 7, sku: 'NCT-3-M-CHR' },
+      { id: 303, productId: 3, size: 'L', color: 'Obsidian', stock: 8, sku: 'NCT-3-L-OBS' },
+      { id: 304, productId: 3, size: 'XL', color: 'Obsidian', stock: 4, sku: 'NCT-3-XL-OBS' },
     ],
     isActive: true,
     createdAt: '2026-11-12T10:00:00.000Z',
@@ -163,7 +163,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     brand: 'VANGUARD LAB',
     releaseType: 'archive',
     condition: 'Archival Mint',
-    authenticityCode: 'ENG-2026-BTM-004',
+    authenticityCode: 'NCT-2026-BTM-004',
     description:
       '14oz waxed black Okayama selvedge denim engineered with 8 articulated bellows pockets, knee darts, and matte gunmetal quick-release clasps.',
     price: 5200000,
@@ -173,10 +173,10 @@ export const INITIAL_PRODUCTS: Product[] = [
     sizes: ['28', '30', '32', '34'],
     colors: ['Waxed Obsidian'],
     variants: [
-      { id: 401, productId: 4, size: '28', color: 'Waxed Obsidian', stock: 3, sku: 'ENG-4-28-WAX' },
-      { id: 402, productId: 4, size: '30', color: 'Waxed Obsidian', stock: 5, sku: 'ENG-4-30-WAX' },
-      { id: 403, productId: 4, size: '32', color: 'Waxed Obsidian', stock: 5, sku: 'ENG-4-32-WAX' },
-      { id: 404, productId: 4, size: '34', color: 'Waxed Obsidian', stock: 3, sku: 'ENG-4-34-WAX' },
+      { id: 401, productId: 4, size: '28', color: 'Waxed Obsidian', stock: 3, sku: 'NCT-4-28-WAX' },
+      { id: 402, productId: 4, size: '30', color: 'Waxed Obsidian', stock: 5, sku: 'NCT-4-30-WAX' },
+      { id: 403, productId: 4, size: '32', color: 'Waxed Obsidian', stock: 5, sku: 'NCT-4-32-WAX' },
+      { id: 404, productId: 4, size: '34', color: 'Waxed Obsidian', stock: 3, sku: 'NCT-4-34-WAX' },
     ],
     isActive: true,
     createdAt: '2026-11-13T10:00:00.000Z',
@@ -185,10 +185,10 @@ export const INITIAL_PRODUCTS: Product[] = [
   {
     id: 5,
     name: 'Nocturne Skeleton Titanium Chronograph & Signet Set',
-    brand: 'ENIGMA HOROLOGY',
+    brand: 'NOCTURNE HOROLOGY',
     releaseType: 'grail',
     condition: 'Vault Numbered Edition',
-    authenticityCode: 'ENG-2026-RLC-005',
+    authenticityCode: 'NCT-2026-RLC-005',
     description:
       'Grade-5 brushed black titanium open-worked mechanical calibre with antique gold balance wheel, paired with hammered .925 sterling signet ring.',
     price: 22800000,
@@ -198,7 +198,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     sizes: ['One Size'],
     colors: ['Brushed Titanium / Gold'],
     variants: [
-      { id: 501, productId: 5, size: 'One Size', color: 'Brushed Titanium / Gold', stock: 4, sku: 'ENG-5-OS-TIT' },
+      { id: 501, productId: 5, size: 'One Size', color: 'Brushed Titanium / Gold', stock: 4, sku: 'NCT-5-OS-TIT' },
     ],
     isActive: true,
     createdAt: '2026-11-14T10:00:00.000Z',
@@ -210,7 +210,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     brand: 'VANGUARD LAB',
     releaseType: 'drop',
     condition: 'Deadstock',
-    authenticityCode: 'ENG-2026-SNK-006',
+    authenticityCode: 'NCT-2026-SNK-006',
     description:
       'Warm bone Italian calf suede upper over ballistic pewter mesh and a sculpted matte-carbon propulsion midsole.',
     price: 6800000,
@@ -220,11 +220,11 @@ export const INITIAL_PRODUCTS: Product[] = [
     sizes: ['40', '41', '42', '43', '44'],
     colors: ['Warm Bone / Carbon'],
     variants: [
-      { id: 601, productId: 6, size: '40', color: 'Warm Bone / Carbon', stock: 3, sku: 'ENG-6-40-BON' },
-      { id: 602, productId: 6, size: '41', color: 'Warm Bone / Carbon', stock: 5, sku: 'ENG-6-41-BON' },
-      { id: 603, productId: 6, size: '42', color: 'Warm Bone / Carbon', stock: 6, sku: 'ENG-6-42-BON' },
-      { id: 604, productId: 6, size: '43', color: 'Warm Bone / Carbon', stock: 4, sku: 'ENG-6-43-BON' },
-      { id: 605, productId: 6, size: '44', color: 'Warm Bone / Carbon', stock: 3, sku: 'ENG-6-44-BON' },
+      { id: 601, productId: 6, size: '40', color: 'Warm Bone / Carbon', stock: 3, sku: 'NCT-6-40-BON' },
+      { id: 602, productId: 6, size: '41', color: 'Warm Bone / Carbon', stock: 5, sku: 'NCT-6-41-BON' },
+      { id: 603, productId: 6, size: '42', color: 'Warm Bone / Carbon', stock: 6, sku: 'NCT-6-42-BON' },
+      { id: 604, productId: 6, size: '43', color: 'Warm Bone / Carbon', stock: 4, sku: 'NCT-6-43-BON' },
+      { id: 605, productId: 6, size: '44', color: 'Warm Bone / Carbon', stock: 3, sku: 'NCT-6-44-BON' },
     ],
     isActive: true,
     createdAt: '2026-11-14T14:00:00.000Z',
@@ -233,22 +233,22 @@ export const INITIAL_PRODUCTS: Product[] = [
   {
     id: 7,
     name: 'Monolith Double-Faced Virgin Wool Overcoat',
-    brand: 'ENIGMA ATELIER',
+    brand: 'NOCTURNE ATELIER',
     releaseType: 'reborn',
     condition: 'Atelier Tailored',
-    authenticityCode: 'ENG-2026-COT-007',
+    authenticityCode: 'NCT-2026-COT-007',
     description:
       'Architectural overcoat cut from 780g virgin wool-cashmere with concealed horn placket, structured shoulders, and razor peak lapels.',
     price: 16900000,
     stock: 8,
-    category: 'Reborn Archive',
+    category: 'Afterlife Archive',
     imageUrl: '/images/enigma/grail-trench-monolith.jpg',
     sizes: ['S', 'M', 'L'],
     colors: ['Deep Obsidian'],
     variants: [
-      { id: 701, productId: 7, size: 'S', color: 'Deep Obsidian', stock: 2, sku: 'ENG-7-S-OBS' },
-      { id: 702, productId: 7, size: 'M', color: 'Deep Obsidian', stock: 4, sku: 'ENG-7-M-OBS' },
-      { id: 703, productId: 7, size: 'L', color: 'Deep Obsidian', stock: 2, sku: 'ENG-7-L-OBS' },
+      { id: 701, productId: 7, size: 'S', color: 'Deep Obsidian', stock: 2, sku: 'NCT-7-S-OBS' },
+      { id: 702, productId: 7, size: 'M', color: 'Deep Obsidian', stock: 4, sku: 'NCT-7-M-OBS' },
+      { id: 703, productId: 7, size: 'L', color: 'Deep Obsidian', stock: 2, sku: 'NCT-7-L-OBS' },
     ],
     isActive: true,
     createdAt: '2026-11-15T09:00:00.000Z',
@@ -257,10 +257,10 @@ export const INITIAL_PRODUCTS: Product[] = [
   {
     id: 8,
     name: 'Selvedge Raw Tapered Denim — 16oz Kuroki Mill',
-    brand: 'ENIGMA ARCHIVE',
+    brand: 'NOCTURNE ARCHIVE',
     releaseType: 'archive',
     condition: 'Unwashed Raw',
-    authenticityCode: 'ENG-2026-DNM-008',
+    authenticityCode: 'NCT-2026-DNM-008',
     description:
       'Rope-dyed charcoal warp over black weft 16oz Japanese selvedge denim woven in Okayama that develops high-contrast pewter fades.',
     price: 4100000,
@@ -270,10 +270,10 @@ export const INITIAL_PRODUCTS: Product[] = [
     sizes: ['28', '30', '32', '34'],
     colors: ['Kuroki Black'],
     variants: [
-      { id: 801, productId: 8, size: '28', color: 'Kuroki Black', stock: 4, sku: 'ENG-8-28-BLK' },
-      { id: 802, productId: 8, size: '30', color: 'Kuroki Black', stock: 6, sku: 'ENG-8-30-BLK' },
-      { id: 803, productId: 8, size: '32', color: 'Kuroki Black', stock: 5, sku: 'ENG-8-32-BLK' },
-      { id: 804, productId: 8, size: '34', color: 'Kuroki Black', stock: 4, sku: 'ENG-8-34-BLK' },
+      { id: 801, productId: 8, size: '28', color: 'Kuroki Black', stock: 4, sku: 'NCT-8-28-BLK' },
+      { id: 802, productId: 8, size: '30', color: 'Kuroki Black', stock: 6, sku: 'NCT-8-30-BLK' },
+      { id: 803, productId: 8, size: '32', color: 'Kuroki Black', stock: 5, sku: 'NCT-8-32-BLK' },
+      { id: 804, productId: 8, size: '34', color: 'Kuroki Black', stock: 4, sku: 'NCT-8-34-BLK' },
     ],
     isActive: true,
     createdAt: '2026-11-15T16:00:00.000Z',
@@ -363,9 +363,9 @@ export const INITIAL_MYSTERY_BOXES: MysteryBoxTier[] = [
     id: 1,
     tierSlug: 'initiate-box',
     name: 'Initiate Box',
-    subtitle: 'Essential Entry into the Enigma Archive',
+    subtitle: 'Essential Entry into the Nocturne Archive',
     description:
-      '2 authenticated Enigma garments & accessories tailored to your Taste Codex silhouette. Guaranteed minimum value 5,200,000₫.',
+      '2 authenticated Nocturne garments & accessories tailored to your Taste Codex silhouette. Guaranteed minimum value 5,200,000₫.',
     price: 3490000,
     guaranteedMinValue: 5200000,
     itemCount: 2,
@@ -381,7 +381,7 @@ export const INITIAL_MYSTERY_BOXES: MysteryBoxTier[] = [
   {
     id: 2,
     tierSlug: 'inner-circle-chest',
-    name: 'Inner Circle Chest',
+    name: 'Night Order Chest',
     subtitle: 'High-Heat Footwear, Waxed Utility & Heavyweight Layers',
     description:
       '3 curated pieces anchored by either a signature Sneaker rotation or Technical Outerwear piece matched to your 8-step Codex.',
@@ -401,16 +401,16 @@ export const INITIAL_MYSTERY_BOXES: MysteryBoxTier[] = [
     id: 3,
     tierSlug: 'grail-vault',
     name: 'Grail Vault',
-    subtitle: 'Numbered Reborn Customs, Titanium Horology & 1-of-1 Relics',
+    subtitle: 'Numbered Afterlife Customs, Titanium Horology & 1-of-1 Relics',
     description:
-      'Sealed anodized aluminum vault chest containing 3–4 flagship collector pieces, including guaranteed Reborn Atelier or Grail allocation.',
+      'Sealed anodized aluminum vault chest containing 3–4 flagship collector pieces, including guaranteed Afterlife Atelier or Grail allocation.',
     price: 15900000,
     guaranteedMinValue: 24500000,
     itemCount: 4,
     imageUrl: '/images/enigma/mystery-chest.jpg',
     archetypeMatch: ['NEO_RENAISSANCE', 'SHADOW_ARCHIVE'],
     possibleDrops: [
-      { title: 'Reborn Horsehide Flight Bomber [1-of-12]', rarity: '1-of-12 Custom', odds: '38%' },
+      { title: 'Afterlife Horsehide Flight Bomber [1-of-12]', rarity: '1-of-12 Custom', odds: '38%' },
       { title: 'Monolith Virgin Wool Overcoat + Signet', rarity: 'Atelier Couture', odds: '42%' },
       { title: 'Nocturne Skeleton Titanium Chronograph Set', rarity: 'Mythic Grail', odds: '20%' },
     ],
@@ -448,7 +448,7 @@ export const DEMO_QUIZ_STEPS: QuizStep[] = [
     options: [
       { value: 'early_2000s_archive', label: '2001–2009 Underground Archive', archetype: 'SHADOW_ARCHIVE' },
       { value: 'brutalist_future', label: 'Industrial Brutalist Utility', archetype: 'CONCRETE_VANGUARD' },
-      { value: 'reborn_artisan', label: '1-of-1 Reborn Atelier Customs', archetype: 'NEO_RENAISSANCE' },
+      { value: 'reborn_artisan', label: '1-of-1 Afterlife Atelier Customs', archetype: 'NEO_RENAISSANCE' },
       { value: 'timeless_avant', label: 'Timeless Gallery Minimalism', archetype: 'MONOLITH_MINIMALIST' },
     ],
   },
@@ -502,7 +502,7 @@ export const DEMO_QUIZ_STEPS: QuizStep[] = [
     question: 'Select your Mystery Vault allocation tier',
     options: [
       { value: 'initiate', label: 'Initiate Allocation — Essential Curated Entry', archetype: 'MONOLITH_MINIMALIST' },
-      { value: 'inner_circle', label: 'Inner Circle — High-Heat Archive & Footwear', archetype: 'SHADOW_ARCHIVE' },
+      { value: 'inner_circle', label: 'Night Order — High-Heat Archive & Footwear', archetype: 'SHADOW_ARCHIVE' },
       { value: 'vanguard_pack', label: 'Vanguard — Multi-Piece Technical Rotation', archetype: 'CONCRETE_VANGUARD' },
       { value: 'grail_vault', label: 'Grail Vault — 1-of-1 Customs & Rare Relics', archetype: 'NEO_RENAISSANCE' },
     ],
@@ -512,8 +512,8 @@ export const DEMO_QUIZ_STEPS: QuizStep[] = [
 export const INITIAL_VOUCHERS: VoucherItem[] = [
   {
     id: 1,
-    code: 'ENIGMA15',
-    description: 'Inner Circle Initiation — 15% Privilege (Max 2,500,000₫)',
+    code: 'NOCTURNE15',
+    description: 'Night Order Initiation — 15% Privilege (Max 2,500,000₫)',
     discountType: 'percentage',
     discountValue: 15,
     minOrderAmount: 0,
@@ -640,7 +640,7 @@ export const INITIAL_ORDERS: Order[] = [
       {
         productId: 1,
         variantId: 103,
-        name: 'ENIGMA 01 "Obsidian Monolith" High-Top',
+        name: 'NOCTURNE 01 "Obsidian Monolith" High-Top',
         price: 8900000,
         quantity: 1,
         size: '42',
@@ -698,7 +698,7 @@ export const INITIAL_ORDERS: Order[] = [
       {
         productId: 2,
         variantId: 203,
-        name: 'Reborn Horsehide Flight Bomber [1-of-12]',
+        name: 'Afterlife Horsehide Flight Bomber [1-of-12]',
         price: 14500000,
         quantity: 1,
         size: 'L',
@@ -707,7 +707,7 @@ export const INITIAL_ORDERS: Order[] = [
       },
     ],
     total: 12325000,
-    voucherCode: 'ENIGMA15',
+    voucherCode: 'NOCTURNE15',
     discountAmount: 2175000,
     paymentMethod: 'vnpay',
     paymentStatus: 'paid',

@@ -1,12 +1,43 @@
-import { demoHandleRequest } from './enigmaDemoEngine'
+import { rebrand } from '../lib/format'
+
+// The offline demo vault (~90 KB of engine + seed data) is only needed when no
+// live API is configured or the network fails, so it is loaded on demand.
+type DemoHandler = typeof import('./enigmaDemoEngine').demoHandleRequest
+let demoModule: Promise<typeof import('./enigmaDemoEngine')> | null = null
+async function demoHandleRequest<T>(...args: Parameters<DemoHandler>): Promise<T> {
+  demoModule ??= import('./enigmaDemoEngine')
+  return (await demoModule).demoHandleRequest<T>(...args)
+}
+
+const REBRAND_KEYS = new Set(['name', 'brand', 'title', 'subtitle', 'description'])
+/** Apply the display-only rename shim to catalog text coming back from the live API. */
+function rebrandPayload<T>(value: T): T {
+  if (Array.isArray(value)) return value.map(rebrandPayload) as T
+  if (value && typeof value === 'object') {
+    const out: Record<string, unknown> = {}
+    for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
+      out[k] = typeof v === 'string' && REBRAND_KEYS.has(k) ? rebrand(v) : rebrandPayload(v)
+    }
+    return out as T
+  }
+  return value
+}
 
 const RAW_BASE_URL = (import.meta.env.VITE_API_URL || '').trim().replace(/\/$/, '')
 
+export const UNAUTHORIZED_EVENT = 'nocturne:unauthorized'
+
+/**
+ * A 401 from the API means the stored session is no longer valid.
+ * Clear it and notify the app, but never hard-redirect: guests browsing
+ * public pages must stay where they are. Protected routes react to the
+ * auth-state change through <RequireAuth> and send the user to /auth.
+ */
 function handleUnauthorized() {
   localStorage.removeItem('accessToken')
   localStorage.removeItem('user')
-  if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/auth')) {
-    window.location.href = '/auth'
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent(UNAUTHORIZED_EVENT))
   }
 }
 
@@ -57,7 +88,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
       throw new Error(message || 'Request failed')
     }
 
-    return data as T
+    return (method === 'GET' ? rebrandPayload(data) : data) as T
   } catch (err) {
     // Preserve explicit 4xx validation errors from live API, but fall back seamlessly on network/offline errors
     if (

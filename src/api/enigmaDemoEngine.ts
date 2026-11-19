@@ -67,12 +67,12 @@ const STORAGE_KEY = 'enigma_vault_state_v1'
 const INITIAL_USERS: DemoUserRecord[] = [
   {
     id: 1,
-    name: 'ENIGMA Curator',
+    name: 'NOCTURNE Curator',
     email: 'admin@fashionshop.com',
     password: 'Admin@123',
     role: 'admin',
     phone: '0909000111',
-    address: 'ENIGMA Vault Atelier, District 1, HCMC',
+    address: 'NOCTURNE Vault Atelier, District 1, HCMC',
     isVerified: true,
     createdAt: '2026-10-01T08:00:00.000Z',
   },
@@ -117,7 +117,7 @@ const ARCHETYPE_CATALOG: Record<
     motto: 'Patina over polish. Silence over spectacle.',
     description:
       'Rooted in early-2000s subterranean ateliers, sun-faded 650gsm loopwheel jersey, scarred horsehide, and monolithic calfskin silhouettes.',
-    paletteNotes: ['Deep Obsidian #070709', 'Smoked Charcoal #111115', 'Sun-Faded Ash #6e6a64'],
+    paletteNotes: ['Deep Obsidian #0b0908', 'Smoked Charcoal #111115', 'Sun-Faded Ash #6e6a64'],
     categories: ['Outerwear', 'Hoodies', 'Sneakers'],
     keywords: ['horsehide', 'loopwheel', 'archive', 'distressed', 'obsidian'],
     defaultTier: 'inner-circle-chest',
@@ -127,7 +127,7 @@ const ARCHETYPE_CATALOG: Record<
     motto: 'Engineered for nocturnal transit and brutalist geometry.',
     description:
       'Defined by waxed selvedge cargo architecture, articulated gussets, matte gunmetal clasps, and carbon-plated propulsion runners.',
-    paletteNotes: ['Chiaroscuro Slate #1c1d24', 'Waxed Obsidian #0d0e12', 'Warm Bone #ece5d8'],
+    paletteNotes: ['Chiaroscuro Slate #1c1d24', 'Waxed Obsidian #0d0e12', 'Warm Bone #efe9df'],
     categories: ['Bottoms', 'Sneakers', 'Outerwear'],
     keywords: ['cargo', 'waxed', 'carbon', 'selvedge', 'vanguard'],
     defaultTier: 'inner-circle-chest',
@@ -136,9 +136,9 @@ const ARCHETYPE_CATALOG: Record<
     archetype: 'Neo-Renaissance',
     motto: 'Every numbered relic carries its maker’s scar.',
     description:
-      'Collector of 1-of-12 Reborn customs, openworked grade-5 titanium horology, and chiaroscuro couture finished with antique gold accents.',
-    paletteNotes: ['Obsidian #070709', 'Warm Bone #ece5d8', 'Antique Gold #cfa156'],
-    categories: ['Relics', 'Reborn Archive', 'Outerwear'],
+      'Collector of 1-of-12 Afterlife customs, openworked grade-5 titanium horology, and chiaroscuro couture finished with antique gold accents.',
+    paletteNotes: ['Obsidian #0b0908', 'Warm Bone #efe9df', 'Antique Gold #c8864a'],
+    categories: ['Relics', 'Afterlife Archive', 'Outerwear'],
     keywords: ['reborn', 'titanium', 'chronograph', 'custom', '1-of-12'],
     defaultTier: 'grail-vault',
   },
@@ -147,8 +147,8 @@ const ARCHETYPE_CATALOG: Record<
     motto: 'Zero ornament. Pure architectural column.',
     description:
       'Devoted to double-faced 780g virgin wool-cashmere, concealed horn plackets, unwashed Kuroki raw denim, and lifetime structural drape.',
-    paletteNotes: ['Deep Obsidian #070709', 'Warm Bone #ece5d8', 'Muted Pewter #9a948a'],
-    categories: ['Reborn Archive', 'Bottoms', 'Hoodies'],
+    paletteNotes: ['Deep Obsidian #0b0908', 'Warm Bone #efe9df', 'Muted Pewter #a69c8e'],
+    categories: ['Afterlife Archive', 'Bottoms', 'Hoodies'],
     keywords: ['monolith', 'wool', 'overcoat', 'raw', 'tailored'],
     defaultTier: 'initiate-box',
   },
@@ -317,13 +317,15 @@ function evaluateVoucher(
   rawCode: string,
   orderAmount: number
 ): VoucherValidation {
-  const code = String(rawCode || '').trim().toUpperCase()
+  const typed = String(rawCode || '').trim().toUpperCase()
+  // Pre-rename code keeps working for anyone holding an old link.
+  const code = typed === 'ENIGMA15' ? 'NOCTURNE15' : typed
   if (!code) {
     throw new Error('Please enter a privilege or voucher code.')
   }
   const voucher = state.vouchers.find(v => v.code.toUpperCase() === code)
   if (!voucher || !voucher.isActive) {
-    throw new Error(`Code "${code}" was not recognized in the ENIGMA Vault.`)
+    throw new Error(`Code "${code}" was not recognized in the NOCTURNE Vault.`)
   }
   if (voucher.expiresAt && new Date(voucher.expiresAt).getTime() < Date.now()) {
     throw new Error(`Code "${code}" has expired.`)
@@ -357,7 +359,7 @@ function evaluateVoucher(
     finalTotal: Math.max(0, orderAmount - discountAmount),
     isSecretInitiation: voucher.isSecretInitiation,
     message: voucher.isSecretInitiation
-      ? 'Inner Circle privilege verified — 15% Initiation credit unlocked.'
+      ? 'Night Order privilege verified — 15% Initiation credit unlocked.'
       : `Privilege ${voucher.code} applied.`,
   }
 }
@@ -547,7 +549,7 @@ function buildExecutiveDashboard(state: DemoVaultState): ExecutiveDashboardStats
           variantId: v.id,
           productId: p.id,
           productName: p.name,
-          sku: v.sku || `ENG-${p.id}-${v.id}`,
+          sku: v.sku || `NCT-${p.id}-${v.id}`,
           size: v.size || null,
           color: v.color || null,
           stock: v.stock,
@@ -706,15 +708,15 @@ function handleAiStylistMessage(
   // 3. Coupon / Initiation Code Intent
   if (/\b(coupons?|vouchers?|codes?|discounts?|enigma15|cult10|ma giam|mã giảm)\b/i.test(q)) {
     toolsInvoked.push('validate_coupon')
-    const codeMatch = rawMessage.match(/\b(ENIGMA15|CULT10|VAULT500K)\b/i)
-    const checkCode = codeMatch ? codeMatch[1].toUpperCase() : 'ENIGMA15'
+    const codeMatch = rawMessage.match(/\b(NOCTURNE15|CULT10|VAULT500K)\b/i)
+    const checkCode = codeMatch ? codeMatch[1].toUpperCase() : 'NOCTURNE15'
     const v = evaluateVoucher(state, checkCode, 10000000)
     return {
       type: 'text',
       sessionId,
       engine: 'hybrid-local-rag',
       toolsInvoked,
-      message: `${v.message} (${v.code}: ${v.description}). Tip: Type ENIGMA anywhere outside an input field to trigger the Inner Circle Initiation ceremony directly.`,
+      message: `${v.message} (${v.code}: ${v.description}). Tip: Type NOCTURNE anywhere outside an input field to trigger the Night Order Initiation ceremony directly.`,
     }
   }
 
@@ -723,7 +725,7 @@ function handleAiStylistMessage(
     const userCodex = user ? state.styleProfiles.find(p => p.userId === user.id)?.codex : null
     uiBlocks.push({
       kind: 'taste_codex_prompt',
-      title: userCodex ? `YOUR CODEX · ${userCodex.archetype.toUpperCase()}` : 'DECODE YOUR TASTE CODEX',
+      title: userCodex ? `YOUR CODEX · ${userCodex.archetype.toUpperCase()}` : 'READ YOUR TASTE CODEX',
       subtitle: userCodex
         ? userCodex.motto
         : 'Complete the 8-step chromatic & silhouette calibration to unlock your matched Mystery Vault.',
@@ -737,7 +739,7 @@ function handleAiStylistMessage(
       engine: 'hybrid-local-rag',
       toolsInvoked: ['decode_taste_codex'],
       message: userCodex
-        ? `Your active Taste Codex is ${userCodex.archetype}, paired with the ${userCodex.recommendedBox?.name || 'Inner Circle Chest'}.`
+        ? `Your active Taste Codex is ${userCodex.archetype}, paired with the ${userCodex.recommendedBox?.name || 'Night Order Chest'}.`
         : 'Every Mystery Allocation begins with the 8-step Taste Codex calibration. Launch the decoder below:',
       uiBlocks,
     }
@@ -754,7 +756,7 @@ function handleAiStylistMessage(
       columns: pair.map(p => ({
         id: p.id,
         name: p.name,
-        brand: p.brand || 'ENIGMA',
+        brand: p.brand || 'NOCTURNE',
         category: p.category || 'Archive',
         price: p.price,
         releaseType: (p.releaseType || 'drop').toUpperCase(),
@@ -813,8 +815,8 @@ function handleAiStylistMessage(
     toolsInvoked,
     message:
       matched.length > 0
-        ? `Selected ${picks.length} authenticated pieces from the ENIGMA Vault matching your criteria. Select a size directly on any card to reserve:`
-        : 'Welcome to the ENIGMA Grail Desk. Here are three flagship pieces from our current drop—select a size inline or ask me to compare pieces, inspect live auctions, or track an order:',
+        ? `Selected ${picks.length} authenticated pieces from the NOCTURNE Vault matching your criteria. Select a size directly on any card to reserve:`
+        : 'Welcome to the NOCTURNE Grail Desk. Here are three flagship pieces from our current drop—select a size inline or ask me to compare pieces, inspect live auctions, or track an order:',
     uiBlocks,
   }
 }
@@ -931,7 +933,7 @@ export async function demoHandleRequest<T>(
     state.users.push(newUser)
     saveState(state)
     return {
-      message: 'Inner Circle registration complete. Your account is verified and ready to sign in.',
+      message: 'Night Order registration complete. Your account is verified and ready to sign in.',
     } as T
   }
 
@@ -1136,10 +1138,10 @@ export async function demoHandleRequest<T>(
     const created: Product = {
       id: nextId,
       name: String(payload.name || 'Untitled Archive Piece'),
-      brand: payload.brand || 'ENIGMA ATELIER',
+      brand: payload.brand || 'NOCTURNE ATELIER',
       releaseType: payload.releaseType || 'drop',
       condition: payload.condition || 'Deadstock',
-      authenticityCode: payload.authenticityCode || `ENG-2026-${String(nextId).padStart(3, '0')}`,
+      authenticityCode: payload.authenticityCode || `NCT-2026-${String(nextId).padStart(3, '0')}`,
       description: payload.description || '',
       price: Number(payload.price || 0),
       stock: Number(payload.stock ?? 10),
@@ -1158,7 +1160,7 @@ export async function demoHandleRequest<T>(
       size: sz,
       color: created.colors?.[0] || 'Obsidian',
       stock: Math.max(1, Math.floor(created.stock / Math.max(1, (created.sizes || []).length))),
-      sku: `ENG-${nextId}-${sz}`,
+      sku: `NCT-${nextId}-${sz}`,
     }))
     state.products.unshift(created)
     saveState(state)
@@ -1225,7 +1227,7 @@ export async function demoHandleRequest<T>(
         color: payload.color || 'Obsidian',
         stock: Number(payload.stock ?? 5),
         priceOverride: payload.priceOverride ? Number(payload.priceOverride) : undefined,
-        sku: payload.sku || `ENG-${pid}-${nextVid}`,
+        sku: payload.sku || `NCT-${pid}-${nextVid}`,
       }
       prod.variants = [...(prod.variants || []), v]
       prod.stock = prod.variants.reduce((s, item) => s + Number(item.stock), 0)
@@ -1320,7 +1322,7 @@ export async function demoHandleRequest<T>(
         id: Date.now() + Math.floor(Math.random() * 1000),
         productId: Number(payload.productId),
         variantId: payload.variantId ? Number(payload.variantId) : undefined,
-        name: String(payload.name || prod?.name || 'ENIGMA Allocation'),
+        name: String(payload.name || prod?.name || 'NOCTURNE Allocation'),
         price: Number(payload.price ?? prod?.price ?? 0),
         quantity: Number(payload.quantity || 1),
         size: payload.size,
@@ -1651,7 +1653,7 @@ export async function demoHandleRequest<T>(
     return created as T
   }
 
-  // ── CONCIERGE ("FIND IT AT MY PRICE") ──────────────────────────
+  // ── CONCIERGE ("NAME YOUR PRICE") ──────────────────────────
   if (method === 'POST' && pathname === '/concierge') {
     const targetPrice = Number(payload.targetPrice || 0)
     if (!payload.itemName || targetPrice <= 0) {
@@ -1660,7 +1662,7 @@ export async function demoHandleRequest<T>(
     const ticket: ConciergeTicket = {
       id: Math.max(0, ...state.concierge.map(c => c.id)) + 1,
       userId: user?.id || null,
-      requesterName: String(payload.requesterName || user?.name || 'Inner Circle Guest'),
+      requesterName: String(payload.requesterName || user?.name || 'Night Order Guest'),
       requesterEmail: String(payload.requesterEmail || user?.email || 'collector@enigma.cult'),
       itemName: String(payload.itemName),
       brand: payload.brand || null,
@@ -1729,7 +1731,7 @@ export async function demoHandleRequest<T>(
     const created: VoucherItem = {
       id: Math.max(0, ...state.vouchers.map(v => v.id)) + 1,
       code: String(payload.code || '').trim().toUpperCase(),
-      description: String(payload.description || 'ENIGMA Privilege'),
+      description: String(payload.description || 'NOCTURNE Privilege'),
       discountType: payload.discountType === 'fixed' ? 'fixed' : 'percentage',
       discountValue: Number(payload.discountValue || 10),
       minOrderAmount: Number(payload.minOrderAmount || 0),

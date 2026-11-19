@@ -40,28 +40,28 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
           <div
             key={t.id}
             role="status"
-            className={`pointer-events-auto flex items-start gap-3 px-4 py-3.5 border bg-[#111111]/95 backdrop-blur-md shadow-2xl text-xs tracking-wide ${
+            className={`pointer-events-auto flex items-start gap-3 px-4 py-3.5 border bg-ink-raised/95 backdrop-blur-md shadow-2xl text-xs tracking-wide ${
               t.type === 'success'
-                ? 'border-[#f9f9f9]/60 text-[#f9f9f9]'
+                ? 'border-bone/60 text-bone'
                 : t.type === 'error'
                   ? 'border-red-500/60 text-red-200'
-                  : 'border-[#f9f9f9]/20 text-[#f9f9f9]'
+                  : 'border-bone/20 text-bone'
             }`}
           >
             {t.type === 'success' && (
-              <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0 text-[#f9f9f9]" />
+              <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0 text-bone" />
             )}
             {t.type === 'error' && (
               <XCircle className="w-4 h-4 mt-0.5 flex-shrink-0 text-red-400" />
             )}
             {t.type === 'info' && (
-              <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0 text-[#a3a3a3]" />
+              <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0 text-bone-muted" />
             )}
             <span className="flex-1 leading-relaxed">{t.message}</span>
             <button
               onClick={() => remove(t.id)}
               aria-label="Dismiss notification"
-              className="text-[#a3a3a3] hover:text-[#f9f9f9] transition"
+              className="text-bone-muted hover:text-bone transition"
             >
               <X className="w-4 h-4" />
             </button>

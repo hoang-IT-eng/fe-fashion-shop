@@ -52,7 +52,7 @@ function serverSideAiPlugin() {
             role: 'user',
             parts: [
               {
-                text: `You are ENIGMA — an avant-garde luxury streetwear & grail auction stylist. Reply in the user's language (Vietnamese or English) in 1-2 crisp editorial sentences grounded strictly in: ${JSON.stringify({ fallbackText, blockKinds })}.\nUser message: ${message}`,
+                text: `You are NOCTURNE — an avant-garde luxury streetwear & grail auction stylist. Reply in the user's language (Vietnamese or English) in 1-2 crisp editorial sentences grounded strictly in: ${JSON.stringify({ fallbackText, blockKinds })}.\nUser message: ${message}`,
               },
             ],
           },
@@ -89,7 +89,7 @@ function serverSideAiPlugin() {
   }
 
   return {
-    name: 'enigma-server-ai-proxy',
+    name: 'nocturne-server-ai-proxy',
     configResolved(config) {
       const env = loadEnv(config.mode, process.cwd(), '')
       apiKey = (env.GEMINI_API_KEY || process.env.GEMINI_API_KEY || '').trim()

@@ -18,7 +18,7 @@ import { api } from '../api/apiClient'
 import { ExecutiveDashboardStats } from '../types/enigma'
 import { formatVnd } from '../lib/format'
 import { useAuthStore } from '../store/useAuthStore'
-import { EnigmaCrest } from '../components/EnigmaCrest'
+import { NocturneMark } from '../components/brand/NocturneMark'
 import AdminDashboardPage from './admin/AdminDashboardPage'
 import AdminProductsTab from './admin/AdminProductsTab'
 import AdminAuctionsTab from './admin/AdminAuctionsTab'
@@ -43,7 +43,7 @@ const ADMIN_TABS: { id: AdminTabId; label: string; shortcut: string; icon: React
   { id: 'products', label: 'Products & SKU Matrix', shortcut: 'G P', icon: Package },
   { id: 'auctions', label: 'Live Auctions Monitor', shortcut: 'G L', icon: Gavel },
   { id: 'concierge', label: 'Codex & Concierge Desk', shortcut: 'G C', icon: Crosshair },
-  { id: 'vouchers', label: 'Vouchers & ENIGMA15', shortcut: 'G V', icon: Tag },
+  { id: 'vouchers', label: 'Vouchers & NOCTURNE15', shortcut: 'G V', icon: Tag },
   { id: 'orders', label: 'Orders Pipeline', shortcut: 'G O', icon: ShoppingCart },
   { id: 'categories', label: 'Archive Capsules', shortcut: 'G T', icon: FolderTree },
   { id: 'users', label: 'Collectors & Roles', shortcut: 'G U', icon: Users },
@@ -77,15 +77,15 @@ export default function AdminPage() {
   // Allow instant 1-click Curator authorization if someone visits /admin directly without signing in
   if (!isAuthenticated || user?.role !== 'admin') {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] text-[#f9f9f9] flex items-center justify-center p-6">
-        <div className="max-w-md w-full bg-[#111111] border border-[#f9f9f9]/50 p-8 text-center space-y-6">
-          <EnigmaCrest className="w-12 h-12 mx-auto" />
+      <div className="min-h-screen bg-ink text-bone flex items-center justify-center p-6">
+        <div className="max-w-md w-full bg-ink-raised border border-bone/50 p-8 text-center space-y-6">
+          <NocturneMark className="w-12 h-12 mx-auto" />
           <div>
-            <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#f9f9f9]">
+            <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-bone">
               RESTRICTED CURATOR CONSOLE
             </p>
             <h1 className="font-display text-3xl mt-1">Executive Grail Desk</h1>
-            <p className="text-xs text-[#a3a3a3] mt-2 leading-relaxed">
+            <p className="text-xs text-bone-muted mt-2 leading-relaxed">
               Curator clearance is required to access GMV telemetry, SKU matrices, live auction
               controls, and sourcing mandates.
             </p>
@@ -94,13 +94,13 @@ export default function AdminPage() {
             id="instant-admin-unlock-btn"
             type="button"
             onClick={() => void login('admin@fashionshop.com', 'Admin@123')}
-            className="w-full py-3.5 bg-[#f9f9f9] text-[#0a0a0a] font-mono text-xs font-semibold uppercase tracking-[0.22em] hover:bg-[#d9d9d9] transition inline-flex items-center justify-center gap-2"
+            className="w-full py-3.5 bg-bone text-ink font-mono text-xs font-semibold uppercase tracking-[0.22em] hover:bg-bone-dim transition inline-flex items-center justify-center gap-2"
           >
             <KeyRound className="w-4 h-4" /> Authenticate Demo Curator (Admin@123)
           </button>
           <Link
             to="/"
-            className="inline-block font-mono text-xs uppercase tracking-widest text-[#a3a3a3] hover:text-[#f9f9f9]"
+            className="inline-block font-mono text-xs uppercase tracking-widest text-bone-muted hover:text-bone"
           >
             ← Return to Storefront
           </Link>
@@ -114,12 +114,12 @@ export default function AdminPage() {
   )
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-[#f9f9f9] flex flex-col lg:flex-row">
+    <div className="min-h-screen bg-ink text-bone flex flex-col lg:flex-row">
       {/* Left High-Density Studio Sidebar */}
-      <aside className="lg:w-64 bg-[#111111] border-b lg:border-b-0 lg:border-r border-[#f9f9f9]/10 flex flex-col justify-between flex-shrink-0">
+      <aside className="lg:w-64 bg-ink-raised border-b lg:border-b-0 lg:border-r border-bone/10 flex flex-col justify-between flex-shrink-0">
         <div>
-          <div className="p-5 border-b border-[#f9f9f9]/10 flex items-center justify-between">
-            <EnigmaCrest className="w-7 h-7" showWordmark subtitle="GRAIL DESK" />
+          <div className="p-5 border-b border-bone/10 flex items-center justify-between">
+            <NocturneMark className="w-7 h-7" showWordmark subtitle="GRAIL DESK" />
           </div>
 
           <div className="p-3">
@@ -127,12 +127,12 @@ export default function AdminPage() {
               id="admin-cmdk-btn"
               type="button"
               onClick={() => setCmdOpen(true)}
-              className="w-full px-3 py-2 bg-[#111111] border border-[#f9f9f9]/15 hover:border-[#f9f9f9]/60 flex items-center justify-between font-mono text-xs text-[#a3a3a3] transition"
+              className="w-full px-3 py-2 bg-ink-raised border border-bone/15 hover:border-bone/60 flex items-center justify-between font-mono text-xs text-bone-muted transition"
             >
               <span className="inline-flex items-center gap-2">
-                <Search className="w-3.5 h-3.5 text-[#f9f9f9]" /> Quick Jump...
+                <Search className="w-3.5 h-3.5 text-bone" /> Quick Jump...
               </span>
-              <span className="px-1.5 py-0.5 bg-[#0a0a0a] border border-[#f9f9f9]/15 text-[10px]">
+              <span className="px-1.5 py-0.5 bg-ink border border-bone/15 text-[10px]">
                 ⌘K
               </span>
             </button>
@@ -149,8 +149,8 @@ export default function AdminPage() {
                   onClick={() => setActiveTab(tab.id)}
                   className={`w-full flex items-center justify-between px-3 py-2.5 font-mono text-xs transition border-l-2 ${
                     active
-                      ? 'border-[#f9f9f9] bg-[#111111] text-[#f9f9f9]'
-                      : 'border-transparent text-[#a3a3a3] hover:text-[#f9f9f9] hover:bg-[#111111]/50'
+                      ? 'border-bone bg-ink-raised text-bone'
+                      : 'border-transparent text-bone-muted hover:text-bone hover:bg-ink-raised/50'
                   }`}
                 >
                   <span className="inline-flex items-center gap-2.5 truncate">
@@ -163,16 +163,16 @@ export default function AdminPage() {
           </nav>
         </div>
 
-        <div className="p-4 border-t border-[#f9f9f9]/10 space-y-2">
-          <div className="font-mono text-[10px] text-[#a3a3a3] truncate">
-            CURATOR: <span className="text-[#f9f9f9]">{user.name}</span>
+        <div className="p-4 border-t border-bone/10 space-y-2">
+          <div className="font-mono text-[10px] text-bone-muted truncate">
+            CURATOR: <span className="text-bone">{user.name}</span>
           </div>
           <Link
             to="/"
-            className="w-full py-2 px-3 border border-[#f9f9f9]/15 hover:border-[#f9f9f9] font-mono text-[10px] uppercase tracking-widest text-[#f9f9f9] flex items-center justify-between"
+            className="w-full py-2 px-3 border border-bone/15 hover:border-bone font-mono text-[10px] uppercase tracking-widest text-bone flex items-center justify-between"
           >
             <span>Live Storefront</span>
-            <ArrowUpRight className="w-3.5 h-3.5 text-[#f9f9f9]" />
+            <ArrowUpRight className="w-3.5 h-3.5 text-bone" />
           </Link>
         </div>
       </aside>
@@ -180,54 +180,54 @@ export default function AdminPage() {
       {/* Main Executive Workspace */}
       <div className="flex-1 min-w-0 flex flex-col">
         {/* Top Tabular-Nums KPI Strip */}
-        <header className="bg-[#111111] border-b border-[#f9f9f9]/10 px-6 py-4">
+        <header className="bg-ink-raised border-b border-bone/10 px-6 py-4">
           <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
-            <h1 className="font-display text-2xl md:text-3xl text-[#f9f9f9]">
-              ENIGMA Executive Commerce &amp; Grail Desk
+            <h1 className="font-display text-2xl md:text-3xl text-bone">
+              NOCTURNE Executive Commerce &amp; Grail Desk
             </h1>
-            <span className="font-mono text-[10px] tracking-[0.24em] uppercase text-[#f9f9f9]">
+            <span className="font-mono text-[10px] tracking-[0.24em] uppercase text-bone">
               STUDIO TELEMETRY · LIVE SYNC
             </span>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 font-mono">
-            <div className="p-3 bg-[#111111] border border-[#f9f9f9]/10">
-              <span className="block text-[9px] uppercase tracking-widest text-[#a3a3a3]">
+            <div className="p-3 bg-ink-raised border border-bone/10">
+              <span className="block text-[9px] uppercase tracking-widest text-bone-muted">
                 GROSS GMV
               </span>
-              <span className="text-sm md:text-base font-semibold text-[#f9f9f9] tabular-nums">
+              <span className="text-sm md:text-base font-semibold text-bone tabular-nums">
                 {formatVnd(kpi?.totalRevenue || 0)}
               </span>
             </div>
-            <div className="p-3 bg-[#111111] border border-[#f9f9f9]/10">
-              <span className="block text-[9px] uppercase tracking-widest text-[#a3a3a3]">
+            <div className="p-3 bg-ink-raised border border-bone/10">
+              <span className="block text-[9px] uppercase tracking-widest text-bone-muted">
                 AVG ORDER VALUE
               </span>
-              <span className="text-sm md:text-base font-semibold text-[#f9f9f9] tabular-nums">
+              <span className="text-sm md:text-base font-semibold text-bone tabular-nums">
                 {formatVnd(kpi?.averageOrderValue || 0)}
               </span>
             </div>
-            <div className="p-3 bg-[#111111] border border-[#f9f9f9]/10">
-              <span className="block text-[9px] uppercase tracking-widest text-[#a3a3a3]">
+            <div className="p-3 bg-ink-raised border border-bone/10">
+              <span className="block text-[9px] uppercase tracking-widest text-bone-muted">
                 LIVE GRAIL LOTS
               </span>
-              <span className="text-sm md:text-base font-semibold text-[#f9f9f9] tabular-nums">
+              <span className="text-sm md:text-base font-semibold text-bone tabular-nums">
                 {kpi?.auctionHeat.liveCount ?? 3} ACTIVE
               </span>
             </div>
-            <div className="p-3 bg-[#111111] border border-[#f9f9f9]/10">
-              <span className="block text-[9px] uppercase tracking-widest text-[#a3a3a3]">
+            <div className="p-3 bg-ink-raised border border-bone/10">
+              <span className="block text-[9px] uppercase tracking-widest text-bone-muted">
                 CONCIERGE QUEUE
               </span>
-              <span className="text-sm md:text-base font-semibold text-[#f9f9f9] tabular-nums">
+              <span className="text-sm md:text-base font-semibold text-bone tabular-nums">
                 {kpi?.pendingConciergeCount ?? 2} OPEN
               </span>
             </div>
-            <div className="p-3 bg-[#111111] border border-[#f9f9f9]/10 col-span-2 sm:col-span-1">
-              <span className="block text-[9px] uppercase tracking-widest text-[#a3a3a3]">
+            <div className="p-3 bg-ink-raised border border-bone/10 col-span-2 sm:col-span-1">
+              <span className="block text-[9px] uppercase tracking-widest text-bone-muted">
                 LOW-STOCK SKUS
               </span>
-              <span className="text-sm md:text-base font-semibold text-[#f9f9f9] tabular-nums">
+              <span className="text-sm md:text-base font-semibold text-bone tabular-nums">
                 {kpi?.lowStockSkus.length ?? 0} ALERTS
               </span>
             </div>
@@ -257,20 +257,20 @@ export default function AdminPage() {
         >
           <div
             onClick={e => e.stopPropagation()}
-            className="w-full max-w-lg bg-[#111111] border border-[#f9f9f9]/60 shadow-2xl overflow-hidden"
+            className="w-full max-w-lg bg-ink-raised border border-bone/60 shadow-2xl overflow-hidden"
           >
-            <div className="p-3.5 border-b border-[#f9f9f9]/10 flex items-center gap-3">
-              <Command className="w-4 h-4 text-[#f9f9f9]" />
+            <div className="p-3.5 border-b border-bone/10 flex items-center gap-3">
+              <Command className="w-4 h-4 text-bone" />
               <input
                 type="text"
                 autoFocus
                 value={cmdQuery}
                 onChange={e => setCmdQuery(e.target.value)}
                 placeholder="Jump to Analytics, SKU Matrix, Auctions, Concierge, Vouchers..."
-                className="flex-1 bg-transparent font-mono text-xs text-[#f9f9f9] placeholder-[#a3a3a3] focus:outline-none"
+                className="flex-1 bg-transparent font-mono text-xs text-bone placeholder-bone-muted focus:outline-none"
               />
             </div>
-            <div className="divide-y divide-[#f9f9f9]/10 max-h-72 overflow-y-auto">
+            <div className="divide-y divide-bone/10 max-h-72 overflow-y-auto">
               {filteredCommands.map(cmd => {
                 const Icon = cmd.icon
                 return (
@@ -282,13 +282,13 @@ export default function AdminPage() {
                       setCmdOpen(false)
                       setCmdQuery('')
                     }}
-                    className="w-full px-4 py-3 flex items-center justify-between hover:bg-[#232323] font-mono text-xs text-[#f9f9f9]"
+                    className="w-full px-4 py-3 flex items-center justify-between hover:bg-umber-line font-mono text-xs text-bone"
                   >
                     <span className="inline-flex items-center gap-2.5">
-                      <Icon className="w-3.5 h-3.5 text-[#f9f9f9]" />
+                      <Icon className="w-3.5 h-3.5 text-bone" />
                       {cmd.label}
                     </span>
-                    <span className="text-[10px] text-[#a3a3a3]">{cmd.shortcut}</span>
+                    <span className="text-[10px] text-bone-muted">{cmd.shortcut}</span>
                   </button>
                 )
               })}
