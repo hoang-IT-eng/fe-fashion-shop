@@ -93,7 +93,7 @@ export function NocturneLoader() {
     <div id="nocturne-loader" aria-hidden="true" className="pointer-events-none fixed inset-0 z-[120] text-bone">
       {!live.current && (
         <div ref={veilRef} className="absolute inset-0 overflow-hidden bg-ink will-change-transform">
-          <HeroPoster className="h-full w-full scale-125 object-cover blur-[3px] brightness-[0.55]" />
+          <HeroPoster className="h-full w-full object-cover brightness-50" />
           <div className="loader-veil absolute inset-0" />
         </div>
       )}
