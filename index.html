@@ -16,6 +16,9 @@
     <meta property="og:type" content="website" />
     <meta property="og:image" content="/og-nocturne.jpg" />
     <meta name="twitter:card" content="summary_large_image" />
+    <!-- Hero LCP painting: discovered before the JS bundle, art-directed like <HeroPoster> -->
+    <link rel="preload" as="image" type="image/avif" media="(max-aspect-ratio: 4/5)" imagesrcset="/images/nocturne/hero-sky-mobile-540.avif 540w, /images/nocturne/hero-sky-mobile-810.avif 810w, /images/nocturne/hero-sky-mobile-1080.avif 1080w" imagesizes="100vw" fetchpriority="high" />
+    <link rel="preload" as="image" type="image/avif" media="(min-aspect-ratio: 4.001/5)" imagesrcset="/images/nocturne/hero-sky-desktop-960.avif 960w, /images/nocturne/hero-sky-desktop-1440.avif 1440w, /images/nocturne/hero-sky-desktop-1920.avif 1920w" imagesizes="100vw" fetchpriority="high" />
   </head>
   <body class="bg-ink text-bone antialiased selection:bg-bone selection:text-ink">
     <div id="root"></div>

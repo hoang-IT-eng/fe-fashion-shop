@@ -3,7 +3,8 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import { CartDrawer } from './components/CartDrawer'
-import { CinematicPreloader } from './components/experience/CinematicPreloader'
+import { NocturneLoader } from './components/experience/NocturneLoader'
+import { CloudOverlay } from './components/experience/cloud/CloudOverlay'
 import { CloudCurtainTransition } from './components/experience/CloudCurtainTransition'
 import { InitiationEasterEgg } from './components/experience/InitiationEasterEgg'
 import { SmoothScroll } from './components/experience/SmoothScroll'
@@ -63,7 +64,8 @@ export function AppLayout() {
     <div className="min-h-screen bg-ink text-bone flex flex-col">
       <a href="#main" className="skip-link">Skip to content</a>
       <SmoothScroll />
-      <CinematicPreloader />
+      <CloudOverlay />
+      <NocturneLoader />
       <CloudCurtainTransition />
       <InitiationEasterEgg />
       <Header />

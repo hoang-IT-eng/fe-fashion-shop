@@ -26,7 +26,7 @@ export default function MysteryVaultScene({
     let frameId = 0
     let cleanupFn: (() => void) | undefined
 
-    void import('three')
+    void import('../../lib/threeVault')
       .then((THREE) => {
         if (disposed || !mountRef.current) return
         try {

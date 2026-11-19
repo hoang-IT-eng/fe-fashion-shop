@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useCallback, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import {
   ShoppingBag,
@@ -7,24 +7,24 @@ import {
   VolumeX,
   User,
   Menu,
-  X,
   Search,
   LayoutDashboard,
   LogOut,
   Package,
 } from 'lucide-react'
 import { NocturneMark } from './brand/NocturneMark'
+import { MenuOverlay } from './MenuOverlay'
 import { useAuthStore } from '../store/useAuthStore'
 import { useCartStore } from '../store/useCartStore'
 import { useWishlistStore } from '../store/useWishlistStore'
 import { useSoundStore } from '../store/useSoundStore'
 
 const NAV_ITEMS = [
-  { label: 'Drops', path: '/products' },
-  { label: 'Live Auctions', path: '/auctions' },
-  { label: 'Mystery Vault', path: '/mystery-boxes' },
-  { label: 'Concierge', path: '/concierge' },
-  { label: 'Afterlife Journal', path: '/journal' },
+  { label: 'Drops', path: '/products', note: 'The full archive' },
+  { label: 'Live Auctions', path: '/auctions', note: 'Anti-snipe bidding room' },
+  { label: 'Mystery Vault', path: '/mystery-boxes', note: 'Sealed boxes, style quiz' },
+  { label: 'Concierge', path: '/concierge', note: 'Name your price' },
+  { label: 'Afterlife Journal', path: '/journal', note: 'Stories from the atelier' },
 ]
 
 export default function Header() {
@@ -41,6 +41,8 @@ export default function Header() {
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
 
+  const menuBtnRef = useRef<HTMLButtonElement | null>(null)
+  const closeMenu = useCallback(() => setMobileOpen(false), [])
   const bagCount = items.reduce((sum, i) => sum + i.quantity, 0)
 
   const handleSearchSubmit = (e: React.FormEvent) => {
@@ -223,15 +225,19 @@ export default function Header() {
             </Link>
           )}
 
-          {/* Mobile Hamburger */}
+          {/* Menu — opens inside the clouds */}
           <button
+            ref={menuBtnRef}
             id="header-mobile-menu-btn"
             type="button"
             onClick={() => setMobileOpen(v => !v)}
-            aria-label="Toggle Menu"
-            className="lg:hidden p-2 text-bone"
+            aria-label="Open menu"
+            aria-expanded={mobileOpen}
+            aria-controls="site-menu"
+            className="inline-flex items-center gap-2 p-2 text-bone"
           >
-            {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            <span className="hidden font-sans text-[11px] font-medium uppercase tracking-[0.18em] md:inline">Menu</span>
+            <Menu className="w-5 h-5" />
           </button>
         </div>
       </div>
@@ -263,40 +269,14 @@ export default function Header() {
         </form>
       )}
 
-      {/* Mobile Drawer */}
-      {mobileOpen && (
-        <div className="lg:hidden border-t border-bone/10 bg-ink px-6 py-6 space-y-4">
-          {NAV_ITEMS.map(item => (
-            <Link
-              key={item.path}
-              to={item.path}
-              onClick={() => setMobileOpen(false)}
-              className="block text-base text-bone/85 hover:text-bone py-1.5"
-            >
-              {item.label}
-            </Link>
-          ))}
-          <div className="pt-4 border-t border-bone/10 flex items-center gap-3">
-            {!isAuthenticated ? (
-              <Link
-                to="/auth"
-                onClick={() => setMobileOpen(false)}
-                className="w-full text-center py-2.5 bg-bone text-ink font-sans text-xs font-semibold uppercase tracking-[0.14em]"
-              >
-                Sign In / Initiate
-              </Link>
-            ) : (
-              <Link
-                to={user?.role === 'admin' ? '/admin' : '/orders'}
-                onClick={() => setMobileOpen(false)}
-                className="w-full text-center py-2.5 border border-bone text-bone font-sans text-[11px] font-medium uppercase tracking-[0.16em]"
-              >
-                {user?.role === 'admin' ? 'Open Admin Grail Desk' : 'My Provenance Orders'}
-              </Link>
-            )}
-          </div>
-        </div>
-      )}
+      <MenuOverlay
+        open={mobileOpen}
+        onClose={closeMenu}
+        items={NAV_ITEMS}
+        isAuthenticated={isAuthenticated}
+        isAdmin={user?.role === 'admin'}
+        returnFocusTo={menuBtnRef}
+      />
     </header>
   )
 }

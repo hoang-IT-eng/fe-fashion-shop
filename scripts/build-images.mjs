@@ -32,7 +32,7 @@ await mkdir(LEGACY, { recursive: true })
 const manifest = {}
 let total = 0
 
-for (const file of (await readdir(SRC)).filter(f => /\.(jpe?g|png)$/i.test(f)).sort()) {
+for (const file of (await readdir(SRC)).filter(f => /\.(jpe?g|png)$/i.test(f) && !f.startsWith('cloud-sprite-')).sort()) {
   const name = file.replace(/\.[^.]+$/, '')
   const input = sharp(path.join(SRC, file))
   const meta = await input.metadata()

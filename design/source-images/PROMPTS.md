@@ -21,6 +21,10 @@ Pipeline: `npm run images` turns these sources into AVIF/WebP srcsets (`public/i
 | manifesto-cherub | Manifesto collage (PR 2) | 3:4 | Original Baroque-style cherub offering an unbranded sneaker into a beam of light |
 | manifesto-noble | Manifesto collage (PR 2) | 3:4 | Invented nobleman in fur coat over a hoodie, holding a skeleton watch |
 | manifesto-roundel | Manifesto collage (PR 2) | 1:1 | Original fresco roundel; bomber floating in an opening of ember light |
+| cloud-sprite-c | WebGL cloud atlas (PR 2) | 16:9 | Isolated wide stratus bank, oil on canvas, lit from below by one ember light, flat black surround |
+| cloud-sprite-d | WebGL cloud atlas (PR 2) | 1:1 | Isolated billowing cumulus seen from below, ember glowing through thin parts, flat black surround |
 | lookbook-01 | Lookbook (PR 2) | 3:4 | Invented model in charcoal trench + black tailoring, Baroque portrait pose |
 
 Generator output is 864–1280 px on the long edge; hero variants are upscaled at most 1.5× (lanczos3) by the pipeline. Regenerate at higher resolution if a larger master becomes available.
+
+Cloud sprites a–d are not part of `npm run images`; `npm run images:clouds` packs them into the RGBA atlas `public/images/nocturne/cloud-atlas.webp` (alpha from luminance + soft elliptical falloff).
