@@ -7,7 +7,7 @@ import { NocturneMark, NocturneWordmark } from './brand/NocturneMark'
 import { ResponsiveImage } from './media/ResponsiveImage'
 import { CloudHost, useCloudLive } from './experience/cloud/CloudHost'
 import { cloud, cloudsSupported } from './experience/cloud/cloudState'
-import { getLenis, motionDisabled } from '../lib/motion'
+import { afterIdle, getLenis, motionDisabled } from '../lib/motion'
 
 /** The footer coda: the camera looks back up into the clouds — an ascent that closes the reel. */
 function FooterCoda() {
@@ -16,16 +16,18 @@ function FooterCoda() {
   useEffect(() => {
     const el = ref.current
     if (!el || !cloudsSupported()) return
-    gsap.registerPlugin(ScrollTrigger)
-    const st = ScrollTrigger.create({
-      trigger: el,
-      start: 'top bottom',
-      end: 'bottom bottom',
-      onUpdate: self => {
-        cloud.footer = self.progress
-      },
-    })
-    return () => st.kill()
+    return afterIdle(() => {
+      gsap.registerPlugin(ScrollTrigger)
+      const st = ScrollTrigger.create({
+        trigger: el,
+        start: 'top bottom',
+        end: 'bottom bottom',
+        onUpdate: self => {
+          cloud.footer = self.progress
+        },
+      })
+      return () => st.kill()
+    }, 1500)
   }, [])
   const ascend = () => {
     const lenis = getLenis()
@@ -101,9 +103,9 @@ export default function Footer() {
           </div>
 
           <div className="md:col-span-2 space-y-3">
-            <h3 className="font-sans text-[11px] font-semibold tracking-[0.18em] uppercase text-bone">
+            <h2 className="font-sans text-[11px] font-semibold tracking-[0.18em] uppercase text-bone">
               Archive
-            </h3>
+            </h2>
             <ul className="space-y-2.5 text-sm text-bone-muted">
               <li>
                 <Link to="/products" className="hover:text-bone transition">
@@ -129,9 +131,9 @@ export default function Footer() {
           </div>
 
           <div className="md:col-span-2 space-y-3">
-            <h3 className="font-sans text-[11px] font-semibold tracking-[0.18em] uppercase text-bone">
+            <h2 className="font-sans text-[11px] font-semibold tracking-[0.18em] uppercase text-bone">
               House
-            </h3>
+            </h2>
             <ul className="space-y-2.5 text-sm text-bone-muted">
               <li>
                 <Link to="/journal" className="hover:text-bone transition">
@@ -157,9 +159,9 @@ export default function Footer() {
           </div>
 
           <div className="md:col-span-3 space-y-4">
-            <h3 className="font-sans text-[11px] font-semibold tracking-[0.18em] uppercase text-bone">
+            <h2 className="font-sans text-[11px] font-semibold tracking-[0.18em] uppercase text-bone">
               Authentication Protocol
-            </h3>
+            </h2>
             <p className="text-xs text-bone-muted leading-relaxed">
               Every listing carries its own authenticity code. Pieces are checked for stitch density,
               hardware and leather grain before dispatch.

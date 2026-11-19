@@ -8,7 +8,7 @@ import { formatVnd } from '../../lib/format'
 import { HeroPoster, ResponsiveImage } from '../media/ResponsiveImage'
 import { CloudHost, useCloudLive } from '../experience/cloud/CloudHost'
 import { cloud, cloudsSupported } from '../experience/cloud/cloudState'
-import { getLenis, motionDisabled } from '../../lib/motion'
+import { afterIdle, getLenis, motionDisabled } from '../../lib/motion'
 
 if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
   gsap.registerPlugin(ScrollTrigger)
@@ -106,6 +106,18 @@ export function DescentHero({ products, introReady, onScrollPast }: DescentHeroP
 
   const triptych = pickTriptych(products)
 
+  /* Adopt the hero painting pre-rendered in index.html (#lcp-hero) instead of
+     painting a second copy: the LCP element is on screen before the bundle
+     runs and is never replaced. */
+  const [adopted] = useState(() => typeof document !== 'undefined' && Boolean(document.getElementById('lcp-hero')))
+  useLayoutEffect(() => {
+    const holder = document.getElementById('lcp-hero')
+    const pic = holder?.querySelector('picture')
+    const target = posterRef.current
+    if (pic && target && !target.contains(pic)) target.appendChild(pic)
+    holder?.remove()
+  }, [])
+
   /* scroll-scrubbed descent */
   useEffect(() => {
     if (!descent) return
@@ -155,16 +167,21 @@ export function DescentHero({ products, introReady, onScrollPast }: DescentHeroP
       }
     }
 
-    const st = ScrollTrigger.create({
-      trigger: section,
-      start: 'top top',
-      end: 'bottom bottom',
-      onUpdate: self => apply(self.progress),
-      onRefresh: self => apply(self.progress),
-    })
-    apply(st.progress || 0)
+    // measured in an idle slot: the stage's initial inline styles already
+    // match progress 0 (title shown, reveal hidden), so nothing is lost
+    const off = afterIdle(() => {
+      const st = ScrollTrigger.create({
+        trigger: section,
+        start: 'top top',
+        end: 'bottom bottom',
+        onUpdate: self => apply(self.progress),
+        onRefresh: self => apply(self.progress),
+      })
+      apply(st.progress || 0)
+      return () => st.kill()
+    }, 600)
     return () => {
-      st.kill()
+      off()
       cloud.hero = 0
     }
   }, [descent])
@@ -332,7 +349,7 @@ export function DescentHero({ products, introReady, onScrollPast }: DescentHeroP
             aria-hidden="true"
             className={`absolute inset-0 origin-center transition-opacity duration-1000 ${worldLive ? 'opacity-0' : 'opacity-100'}`}
           >
-            <HeroPoster className="h-full w-full object-cover" />
+            {!adopted && <HeroPoster className="h-full w-full object-cover" />}
           </div>
           {descent && <CloudHost mode="hero" load="idle" className="absolute inset-0" />}
 
@@ -380,13 +397,12 @@ export function DescentHero({ products, introReady, onScrollPast }: DescentHeroP
               ref={cueRef}
               type="button"
               onClick={scrollOn}
-              aria-label="Descend to the vault"
               data-cursor="Descend"
               className="hero-fade mt-10 flex flex-col items-center gap-3 text-bone/80 transition hover:text-bone"
             >
               <span className="font-mono text-[10px] uppercase tracking-[0.34em]">Scroll to descend</span>
               <span className="flex h-14 w-14 items-center justify-center rounded-full border border-bone/40 bg-ink/20 backdrop-blur-sm">
-                <ArrowDown className="h-5 w-5" />
+                <ArrowDown aria-hidden="true" className="h-5 w-5" />
               </span>
             </button>
           </div>

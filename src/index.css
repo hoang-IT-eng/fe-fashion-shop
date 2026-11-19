@@ -294,3 +294,10 @@
     radial-gradient(ellipse 90% 70% at 50% 40%, rgba(11, 9, 8, 0.2), rgba(11, 9, 8, 0.75) 80%);
 }
 
+
+/* Chapter I on phones: stacked, full-height panels that snap */
+@media (max-width: 1023px) {
+  html:has(.snap-chapters) {
+    scroll-snap-type: y proximity;
+  }
+}
