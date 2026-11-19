@@ -1,15 +1,13 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import {
-  ArrowDown,
   ArrowRight,
   ArrowUpRight,
   Clock,
   Gavel,
   ShieldCheck,
-  Compass,
   Crosshair,
   X,
 } from 'lucide-react'
@@ -19,11 +17,11 @@ import { AuctionLot, ConciergeTicket, MysteryBoxTier } from '../types/enigma'
 import { REBORN_JOURNAL_STORIES } from '../api/enigmaDemoData'
 import { formatCountdown, formatVnd, secondsUntil } from '../lib/format'
 import ProductCard from '../components/ProductCard'
-import { HeroPoster, ResponsiveImage } from '../components/media/ResponsiveImage'
+import { ResponsiveImage } from '../components/media/ResponsiveImage'
 import { QuickViewModal } from '../components/QuickViewModal'
-import { HeroScene, heroState } from '../components/experience/HeroMonolithScene'
+import { DescentHero } from '../components/home/DescentHero'
 import { useRevealScope } from '../components/experience/useReveal'
-import { getLenis, motionDisabled } from '../lib/motion'
+import { afterIdle, motionDisabled } from '../lib/motion'
 import { useSoundStore } from '../store/useSoundStore'
 import { useToast } from '../components/Toast'
 
@@ -31,47 +29,14 @@ if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
   gsap.registerPlugin(ScrollTrigger)
 }
 
-/**
- * Split a headline's text into per-word mask spans at runtime (the JSX
- * keeps the plain text node, so no-JS / test / reduced-motion renders
- * read exactly as authored). Returns the inner word elements.
- */
-function splitHeadlineWords(el: HTMLElement): HTMLElement[] {
-  const process = (node: Node) => {
-    if (node.nodeType === Node.TEXT_NODE) {
-      const frag = document.createDocumentFragment()
-      const parts = (node.textContent || '').split(/(\s+)/)
-      for (const part of parts) {
-        if (!part) continue
-        if (/^\s+$/.test(part)) {
-          frag.appendChild(document.createTextNode(' '))
-        } else {
-          const mask = document.createElement('span')
-          mask.className = 'hero-mask'
-          const inner = document.createElement('span')
-          inner.className = 'hero-word'
-          inner.textContent = part
-          mask.appendChild(inner)
-          frag.appendChild(mask)
-        }
-      }
-      node.parentNode?.replaceChild(frag, node)
-    } else if (node.nodeType === Node.ELEMENT_NODE) {
-      Array.from(node.childNodes).forEach(process)
-    }
-  }
-  Array.from(el.childNodes).forEach(process)
-  return Array.from(el.querySelectorAll<HTMLElement>('.hero-word'))
-}
-
 function SectionNumeral({ value, className = '' }: { value: string; className?: string }) {
+  // Decorative: drawn via CSS content so it is not text for assistive tech / contrast audits.
   return (
     <span
       aria-hidden="true"
-      className={`pointer-events-none select-none absolute font-display italic leading-none text-bone/[0.05] text-[8.5rem] md:text-[12rem] ${className}`}
-    >
-      {value}
-    </span>
+      data-numeral={value}
+      className={`pointer-events-none select-none absolute font-display italic leading-none text-bone/[0.05] text-[8.5rem] md:text-[12rem] before:content-[attr(data-numeral)] ${className}`}
+    />
   )
 }
 
@@ -97,132 +62,32 @@ export default function HomePage() {
 
   const manifestoRef = useRef<HTMLElement | null>(null)
 
-  /* ---------------- hero intro gating ---------------- */
-  const [staticHero] = useState(() => motionDisabled())
-  const [canvasReady, setCanvasReady] = useState(false)
-  const [sceneFailed, setSceneFailed] = useState(false)
-  const [preloaderDone, setPreloaderDone] = useState(false)
-  const [forceReveal, setForceReveal] = useState(false)
-  const useScene = !staticHero && !sceneFailed
-  const heroRevealed =
-    forceReveal || (preloaderDone && (!useScene || canvasReady))
-
-  const heroRef = useRef<HTMLElement | null>(null)
-  const headlineRef = useRef<HTMLHeadingElement | null>(null)
-  const topBarRef = useRef<HTMLDivElement | null>(null)
-  const bottomBarRef = useRef<HTMLDivElement | null>(null)
-  const heroTlRef = useRef<gsap.core.Timeline | null>(null)
-  const splitDoneRef = useRef(false)
-
-  const journalRef = useRef<HTMLElement | null>(null)
-  const journalTrackRef = useRef<HTMLDivElement | null>(null)
-
-  const dataReady = products.length > 0 || auctions.length > 0 || boxes.length > 0
-  const pageRef = useRevealScope<HTMLDivElement>(dataReady)
-
-  /* The interface reveals only once the CinematicPreloader has left the
-     DOM (it unmounts itself) — watch for its removal, with a time cap. */
+  /* Hero intro waits for the first-visit loader to leave (it removes #nocturne-loader). */
+  const [introReady, setIntroReady] = useState(false)
   useEffect(() => {
-    if (typeof document === 'undefined' || !document.getElementById('enigma-preloader')) {
-      setPreloaderDone(true)
+    if (typeof document === 'undefined' || !document.getElementById('nocturne-loader')) {
+      setIntroReady(true)
       return
     }
     const observer = new MutationObserver(() => {
-      if (!document.getElementById('enigma-preloader')) {
-        setPreloaderDone(true)
+      if (!document.getElementById('nocturne-loader')) {
+        setIntroReady(true)
         observer.disconnect()
       }
     })
     observer.observe(document.body, { childList: true, subtree: true })
-    const cap = window.setTimeout(() => setPreloaderDone(true), 3200)
+    const cap = window.setTimeout(() => setIntroReady(true), 2000)
     return () => {
       observer.disconnect()
       window.clearTimeout(cap)
     }
   }, [])
 
-  /* Safety net: never leave the hero interface hidden. */
-  useEffect(() => {
-    const t = window.setTimeout(() => setForceReveal(true), 4000)
-    return () => window.clearTimeout(t)
-  }, [])
+  const journalRef = useRef<HTMLElement | null>(null)
+  const journalTrackRef = useRef<HTMLDivElement | null>(null)
 
-  /* Build the (paused) hero intro timeline: letterbox bars retract,
-     headline words rise line by line, interface fades settle in.
-     Initial states are set here — never in CSS — so any failure path
-     leaves the hero fully visible. */
-  useLayoutEffect(() => {
-    if (!useScene) return
-    const hero = heroRef.current
-    const h1 = headlineRef.current
-    if (!hero || !h1) return
-
-    const ctx = gsap.context(() => {
-      if (!splitDoneRef.current) {
-        splitHeadlineWords(h1)
-        splitDoneRef.current = true
-      }
-      const words = Array.from(h1.querySelectorAll<HTMLElement>('.hero-word'))
-
-      const lines: HTMLElement[][] = []
-      let lastTop: number | null = null
-      words.forEach(w => {
-        const top = w.offsetTop
-        if (lastTop === null || Math.abs(top - lastTop) > 2) {
-          lines.push([])
-          lastTop = top
-        }
-        lines[lines.length - 1].push(w)
-      })
-
-      const fades = hero.querySelectorAll('.hero-fade')
-      const bars = [topBarRef.current, bottomBarRef.current].filter(
-        Boolean
-      ) as HTMLElement[]
-
-      gsap.set(bars, { scaleY: 1 })
-      gsap.set(words, { yPercent: 118 })
-      gsap.set(fades, { opacity: 0, y: 18 })
-
-      const tl = gsap.timeline({ paused: true })
-      tl.to(bars, { scaleY: 0, duration: 0.95, ease: 'power4.inOut' }, 0)
-      lines.forEach((line, li) => {
-        line.forEach((w, wi) => {
-          tl.to(
-            w,
-            { yPercent: 0, duration: 1.15, ease: 'power4.out' },
-            0.3 + li * 0.14 + wi * 0.035
-          )
-        })
-      })
-      tl.to(
-        fades,
-        { opacity: 1, y: 0, duration: 0.85, ease: 'power3.out', stagger: 0.07 },
-        0.75
-      )
-      heroTlRef.current = tl
-    }, hero)
-
-    return () => {
-      ctx.revert()
-      heroTlRef.current = null
-    }
-  }, [useScene])
-
-  useEffect(() => {
-    if (heroRevealed) heroTlRef.current?.play()
-  }, [heroRevealed])
-
-  const scrollToManifesto = () => {
-    const target = manifestoRef.current
-    if (!target) return
-    const lenis = getLenis()
-    if (lenis) {
-      lenis.scrollTo(target, { duration: 1.6 })
-    } else {
-      target.scrollIntoView({ behavior: motionDisabled() ? 'auto' : 'smooth' })
-    }
-  }
+  const dataReady = products.length > 0 || auctions.length > 0 || boxes.length > 0
+  const pageRef = useRevealScope<HTMLDivElement>(dataReady)
 
   useEffect(() => {
     void Promise.all([
@@ -262,13 +127,15 @@ export default function HomePage() {
     const section = manifestoRef.current
     if (!section) return
 
+    return afterIdle(() => {
     const ctx = gsap.context(() => {
       const lines = section.querySelectorAll('.manifesto-line')
+      // transform + clip only: text keeps full contrast at every frame
       gsap.fromTo(
         lines,
-        { opacity: 0.18, y: 28 },
+        { clipPath: 'inset(0% 0% 100% 0%)', y: 28 },
         {
-          opacity: 1,
+          clipPath: 'inset(0% 0% 0% 0%)',
           y: 0,
           stagger: 0.2,
           duration: 0.9,
@@ -284,6 +151,7 @@ export default function HomePage() {
     }, section)
 
     return () => ctx.revert()
+    })
   }, [])
 
   /* Journal: horizontal-scroll gallery pinned to vertical scroll,
@@ -294,6 +162,7 @@ export default function HomePage() {
     const track = journalTrackRef.current
     if (!section || !track) return
 
+    return afterIdle(() => {
     const mm = gsap.matchMedia()
     mm.add('(min-width: 1024px)', () => {
       const cards = Array.from(track.children) as HTMLElement[]
@@ -334,6 +203,7 @@ export default function HomePage() {
     })
 
     return () => mm.revert()
+    })
   }, [])
 
   const openQuickBid = (lot: AuctionLot) => {
@@ -391,88 +261,8 @@ export default function HomePage() {
 
   return (
     <div ref={pageRef} className="bg-ink text-bone">
-      {/* 1. HERO — THREE.JS NIGHT GALLERY + RESTRAINED INTERFACE LAYER */}
-      <section ref={heroRef} className="relative overflow-hidden bg-ink">
-        {/* LCP still: the painted night sky. Always present; the WebGL gallery fades in over it. */}
-        <div className="absolute inset-0" aria-hidden="true">
-          <HeroPoster className="h-full w-full object-cover" />
-        </div>
-        {useScene && (
-          <HeroScene
-            onReady={() => setCanvasReady(true)}
-            onFallback={() => setSceneFailed(true)}
-          />
-        )}
-
-        {/* Legibility shade + vignette over the scene */}
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink via-transparent to-ink/60" />
-        <div className="vignette pointer-events-none absolute inset-0" />
-
-        {/* Letterbox bars — GSAP scales them open for the reveal; their
-            resting (no-JS / fallback) state is fully retracted */}
-        <div
-          ref={topBarRef}
-          aria-hidden="true"
-          className="absolute inset-x-0 top-0 z-30 h-[8vh] origin-top scale-y-0 bg-black"
-        />
-        <div
-          ref={bottomBarRef}
-          aria-hidden="true"
-          className="absolute inset-x-0 bottom-0 z-30 h-[8vh] origin-bottom scale-y-0 bg-black"
-        />
-
-        {/* Film-credit corner labels */}
-        <span className="hero-fade pointer-events-none absolute left-5 top-5 z-20 font-sans text-[10px] font-medium uppercase tracking-[0.28em] text-bone/70 md:left-8 md:top-7">
-          Nocturne — Night Archive
-        </span>
-        <span className="hero-fade pointer-events-none absolute hidden md:block right-5 top-5 z-20 font-sans text-[10px] font-medium uppercase tracking-[0.28em] text-bone/70 md:right-8 md:top-7">
-          Autumn / Winter 2026
-        </span>
-        <span className="hero-fade pointer-events-none absolute bottom-5 left-5 z-20 font-sans text-[10px] font-medium uppercase tracking-[0.28em] text-bone/70 md:bottom-7 md:left-8">
-          Reel N°01 — The Vault Issue
-        </span>
-        <span className="hero-fade pointer-events-none absolute hidden md:block bottom-5 right-5 z-20 font-sans text-[10px] font-medium uppercase tracking-[0.28em] text-bone/70 md:bottom-7 md:right-8">
-          Saigon · Antwerp · Osaka
-        </span>
-
-        {/* Interface layer */}
-        <div className="pointer-events-none relative z-10 flex min-h-[100svh] flex-col items-center justify-center px-6 py-24 text-center">
-          <p className="hero-fade mb-7 font-sans text-[11px] font-medium uppercase tracking-[0.3em] text-bone/75">
-            The Vault Issue — N°01
-          </p>
-          <h1
-            ref={headlineRef}
-            className="relative max-w-6xl font-display leading-[0.98] tracking-tight text-bone"
-            style={{ fontSize: 'clamp(3rem, 8vw, 7.25rem)' }}
-          >
-            Authenticated Grails, Nocturnal Auctions &amp; <em>Afterlife Customs.</em>
-          </h1>
-          <p className="hero-fade mt-8 max-w-xl text-base leading-relaxed text-bone/70 md:text-lg">
-            Every garment, timepiece, and 1-of-1 horsehide reconstruction enters our
-            vault cryptographically sealed.
-          </p>
-          <button
-            type="button"
-            aria-label="Scroll down to the manifesto"
-            onClick={scrollToManifesto}
-            onPointerEnter={() => {
-              heroState.hoverTarget = 1
-            }}
-            onPointerLeave={() => {
-              heroState.hoverTarget = 0
-            }}
-            onFocus={() => {
-              heroState.hoverTarget = 1
-            }}
-            onBlur={() => {
-              heroState.hoverTarget = 0
-            }}
-            className="hero-fade pointer-events-auto mt-12 flex h-16 w-16 items-center justify-center rounded-full border border-bone/40 bg-ink/20 text-bone backdrop-blur-sm transition-colors duration-300 hover:border-bone"
-          >
-            <ArrowDown className="h-5 w-5" />
-          </button>
-        </div>
-      </section>
+      {/* 1. HERO — THE DESCENT (shared WebGL cloud world) */}
+      <DescentHero products={products} introReady={introReady} />
 
       {/* 2. GSAP SCROLL MANIFESTO */}
       <section
@@ -482,10 +272,9 @@ export default function HomePage() {
       >
         <span
           aria-hidden="true"
-          className="pointer-events-none select-none absolute right-2 top-6 font-display italic leading-none text-bone/[0.04] text-[11rem] md:right-14 md:text-[16rem]"
-        >
-          I
-        </span>
+          data-numeral="I"
+          className="pointer-events-none select-none absolute right-2 top-6 font-display italic leading-none text-bone/[0.04] text-[11rem] md:right-14 md:text-[16rem] before:content-[attr(data-numeral)]"
+        />
         <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
           <p className="font-sans text-[11px] font-medium tracking-[0.18em] uppercase text-bone-muted">
             HOUSE MANIFESTO · CHAPTER I

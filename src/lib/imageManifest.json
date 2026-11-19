@@ -1,24 +1,4 @@
 {
-  "cloud-sprite-a": {
-    "base": "/images/nocturne/cloud-sprite-a",
-    "widths": [
-      480,
-      864
-    ],
-    "width": 864,
-    "height": 864,
-    "lqip": "data:image/webp;base64,UklGRkYAAABXRUJQVlA4IDoAAAAwAgCdASoQABAAA4BaJYwCdIExGBwhsSOA6AD++E+1sxA1ccVslNZjyoG3iGVEAjwcdg+/UZA+ZwAA"
-  },
-  "cloud-sprite-b": {
-    "base": "/images/nocturne/cloud-sprite-b",
-    "widths": [
-      480,
-      864
-    ],
-    "width": 864,
-    "height": 864,
-    "lqip": "data:image/webp;base64,UklGRkIAAABXRUJQVlA4IDYAAAAwAgCdASoQABAAA4BaJZQCw7EPDLKkOK41AAD++FIazH3v9ZxVfdiv6YiszScsAJJeuUy3AAA="
-  },
   "grail-cargo-vanguard": {
     "base": "/images/nocturne/grail-cargo-vanguard",
     "widths": [

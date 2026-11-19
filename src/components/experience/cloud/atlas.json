@@ -1,0 +1,29 @@
+{
+  "src": "/images/nocturne/cloud-atlas.webp",
+  "cells": [
+    {
+      "name": "a",
+      "u": 0,
+      "v": 0,
+      "aspect": 1
+    },
+    {
+      "name": "b",
+      "u": 0.5,
+      "v": 0,
+      "aspect": 1
+    },
+    {
+      "name": "c",
+      "u": 0,
+      "v": 0.5,
+      "aspect": 1.975
+    },
+    {
+      "name": "d",
+      "u": 0.5,
+      "v": 0.5,
+      "aspect": 1
+    }
+  ]
+}

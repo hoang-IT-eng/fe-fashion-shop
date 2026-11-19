@@ -1,7 +1,11 @@
+let vnd: Intl.NumberFormat | null = null
+
 export function formatVnd(amount: number | string | undefined | null): string {
   const num = Number(amount ?? 0)
   if (!Number.isFinite(num)) return '0₫'
-  return `${Math.round(num).toLocaleString('vi-VN')}₫`
+  // one cached formatter: toLocaleString builds a new one on every call
+  vnd ??= new Intl.NumberFormat('vi-VN', { maximumFractionDigits: 0 })
+  return `${vnd.format(Math.round(num))}₫`
 }
 
 export function formatCountdown(remainingSeconds: number): string {
