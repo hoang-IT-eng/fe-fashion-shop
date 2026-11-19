@@ -23,16 +23,16 @@ export default function WishlistPage() {
   }, [ids])
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-[#f9f9f9] py-10 md:py-14">
+    <div className="min-h-screen bg-ink text-bone py-10 md:py-14">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <Breadcrumb items={[{ label: 'Archive', path: '/' }, { label: 'Collector Wishlist' }]} />
 
-        <div className="flex flex-wrap items-end justify-between gap-4 pb-8 border-b border-[#f9f9f9]/10 mb-10">
+        <div className="flex flex-wrap items-end justify-between gap-4 pb-8 border-b border-bone/10 mb-10">
           <div>
-            <p className="font-mono text-xs tracking-[0.3em] uppercase text-[#f9f9f9] mb-2">
+            <p className="font-mono text-xs tracking-[0.3em] uppercase text-bone mb-2">
               PRIVATE VAULT WATCHLIST
             </p>
-            <h1 className="font-display text-4xl md:text-5xl text-[#f9f9f9]">
+            <h1 className="font-display text-4xl md:text-5xl text-bone">
               Saved Archive Grails ({products.length})
             </h1>
           </div>
@@ -40,7 +40,7 @@ export default function WishlistPage() {
             <button
               type="button"
               onClick={clear}
-              className="inline-flex items-center gap-2 px-4 py-2 border border-[#f9f9f9]/20 font-mono text-xs uppercase tracking-widest text-[#a3a3a3] hover:text-red-300 hover:border-red-400/50 transition"
+              className="inline-flex items-center gap-2 px-4 py-2 border border-bone/20 font-mono text-xs uppercase tracking-widest text-bone-muted hover:text-red-300 hover:border-red-400/50 transition"
             >
               <Trash2 className="w-3.5 h-3.5" /> Clear Watchlist
             </button>
@@ -50,7 +50,7 @@ export default function WishlistPage() {
         {products.length === 0 ? (
           <EmptyState
             title="No Saved Grails Yet"
-            description="Bookmark numbered Reborn customs, calfskin high-tops, or horology relics to monitor stock levels."
+            description="Bookmark numbered Afterlife customs, calfskin high-tops, or horology relics to monitor stock levels."
             actionLabel="Explore Curated Drops"
             onAction={() => navigate('/products')}
           />

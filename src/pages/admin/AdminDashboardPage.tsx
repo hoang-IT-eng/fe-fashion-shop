@@ -36,7 +36,7 @@ export default function AdminDashboardPage() {
 
   if (!stats) {
     return (
-      <div className="py-16 font-mono text-xs tracking-[0.26em] text-[#a3a3a3] uppercase">
+      <div className="py-16 font-mono text-xs tracking-[0.26em] text-bone-muted uppercase">
         AGGREGATING VAULT TELEMETRY...
       </div>
     )
@@ -68,10 +68,10 @@ export default function AdminDashboardPage() {
       {/* Top Action Header */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <p className="font-mono text-[10px] tracking-[0.28em] uppercase text-[#f9f9f9]">
+          <p className="font-mono text-[10px] tracking-[0.28em] uppercase text-bone">
             EXECUTIVE ANALYTICS · REAL-TIME LEDGER
           </p>
-          <h2 className="font-display text-2xl md:text-3xl text-[#f9f9f9]">
+          <h2 className="font-display text-2xl md:text-3xl text-bone">
             Revenue, Velocity &amp; Vault Risk
           </h2>
         </div>
@@ -80,7 +80,7 @@ export default function AdminDashboardPage() {
           id="admin-export-csv-btn"
           type="button"
           onClick={handleExportCsv}
-          className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#f9f9f9] text-[#0a0a0a] font-mono text-xs font-semibold uppercase tracking-[0.2em] hover:bg-[#d9d9d9] transition"
+          className="inline-flex items-center gap-2 px-4 py-2.5 bg-bone text-ink font-mono text-xs font-semibold uppercase tracking-[0.2em] hover:bg-bone-dim transition"
         >
           <Download className="w-3.5 h-3.5" /> Export Telemetry CSV
         </button>
@@ -89,28 +89,28 @@ export default function AdminDashboardPage() {
       {/* Row 1: SVG Area GMV Chart + Conversion & Order Status Funnel */}
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
         {/* SVG Area GMV Chart */}
-        <section className="xl:col-span-8 bg-[#111111] border border-[#f9f9f9]/12 p-6 space-y-4">
+        <section className="xl:col-span-8 bg-ink-raised border border-bone/12 p-6 space-y-4">
           <div className="flex flex-wrap items-baseline justify-between gap-4">
             <div>
-              <span className="font-mono text-[10px] uppercase tracking-[0.24em] text-[#a3a3a3]">
+              <span className="font-mono text-[10px] uppercase tracking-[0.24em] text-bone-muted">
                 7-DAY GROSS MERCHANDISE VOLUME (GMV)
               </span>
               <div className="flex items-baseline gap-3 mt-1">
-                <span className="font-mono text-2xl font-semibold text-[#f9f9f9] tabular-nums">
+                <span className="font-mono text-2xl font-semibold text-bone tabular-nums">
                   {formatVnd(stats.totalRevenue)}
                 </span>
-                <span className="font-mono text-xs text-[#f9f9f9] inline-flex items-center gap-1 tabular-nums">
+                <span className="font-mono text-xs text-bone inline-flex items-center gap-1 tabular-nums">
                   <TrendingUp className="w-3.5 h-3.5" /> AOV {formatVnd(stats.averageOrderValue)}
                 </span>
               </div>
             </div>
             {hoverIdx !== null && points[hoverIdx] && (
-              <div className="px-3 py-1.5 bg-[#0a0a0a] border border-[#f9f9f9]/50 font-mono text-xs tabular-nums">
-                <span className="text-[#a3a3a3] mr-2">{points[hoverIdx].date}:</span>
-                <span className="text-[#f9f9f9] font-semibold">
+              <div className="px-3 py-1.5 bg-ink border border-bone/50 font-mono text-xs tabular-nums">
+                <span className="text-bone-muted mr-2">{points[hoverIdx].date}:</span>
+                <span className="text-bone font-semibold">
                   {formatVnd(points[hoverIdx].gmv)}
                 </span>
-                <span className="text-[#a3a3a3] ml-2">({points[hoverIdx].orders} orders)</span>
+                <span className="text-bone-muted ml-2">({points[hoverIdx].orders} orders)</span>
               </div>
             )}
           </div>
@@ -124,8 +124,8 @@ export default function AdminDashboardPage() {
             >
               <defs>
                 <linearGradient id="enigmaGmvFill" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#f9f9f9" stopOpacity="0.36" />
-                  <stop offset="100%" stopColor="#f9f9f9" stopOpacity="0.0" />
+                  <stop offset="0%" stopColor="#efe9df" stopOpacity="0.36" />
+                  <stop offset="100%" stopColor="#efe9df" stopOpacity="0.0" />
                 </linearGradient>
               </defs>
 
@@ -136,14 +136,14 @@ export default function AdminDashboardPage() {
                   x2={chartW - padX}
                   y1={chartH - padY - r * (chartH - padY * 2)}
                   y2={chartH - padY - r * (chartH - padY * 2)}
-                  stroke="#f9f9f9"
+                  stroke="#efe9df"
                   strokeOpacity="0.07"
                   strokeDasharray="3 4"
                 />
               ))}
 
               <path d={areaPath} fill="url(#enigmaGmvFill)" />
-              <path d={linePath} fill="none" stroke="#f9f9f9" strokeWidth="2.2" />
+              <path d={linePath} fill="none" stroke="#efe9df" strokeWidth="2.2" />
 
               {points.map((p, idx) => (
                 <g
@@ -156,15 +156,15 @@ export default function AdminDashboardPage() {
                     cx={p.x}
                     cy={p.y}
                     r={hoverIdx === idx ? 5.5 : 3.5}
-                    fill="#0a0a0a"
-                    stroke="#f9f9f9"
+                    fill="#0b0908"
+                    stroke="#efe9df"
                     strokeWidth="2"
                   />
                   <text
                     x={p.x}
                     y={chartH - 4}
                     textAnchor="middle"
-                    fill="#a3a3a3"
+                    fill="#a69c8e"
                     fontSize="10"
                     fontFamily="JetBrains Mono, monospace"
                   >
@@ -177,32 +177,32 @@ export default function AdminDashboardPage() {
         </section>
 
         {/* Conversion & Order Status Funnel */}
-        <section className="xl:col-span-4 bg-[#111111] border border-[#f9f9f9]/12 p-6 space-y-5">
+        <section className="xl:col-span-4 bg-ink-raised border border-bone/12 p-6 space-y-5">
           <div>
-            <span className="font-mono text-[10px] uppercase tracking-[0.24em] text-[#f9f9f9]">
+            <span className="font-mono text-[10px] uppercase tracking-[0.24em] text-bone">
               FULFILLMENT &amp; CONVERSION FUNNEL
             </span>
-            <h3 className="font-display text-xl text-[#f9f9f9] mt-1">Pipeline Telemetry</h3>
+            <h3 className="font-display text-xl text-bone mt-1">Pipeline Telemetry</h3>
           </div>
 
           <div className="grid grid-cols-3 gap-2 font-mono text-center">
-            <div className="p-2.5 bg-[#0a0a0a] border border-[#f9f9f9]/10">
-              <span className="block text-base font-semibold text-[#f9f9f9] tabular-nums">
+            <div className="p-2.5 bg-ink border border-bone/10">
+              <span className="block text-base font-semibold text-bone tabular-nums">
                 {stats.conversionBreakdown.fulfillmentRate}%
               </span>
-              <span className="text-[9px] text-[#a3a3a3] uppercase">Delivered</span>
+              <span className="text-[9px] text-bone-muted uppercase">Delivered</span>
             </div>
-            <div className="p-2.5 bg-[#0a0a0a] border border-[#f9f9f9]/10">
-              <span className="block text-base font-semibold text-[#f9f9f9] tabular-nums">
+            <div className="p-2.5 bg-ink border border-bone/10">
+              <span className="block text-base font-semibold text-bone tabular-nums">
                 {stats.conversionBreakdown.activePipelineRate}%
               </span>
-              <span className="text-[9px] text-[#a3a3a3] uppercase">In Transit</span>
+              <span className="text-[9px] text-bone-muted uppercase">In Transit</span>
             </div>
-            <div className="p-2.5 bg-[#0a0a0a] border border-[#f9f9f9]/10">
-              <span className="block text-base font-semibold text-[#a3a3a3] tabular-nums">
+            <div className="p-2.5 bg-ink border border-bone/10">
+              <span className="block text-base font-semibold text-bone-muted tabular-nums">
                 {stats.conversionBreakdown.cancellationRate}%
               </span>
-              <span className="text-[9px] text-[#a3a3a3] uppercase">Cancelled</span>
+              <span className="text-[9px] text-bone-muted uppercase">Cancelled</span>
             </div>
           </div>
 
@@ -219,11 +219,11 @@ export default function AdminDashboardPage() {
               return (
                 <div key={row.label} className="space-y-1 font-mono text-xs">
                   <div className="flex justify-between">
-                    <span className="text-[#f9f9f9]/85">{row.label}</span>
-                    <span className="text-[#f9f9f9] tabular-nums">{row.count}</span>
+                    <span className="text-bone/85">{row.label}</span>
+                    <span className="text-bone tabular-nums">{row.count}</span>
                   </div>
-                  <div className="h-1.5 bg-[#0a0a0a]">
-                    <div className="h-full bg-[#f9f9f9]" style={{ width: `${pct}%` }} />
+                  <div className="h-1.5 bg-ink">
+                    <div className="h-full bg-bone" style={{ width: `${pct}%` }} />
                   </div>
                 </div>
               )
@@ -235,41 +235,41 @@ export default function AdminDashboardPage() {
       {/* Row 2: Top Moving Sizes/Colorways Matrix + Category Velocity + Low-Stock SKU Alerts */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Top Moving Sizes & Colorways Matrix */}
-        <section className="lg:col-span-4 bg-[#111111] border border-[#f9f9f9]/12 p-6 space-y-5">
+        <section className="lg:col-span-4 bg-ink-raised border border-bone/12 p-6 space-y-5">
           <div className="flex items-center gap-2">
-            <Layers className="w-4 h-4 text-[#f9f9f9]" />
-            <h3 className="font-display text-xl text-[#f9f9f9]">Size &amp; Chromatic Velocity</h3>
+            <Layers className="w-4 h-4 text-bone" />
+            <h3 className="font-display text-xl text-bone">Size &amp; Chromatic Velocity</h3>
           </div>
 
           <div>
-            <span className="block font-mono text-[10px] uppercase tracking-widest text-[#a3a3a3] mb-2">
+            <span className="block font-mono text-[10px] uppercase tracking-widest text-bone-muted mb-2">
               Fastest Moving Sizes
             </span>
             <div className="grid grid-cols-2 gap-2">
               {stats.sizeVelocity.slice(0, 6).map(sv => (
                 <div
                   key={sv.size}
-                  className="p-2.5 bg-[#0a0a0a] border border-[#f9f9f9]/10 flex items-center justify-between font-mono text-xs"
+                  className="p-2.5 bg-ink border border-bone/10 flex items-center justify-between font-mono text-xs"
                 >
-                  <span className="text-[#f9f9f9]">Size {sv.size}</span>
-                  <span className="text-[#f9f9f9] tabular-nums">{sv.units}u</span>
+                  <span className="text-bone">Size {sv.size}</span>
+                  <span className="text-bone tabular-nums">{sv.units}u</span>
                 </div>
               ))}
             </div>
           </div>
 
           <div>
-            <span className="block font-mono text-[10px] uppercase tracking-widest text-[#a3a3a3] mb-2">
+            <span className="block font-mono text-[10px] uppercase tracking-widest text-bone-muted mb-2">
               Dominant Finishes / Colorways
             </span>
             <div className="space-y-1.5">
               {stats.colorVelocity.slice(0, 4).map(cv => (
                 <div
                   key={cv.color}
-                  className="px-3 py-2 bg-[#0a0a0a] border border-[#f9f9f9]/10 flex items-center justify-between font-mono text-xs"
+                  className="px-3 py-2 bg-ink border border-bone/10 flex items-center justify-between font-mono text-xs"
                 >
-                  <span className="text-[#f9f9f9] truncate">{cv.color}</span>
-                  <span className="text-[#f9f9f9] tabular-nums">{cv.units} units</span>
+                  <span className="text-bone truncate">{cv.color}</span>
+                  <span className="text-bone tabular-nums">{cv.units} units</span>
                 </div>
               ))}
             </div>
@@ -277,37 +277,37 @@ export default function AdminDashboardPage() {
         </section>
 
         {/* Category Revenue Velocity + Auction Heat */}
-        <section className="lg:col-span-4 bg-[#111111] border border-[#f9f9f9]/12 p-6 space-y-5">
+        <section className="lg:col-span-4 bg-ink-raised border border-bone/12 p-6 space-y-5">
           <div className="flex items-center gap-2">
-            <Flame className="w-4 h-4 text-[#f9f9f9]" />
-            <h3 className="font-display text-xl text-[#f9f9f9]">Capsule &amp; Auction Heat</h3>
+            <Flame className="w-4 h-4 text-bone" />
+            <h3 className="font-display text-xl text-bone">Capsule &amp; Auction Heat</h3>
           </div>
 
           <div className="space-y-2">
             {stats.categoryVelocity.slice(0, 5).map(cat => (
               <div
                 key={cat.category}
-                className="p-2.5 bg-[#0a0a0a] border border-[#f9f9f9]/10 flex items-center justify-between font-mono text-xs"
+                className="p-2.5 bg-ink border border-bone/10 flex items-center justify-between font-mono text-xs"
               >
                 <div>
-                  <span className="text-[#f9f9f9]">{cat.category}</span>
-                  <span className="text-[#a3a3a3] ml-2">({cat.units}u)</span>
+                  <span className="text-bone">{cat.category}</span>
+                  <span className="text-bone-muted ml-2">({cat.units}u)</span>
                 </div>
-                <span className="text-[#f9f9f9] tabular-nums">{formatVnd(cat.revenue)}</span>
+                <span className="text-bone tabular-nums">{formatVnd(cat.revenue)}</span>
               </div>
             ))}
           </div>
 
-          <div className="p-3.5 bg-[#0a0a0a] border border-[#f9f9f9]/35 space-y-1.5 font-mono text-xs">
+          <div className="p-3.5 bg-ink border border-bone/35 space-y-1.5 font-mono text-xs">
             <div className="flex justify-between">
-              <span className="text-[#a3a3a3]">LIVE AUCTION BOOK</span>
-              <span className="text-[#f9f9f9] tabular-nums">
+              <span className="text-bone-muted">LIVE AUCTION BOOK</span>
+              <span className="text-bone tabular-nums">
                 {stats.auctionHeat.liveCount} LOTS · {stats.auctionHeat.totalBids} BIDS
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[#a3a3a3]">ACTIVE BID VOLUME</span>
-              <span className="text-[#f9f9f9] font-semibold tabular-nums">
+              <span className="text-bone-muted">ACTIVE BID VOLUME</span>
+              <span className="text-bone font-semibold tabular-nums">
                 {formatVnd(stats.auctionHeat.activeAuctionValue)}
               </span>
             </div>
@@ -315,13 +315,13 @@ export default function AdminDashboardPage() {
         </section>
 
         {/* Low-Stock SKU Alerts */}
-        <section className="lg:col-span-4 bg-[#111111] border border-[#f9f9f9]/12 p-6 space-y-4">
+        <section className="lg:col-span-4 bg-ink-raised border border-bone/12 p-6 space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 text-[#f9f9f9]" />
-              <h3 className="font-display text-xl text-[#f9f9f9]">Low-Stock SKU Alerts</h3>
+              <AlertTriangle className="w-4 h-4 text-bone" />
+              <h3 className="font-display text-xl text-bone">Low-Stock SKU Alerts</h3>
             </div>
-            <span className="font-mono text-xs text-[#f9f9f9] tabular-nums">
+            <span className="font-mono text-xs text-bone tabular-nums">
               {stats.lowStockSkus.length} SKUS ≤ 3
             </span>
           </div>
@@ -330,11 +330,11 @@ export default function AdminDashboardPage() {
             {stats.lowStockSkus.map(sku => (
               <div
                 key={sku.variantId}
-                className="p-3 bg-[#0a0a0a] border border-[#f9f9f9]/10 flex items-center justify-between gap-3"
+                className="p-3 bg-ink border border-bone/10 flex items-center justify-between gap-3"
               >
                 <div className="min-w-0">
-                  <p className="text-xs text-[#f9f9f9] truncate">{sku.productName}</p>
-                  <p className="font-mono text-[10px] text-[#a3a3a3]">
+                  <p className="text-xs text-bone truncate">{sku.productName}</p>
+                  <p className="font-mono text-[10px] text-bone-muted">
                     {sku.sku} · {sku.size || 'OS'}
                   </p>
                 </div>
@@ -342,7 +342,7 @@ export default function AdminDashboardPage() {
                   className={`px-2 py-1 font-mono text-[10px] tabular-nums border ${
                     sku.stock <= 1
                       ? 'border-red-500/50 text-red-300 bg-red-950/30'
-                      : 'border-[#f9f9f9]/50 text-[#f9f9f9]'
+                      : 'border-bone/50 text-bone'
                   }`}
                 >
                   {sku.stock} LEFT

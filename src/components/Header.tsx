@@ -13,7 +13,7 @@ import {
   LogOut,
   Package,
 } from 'lucide-react'
-import { EnigmaCrest } from './EnigmaCrest'
+import { NocturneMark } from './brand/NocturneMark'
 import { useAuthStore } from '../store/useAuthStore'
 import { useCartStore } from '../store/useCartStore'
 import { useWishlistStore } from '../store/useWishlistStore'
@@ -24,7 +24,7 @@ const NAV_ITEMS = [
   { label: 'Live Auctions', path: '/auctions' },
   { label: 'Mystery Vault', path: '/mystery-boxes' },
   { label: 'Concierge', path: '/concierge' },
-  { label: 'Reborn Journal', path: '/journal' },
+  { label: 'Afterlife Journal', path: '/journal' },
 ]
 
 export default function Header() {
@@ -56,7 +56,7 @@ export default function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-50 bg-[#0a0a0a]/92 backdrop-blur-md border-b border-[#f9f9f9]/10 text-[#f9f9f9]">
+    <header className="sticky top-0 z-50 bg-ink/92 backdrop-blur-md border-b border-bone/10 text-bone">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 md:h-20 flex items-center justify-between gap-4">
         {/* Brand Crest */}
         <Link
@@ -64,7 +64,7 @@ export default function Header() {
           to="/"
           className="flex items-center gap-3 focus:outline-none"
         >
-          <EnigmaCrest className="w-8 h-8 md:w-9 md:h-9" showWordmark subtitle="CULT ARCHIVE" />
+          <NocturneMark className="w-8 h-8 md:w-9 md:h-9" showWordmark subtitle="NIGHT ARCHIVE" />
         </Link>
 
         {/* Desktop Nav */}
@@ -79,8 +79,8 @@ export default function Header() {
                 to={item.path}
                 className={`text-sm transition py-1 border-b ${
                   active
-                    ? 'text-[#f9f9f9] border-[#f9f9f9]'
-                    : 'text-[#f9f9f9]/65 border-transparent hover:text-[#f9f9f9]'
+                    ? 'text-bone border-bone'
+                    : 'text-bone/65 border-transparent hover:text-bone'
                 }`}
               >
                 {item.label}
@@ -99,8 +99,8 @@ export default function Header() {
             title="Toggle Diegetic Vault Atmosphere & Watch Escapement Audio"
             className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 border font-sans text-[10px] font-medium uppercase tracking-[0.14em] transition ${
               soundEnabled
-                ? 'border-[#f9f9f9] text-[#f9f9f9] bg-[#f9f9f9]/10'
-                : 'border-[#f9f9f9]/15 text-[#a3a3a3] hover:text-[#f9f9f9] hover:border-[#f9f9f9]/35'
+                ? 'border-bone text-bone bg-bone/10'
+                : 'border-bone/15 text-bone-muted hover:text-bone hover:border-bone/35'
             }`}
           >
             {soundEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
@@ -113,7 +113,7 @@ export default function Header() {
             type="button"
             onClick={() => setSearchOpen(v => !v)}
             aria-label="Search Archive"
-            className="p-2 text-[#f9f9f9]/80 hover:text-[#f9f9f9] transition"
+            className="p-2 text-bone/80 hover:text-bone transition"
           >
             <Search className="w-4 h-4" />
           </button>
@@ -123,11 +123,11 @@ export default function Header() {
             id="header-wishlist-link"
             to="/wishlist"
             aria-label="Saved Grails Wishlist"
-            className="relative p-2 text-[#f9f9f9]/80 hover:text-[#f9f9f9] transition"
+            className="relative p-2 text-bone/80 hover:text-bone transition"
           >
             <Heart className="w-4 h-4" />
             {wishlistCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 bg-[#232323] border border-[#f9f9f9]/50 text-[#f9f9f9] font-sans text-[10px] font-medium flex items-center justify-center tabular-nums">
+              <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 bg-umber-line border border-bone/50 text-bone font-sans text-[10px] font-medium flex items-center justify-center tabular-nums">
                 {wishlistCount}
               </span>
             )}
@@ -139,11 +139,11 @@ export default function Header() {
             type="button"
             onClick={openDrawer}
             aria-label="Open Vault Bag"
-            className="relative p-2 text-[#f9f9f9]/80 hover:text-[#f9f9f9] transition"
+            className="relative p-2 text-bone/80 hover:text-bone transition"
           >
             <ShoppingBag className="w-4 h-4" />
             {bagCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 bg-[#f9f9f9] text-[#0a0a0a] font-sans font-semibold text-[10px] flex items-center justify-center tabular-nums">
+              <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 bg-bone text-ink font-sans font-semibold text-[10px] flex items-center justify-center tabular-nums">
                 {bagCount}
               </span>
             )}
@@ -156,9 +156,9 @@ export default function Header() {
                 id="header-user-menu-btn"
                 type="button"
                 onClick={() => setUserMenuOpen(v => !v)}
-                className="inline-flex items-center gap-2 px-2.5 py-1.5 border border-[#f9f9f9]/15 hover:border-[#f9f9f9]/60 text-xs font-sans font-medium text-[#f9f9f9] transition"
+                className="inline-flex items-center gap-2 px-2.5 py-1.5 border border-bone/15 hover:border-bone/60 text-xs font-sans font-medium text-bone transition"
               >
-                <User className="w-3.5 h-3.5 text-[#f9f9f9]" />
+                <User className="w-3.5 h-3.5 text-bone" />
                 <span className="hidden md:inline max-w-[96px] truncate">
                   {user.name.split(' ')[0]}
                 </span>
@@ -166,17 +166,17 @@ export default function Header() {
               {userMenuOpen && (
                 <div
                   onMouseLeave={() => setUserMenuOpen(false)}
-                  className="absolute right-0 mt-2 w-56 bg-[#111111] border border-[#f9f9f9]/15 shadow-2xl py-2 z-50"
+                  className="absolute right-0 mt-2 w-56 bg-ink-raised border border-bone/15 shadow-2xl py-2 z-50"
                 >
-                  <div className="px-4 py-2 border-b border-[#f9f9f9]/10">
-                    <p className="text-xs font-medium text-[#f9f9f9] truncate">{user.name}</p>
-                    <p className="text-[11px] text-[#a3a3a3] truncate">{user.email}</p>
+                  <div className="px-4 py-2 border-b border-bone/10">
+                    <p className="text-xs font-medium text-bone truncate">{user.name}</p>
+                    <p className="text-[11px] text-bone-muted truncate">{user.email}</p>
                   </div>
                   {user.role === 'admin' && (
                     <Link
                       to="/admin"
                       onClick={() => setUserMenuOpen(false)}
-                      className="flex items-center gap-2.5 px-4 py-2.5 font-sans text-[13px] text-[#f9f9f9] hover:bg-[#232323]"
+                      className="flex items-center gap-2.5 px-4 py-2.5 font-sans text-[13px] text-bone hover:bg-umber-line"
                     >
                       <LayoutDashboard className="w-3.5 h-3.5" />
                       Grail Admin Desk
@@ -185,17 +185,17 @@ export default function Header() {
                   <Link
                     to="/orders"
                     onClick={() => setUserMenuOpen(false)}
-                    className="flex items-center gap-2.5 px-4 py-2.5 font-sans text-[13px] text-[#f9f9f9] hover:bg-[#232323]"
+                    className="flex items-center gap-2.5 px-4 py-2.5 font-sans text-[13px] text-bone hover:bg-umber-line"
                   >
-                    <Package className="w-3.5 h-3.5 text-[#a3a3a3]" />
+                    <Package className="w-3.5 h-3.5 text-bone-muted" />
                     Orders &amp; Provenance
                   </Link>
                   <Link
                     to="/profile"
                     onClick={() => setUserMenuOpen(false)}
-                    className="flex items-center gap-2.5 px-4 py-2.5 font-sans text-[13px] text-[#f9f9f9] hover:bg-[#232323]"
+                    className="flex items-center gap-2.5 px-4 py-2.5 font-sans text-[13px] text-bone hover:bg-umber-line"
                   >
-                    <User className="w-3.5 h-3.5 text-[#a3a3a3]" />
+                    <User className="w-3.5 h-3.5 text-bone-muted" />
                     Collector Dossier
                   </Link>
                   <button
@@ -205,7 +205,7 @@ export default function Header() {
                       setUserMenuOpen(false)
                       navigate('/')
                     }}
-                    className="w-full text-left flex items-center gap-2.5 px-4 py-2.5 font-sans text-[13px] text-red-300 hover:bg-[#232323]"
+                    className="w-full text-left flex items-center gap-2.5 px-4 py-2.5 font-sans text-[13px] text-red-300 hover:bg-umber-line"
                   >
                     <LogOut className="w-3.5 h-3.5" />
                     Sign Out
@@ -217,7 +217,7 @@ export default function Header() {
             <Link
               id="header-signin-link"
               to="/auth"
-              className="hidden sm:inline-flex items-center px-3.5 py-1.5 border border-[#f9f9f9]/60 text-[#f9f9f9] hover:bg-[#f9f9f9] hover:text-[#0a0a0a] font-sans text-[11px] font-medium uppercase tracking-[0.14em] transition"
+              className="hidden sm:inline-flex items-center px-3.5 py-1.5 border border-bone/60 text-bone hover:bg-bone hover:text-ink font-sans text-[11px] font-medium uppercase tracking-[0.14em] transition"
             >
               Initiate
             </Link>
@@ -229,7 +229,7 @@ export default function Header() {
             type="button"
             onClick={() => setMobileOpen(v => !v)}
             aria-label="Toggle Menu"
-            className="lg:hidden p-2 text-[#f9f9f9]"
+            className="lg:hidden p-2 text-bone"
           >
             {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
@@ -240,10 +240,10 @@ export default function Header() {
       {searchOpen && (
         <form
           onSubmit={handleSearchSubmit}
-          className="border-t border-[#f9f9f9]/10 bg-[#111111] px-4 py-3"
+          className="border-t border-bone/10 bg-ink-raised px-4 py-3"
         >
           <div className="max-w-3xl mx-auto flex items-center gap-3">
-            <Search className="w-4 h-4 text-[#f9f9f9]" />
+            <Search className="w-4 h-4 text-bone" />
             <input
               id="header-search-input"
               type="text"
@@ -251,13 +251,13 @@ export default function Header() {
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               placeholder="Search archive SKU, horsehide bomber, Kuroki denim, titanium..."
-              className="flex-1 bg-transparent text-sm text-[#f9f9f9] placeholder-[#a3a3a3] focus:outline-none"
+              className="flex-1 bg-transparent text-sm text-bone placeholder-bone-muted focus:outline-none"
             />
             <button
               type="submit"
-              className="px-4 py-1.5 bg-[#f9f9f9] text-[#0a0a0a] font-sans text-[11px] font-semibold uppercase tracking-[0.14em]"
+              className="px-4 py-1.5 bg-bone text-ink font-sans text-[11px] font-semibold uppercase tracking-[0.14em]"
             >
-              Decode
+              Search
             </button>
           </div>
         </form>
@@ -265,23 +265,23 @@ export default function Header() {
 
       {/* Mobile Drawer */}
       {mobileOpen && (
-        <div className="lg:hidden border-t border-[#f9f9f9]/10 bg-[#0a0a0a] px-6 py-6 space-y-4">
+        <div className="lg:hidden border-t border-bone/10 bg-ink px-6 py-6 space-y-4">
           {NAV_ITEMS.map(item => (
             <Link
               key={item.path}
               to={item.path}
               onClick={() => setMobileOpen(false)}
-              className="block text-base text-[#f9f9f9]/85 hover:text-[#f9f9f9] py-1.5"
+              className="block text-base text-bone/85 hover:text-bone py-1.5"
             >
               {item.label}
             </Link>
           ))}
-          <div className="pt-4 border-t border-[#f9f9f9]/10 flex items-center gap-3">
+          <div className="pt-4 border-t border-bone/10 flex items-center gap-3">
             {!isAuthenticated ? (
               <Link
                 to="/auth"
                 onClick={() => setMobileOpen(false)}
-                className="w-full text-center py-2.5 bg-[#f9f9f9] text-[#0a0a0a] font-sans text-xs font-semibold uppercase tracking-[0.14em]"
+                className="w-full text-center py-2.5 bg-bone text-ink font-sans text-xs font-semibold uppercase tracking-[0.14em]"
               >
                 Sign In / Initiate
               </Link>
@@ -289,7 +289,7 @@ export default function Header() {
               <Link
                 to={user?.role === 'admin' ? '/admin' : '/orders'}
                 onClick={() => setMobileOpen(false)}
-                className="w-full text-center py-2.5 border border-[#f9f9f9] text-[#f9f9f9] font-sans text-[11px] font-medium uppercase tracking-[0.16em]"
+                className="w-full text-center py-2.5 border border-bone text-bone font-sans text-[11px] font-medium uppercase tracking-[0.16em]"
               >
                 {user?.role === 'admin' ? 'Open Admin Grail Desk' : 'My Provenance Orders'}
               </Link>

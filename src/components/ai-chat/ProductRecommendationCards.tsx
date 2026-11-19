@@ -42,10 +42,10 @@ export default function ProductRecommendationCards({ products }: Props) {
       {products.map(p => (
         <div
           key={p.id}
-          className="w-[140px] flex-shrink-0 cursor-pointer group bg-[#111111] border border-[#f9f9f9]/15 p-2"
+          className="w-[140px] flex-shrink-0 cursor-pointer group bg-ink-raised border border-bone/15 p-2"
           onClick={() => navigate(`/products/${p.id}`)}
         >
-          <div className="aspect-[3/4] bg-[#0a0a0a] overflow-hidden relative mb-2">
+          <div className="aspect-[3/4] bg-ink overflow-hidden relative mb-2">
             {p.imageUrl ? (
               <img
                 src={p.imageUrl}
@@ -54,7 +54,7 @@ export default function ProductRecommendationCards({ products }: Props) {
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center">
-                <ShoppingBag size={20} className="text-[#a3a3a3]" />
+                <ShoppingBag size={20} className="text-bone-muted" />
               </div>
             )}
             <div className="absolute bottom-1 inset-x-1 flex gap-1">
@@ -64,7 +64,7 @@ export default function ProductRecommendationCards({ products }: Props) {
                   e.stopPropagation()
                   navigate(`/products/${p.id}`)
                 }}
-                className="flex-1 bg-[#0a0a0a]/90 border border-[#f9f9f9]/20 text-[#f9f9f9] py-1 text-[10px] font-mono flex items-center justify-center gap-1"
+                className="flex-1 bg-ink/90 border border-bone/20 text-bone py-1 text-[10px] font-mono flex items-center justify-center gap-1"
               >
                 <Eye size={10} />
                 View
@@ -73,15 +73,15 @@ export default function ProductRecommendationCards({ products }: Props) {
                 type="button"
                 onClick={e => void handleAdd(e, p)}
                 disabled={addingId === p.id || p.stock === 0}
-                className="flex-1 bg-[#f9f9f9] text-[#0a0a0a] py-1 text-[10px] font-mono font-semibold flex items-center justify-center gap-1 disabled:opacity-40"
+                className="flex-1 bg-bone text-ink py-1 text-[10px] font-mono font-semibold flex items-center justify-center gap-1 disabled:opacity-40"
               >
                 <ShoppingBag size={10} />
                 {addedId === p.id ? 'OK' : 'Add'}
               </button>
             </div>
           </div>
-          <p className="text-[11px] font-medium text-[#f9f9f9] truncate">{p.name}</p>
-          <p className="text-[11px] font-mono text-[#f9f9f9] tabular-nums mt-0.5">
+          <p className="text-[11px] font-medium text-bone truncate">{p.name}</p>
+          <p className="text-[11px] font-mono text-bone tabular-nums mt-0.5">
             {formatVnd(p.price)}
           </p>
         </div>

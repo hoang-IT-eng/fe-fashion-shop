@@ -1,0 +1,185 @@
+{
+  "cloud-sprite-a": {
+    "base": "/images/nocturne/cloud-sprite-a",
+    "widths": [
+      480,
+      864
+    ],
+    "width": 864,
+    "height": 864,
+    "lqip": "data:image/webp;base64,UklGRkYAAABXRUJQVlA4IDoAAAAwAgCdASoQABAAA4BaJYwCdIExGBwhsSOA6AD++E+1sxA1ccVslNZjyoG3iGVEAjwcdg+/UZA+ZwAA"
+  },
+  "cloud-sprite-b": {
+    "base": "/images/nocturne/cloud-sprite-b",
+    "widths": [
+      480,
+      864
+    ],
+    "width": 864,
+    "height": 864,
+    "lqip": "data:image/webp;base64,UklGRkIAAABXRUJQVlA4IDYAAAAwAgCdASoQABAAA4BaJZQCw7EPDLKkOK41AAD++FIazH3v9ZxVfdiv6YiszScsAJJeuUy3AAA="
+  },
+  "grail-cargo-vanguard": {
+    "base": "/images/nocturne/grail-cargo-vanguard",
+    "widths": [
+      480,
+      864
+    ],
+    "width": 864,
+    "height": 1152,
+    "lqip": "data:image/webp;base64,UklGRk4AAABXRUJQVlA4IEIAAACwAwCdASoQABUAPu1iqk2ppaQiMAgBMB2JYwC06B6VEKv1FSDjQAD+fKJyaQ4z0p66kF+jq/uLhaRsQctUV+VIAAA="
+  },
+  "grail-chronograph-relic": {
+    "base": "/images/nocturne/grail-chronograph-relic",
+    "widths": [
+      480,
+      864
+    ],
+    "width": 864,
+    "height": 1152,
+    "lqip": "data:image/webp;base64,UklGRkgAAABXRUJQVlA4IDwAAAAwAwCdASoQABUAPu1iqU2ppaOiMAgBMB2JZwDG9DKHaergAP7wW8roXTplvWD2WHhVs6ulJuzJsxhQAAA="
+  },
+  "grail-hoodie-shadow": {
+    "base": "/images/nocturne/grail-hoodie-shadow",
+    "widths": [
+      480,
+      864
+    ],
+    "width": 864,
+    "height": 1152,
+    "lqip": "data:image/webp;base64,UklGRlAAAABXRUJQVlA4IEQAAACwAwCdASoQABUAPu1kqk4ppaQiMAgBMB2JYwCw7CHRwzbh3xXIAAD+zYDq9i1oPHL16zFeIKYKE87SCzXno+rTvjAAAA=="
+  },
+  "grail-leather-bomber": {
+    "base": "/images/nocturne/grail-leather-bomber",
+    "widths": [
+      480,
+      864
+    ],
+    "width": 864,
+    "height": 1152,
+    "lqip": "data:image/webp;base64,UklGRlIAAABXRUJQVlA4IEYAAACwAwCdASoQABUAPu1iqU2ppaOiMAgBMB2JYwCzgB5/18AYoSHKAAD+P5Yz0tis+70CtannyEp8M93dIio0aDUj1FDw3MAA"
+  },
+  "grail-runner-bone": {
+    "base": "/images/nocturne/grail-runner-bone",
+    "widths": [
+      480,
+      864
+    ],
+    "width": 864,
+    "height": 1152,
+    "lqip": "data:image/webp;base64,UklGRmQAAABXRUJQVlA4IFgAAACQAwCdASoQABUAPu1iqU2ppaOiMAgBMB2JQBOgA1sD/ZcAS3SAAP4vulVfkrUKYCavOwlA7Jg14C+isLb5X3EXUWquJsO5gdWPMthi19OudfIoHNbRiqAA"
+  },
+  "grail-sneaker-obsidian": {
+    "base": "/images/nocturne/grail-sneaker-obsidian",
+    "widths": [
+      480,
+      864
+    ],
+    "width": 864,
+    "height": 1152,
+    "lqip": "data:image/webp;base64,UklGRlIAAABXRUJQVlA4IEYAAACQAwCdASoQABUAPu1iqk2ppaQiMAgBMB2JYwAASU51bav+fkXAAP5zMIug4NC5cMdKx+zR8czy189D+foKOPTkykVTeoAA"
+  },
+  "grail-trench-monolith": {
+    "base": "/images/nocturne/grail-trench-monolith",
+    "widths": [
+      480,
+      864
+    ],
+    "width": 864,
+    "height": 1152,
+    "lqip": "data:image/webp;base64,UklGRkwAAABXRUJQVlA4IEAAAAAwAwCdASoQABUAPu1iqU2ppaOiMAgBMB2JZQDG9DKHJCwAAP7vyedkZtpWRAkZvw4WTF4KOgf7/1Q6MMgHsAAA"
+  },
+  "hero-sky-desktop": {
+    "base": "/images/nocturne/hero-sky-desktop",
+    "widths": [
+      960,
+      1440,
+      1920
+    ],
+    "width": 1920,
+    "height": 1080,
+    "lqip": "data:image/webp;base64,UklGRj4AAABXRUJQVlA4IDIAAADQAQCdASoQAAkAA4BaJQBOgB6R6/REIAD+9Xts6O5JZ0N9IIx4I17GxhVSoT3/hwAAAA=="
+  },
+  "chiaroscuro-sky": {
+    "base": "/images/nocturne/hero-sky-desktop",
+    "widths": [
+      960,
+      1440,
+      1920
+    ],
+    "width": 1920,
+    "height": 1080,
+    "lqip": "data:image/webp;base64,UklGRj4AAABXRUJQVlA4IDIAAADQAQCdASoQAAkAA4BaJQBOgB6R6/REIAD+9Xts6O5JZ0N9IIx4I17GxhVSoT3/hwAAAA=="
+  },
+  "hero-sky-mobile": {
+    "base": "/images/nocturne/hero-sky-mobile",
+    "widths": [
+      540,
+      810,
+      1080
+    ],
+    "width": 1080,
+    "height": 1920,
+    "lqip": "data:image/webp;base64,UklGRmIAAABXRUJQVlA4IFYAAADwAwCdASoQABwAPu1iqk2ppaQiMAgBMB2JQBOgDSwwHlghrR/kkbw8AP79AyCa9QF+szOXepsqJ+kmaNSXNRlo+z/fwAZsXMwTMQ+BbUmv2G1jFkAAAA=="
+  },
+  "lookbook-01": {
+    "base": "/images/nocturne/lookbook-01",
+    "widths": [
+      480,
+      864
+    ],
+    "width": 864,
+    "height": 1152,
+    "lqip": "data:image/webp;base64,UklGRkQAAABXRUJQVlA4IDgAAAAQAwCdASoQABUAPu1iqU2ppaOiMAgBMB2JZQCnFCz8eQAA/vBcmIrhNkxQVVefQJkcFv76jQAAAA=="
+  },
+  "manifesto-cherub": {
+    "base": "/images/nocturne/manifesto-cherub",
+    "widths": [
+      480,
+      864
+    ],
+    "width": 864,
+    "height": 1152,
+    "lqip": "data:image/webp;base64,UklGRlgAAABXRUJQVlA4IEwAAACQAwCdASoQABUAPu1iqU2ppaOiMAgBMB2JQBdgA3PnbdWmzZkAAP7mdevPV6T5YWjZtZ/RvV1/fOFvohzzB3PcOrC/IYR/FAEzAAAA"
+  },
+  "manifesto-noble": {
+    "base": "/images/nocturne/manifesto-noble",
+    "widths": [
+      480,
+      864
+    ],
+    "width": 864,
+    "height": 1152,
+    "lqip": "data:image/webp;base64,UklGRkoAAABXRUJQVlA4ID4AAABQAwCdASoQABUAPu1kqU4ppaOiMAgBMB2JYwC7ABulPWoVnAD+8rSTbH77XYAbC4iDk+qTxree0dzukPgAAA=="
+  },
+  "manifesto-roundel": {
+    "base": "/images/nocturne/manifesto-roundel",
+    "widths": [
+      480,
+      864
+    ],
+    "width": 864,
+    "height": 864,
+    "lqip": "data:image/webp;base64,UklGRkgAAABXRUJQVlA4IDwAAAAwAgCdASoQABAAA4BaJZACdADxMfFzFegeAAD+43JE27matdvPUYHpEXVRQOGGQndM5a7DCJ1QtQTkAAA="
+  },
+  "mystery-chest": {
+    "base": "/images/nocturne/mystery-chest",
+    "widths": [
+      640,
+      1152
+    ],
+    "width": 1152,
+    "height": 864,
+    "lqip": "data:image/webp;base64,UklGRjYAAABXRUJQVlA4ICoAAADQAQCdASoQAAwAA4BaJYwCdAEPhr3MAAD+93n+MxPiEhpz1XJ3zCgAAAA="
+  },
+  "reborn-atelier": {
+    "base": "/images/nocturne/reborn-atelier",
+    "widths": [
+      640,
+      1152
+    ],
+    "width": 1152,
+    "height": 864,
+    "lqip": "data:image/webp;base64,UklGRjYAAABXRUJQVlA4ICoAAABwAQCdASoQAAwAA4BaJZQCdAFAAAD+8r52Uo8IVb9CyltzwSFcdMPqgAA="
+  }
+}

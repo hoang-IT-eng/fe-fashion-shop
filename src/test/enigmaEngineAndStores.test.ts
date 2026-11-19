@@ -9,7 +9,7 @@ import {
   TasteCodexResult,
 } from '../types/enigma'
 
-describe('ENIGMA Demo Vault Engine & Stores', () => {
+describe('NOCTURNE Demo Vault Engine & Stores', () => {
   beforeEach(() => {
     localStorage.clear()
     resetDemoVault()
@@ -17,11 +17,11 @@ describe('ENIGMA Demo Vault Engine & Stores', () => {
     useWishlistStore.getState().clear()
   })
 
-  it('applies ENIGMA15 privilege discount accurately in useCartStore', async () => {
+  it('applies NOCTURNE15 privilege discount accurately in useCartStore', async () => {
     await useCartStore.getState().addItem(
       {
         productId: 1,
-        name: 'ENIGMA 01 "Obsidian Monolith" High-Top',
+        name: 'NOCTURNE 01 "Obsidian Monolith" High-Top',
         price: 8900000,
         quantity: 1,
         size: '42',
@@ -29,7 +29,7 @@ describe('ENIGMA Demo Vault Engine & Stores', () => {
       false
     )
 
-    const validation = await useCartStore.getState().applyVoucherCode('enigma15')
+    const validation = await useCartStore.getState().applyVoucherCode('nocturne15')
     expect(validation.valid).toBe(true)
     expect(validation.isSecretInitiation).toBe(true)
     expect(useCartStore.getState().subtotal()).toBe(8900000)
@@ -87,7 +87,7 @@ describe('ENIGMA Demo Vault Engine & Stores', () => {
     expect(result.recommendedBox?.name).toBe('Grail Vault')
   })
 
-  it('creates and counters Concierge Find It At My Price mandates', async () => {
+  it('creates and counters Concierge Name Your Price mandates', async () => {
     const created = await demoHandleRequest<ConciergeTicket>('POST', '/concierge', {
       requesterName: 'Archive Tester',
       requesterEmail: 'tester@enigma.cult',

@@ -15,7 +15,7 @@ import { AiChatResponsePayload, GenerativeUiBlock } from '../../types/enigma'
 import { formatCountdown, formatVnd } from '../../lib/format'
 import { useCartStore } from '../../store/useCartStore'
 import { useToast } from '../Toast'
-import { EnigmaCrest } from '../EnigmaCrest'
+import { NocturneMark } from '../brand/NocturneMark'
 
 // Scrub any legacy client-side key from earlier sessions so no secret ever sits in localStorage
 try {
@@ -63,7 +63,7 @@ const QUICK_PROMPTS = [
   'Compare Bomber vs Overcoat',
   'Show live Grail Auctions',
   'Track order #1002',
-  'Decode my Mystery Vault Codex',
+  'Reveal my Mystery Vault Codex',
 ]
 
 export function AiChatWidget() {
@@ -81,7 +81,7 @@ export function AiChatWidget() {
     {
       id: 'welcome',
       role: 'assistant',
-      text: 'Welcome to the ENIGMA Grail Stylist (Hybrid RAG + Tool Router). Ask me to curate archival pieces with inline size reservation, compare grails side-by-side, inspect live anti-snipe auctions, or track provenance dispatch.',
+      text: 'Welcome to the NOCTURNE Grail Stylist (Hybrid RAG + Tool Router). Ask me to curate archival pieces with inline size reservation, compare grails side-by-side, inspect live anti-snipe auctions, or track provenance dispatch.',
     },
   ])
 
@@ -175,29 +175,29 @@ export function AiChatWidget() {
           id="enigma-ai-stylist-trigger"
           type="button"
           onClick={() => setOpen(true)}
-          className="fixed bottom-6 right-6 z-[90] flex items-center gap-3 px-4 py-3 bg-[#111111] border border-[#f9f9f9]/60 text-[#f9f9f9] shadow-2xl hover:bg-[#232323] transition"
+          className="fixed bottom-6 right-6 z-[90] flex items-center gap-3 px-4 py-3 bg-ink-raised border border-bone/60 text-bone shadow-2xl hover:bg-umber-line transition"
         >
-          <EnigmaCrest className="w-5 h-5" />
+          <NocturneMark className="w-5 h-5" />
           <span className="font-mono text-xs uppercase tracking-[0.22em]">Grail Stylist</span>
-          <MessageSquare className="w-3.5 h-3.5 text-[#f9f9f9]" />
+          <MessageSquare className="w-3.5 h-3.5 text-bone" />
         </button>
       )}
 
       {open && (
         <section
           id="enigma-ai-stylist-panel"
-          aria-label="ENIGMA Generative UI Grail Stylist"
-          className="fixed bottom-4 right-4 z-[105] w-[calc(100vw-2rem)] sm:w-[440px] h-[620px] max-h-[85vh] bg-[#111111] border border-[#f9f9f9]/45 shadow-2xl flex flex-col text-[#f9f9f9]"
+          aria-label="NOCTURNE Generative UI Grail Stylist"
+          className="fixed bottom-4 right-4 z-[105] w-[calc(100vw-2rem)] sm:w-[440px] h-[620px] max-h-[85vh] bg-ink-raised border border-bone/45 shadow-2xl flex flex-col text-bone"
         >
           {/* Header */}
-          <div className="px-4 py-3.5 bg-[#111111] border-b border-[#f9f9f9]/10 flex items-center justify-between">
+          <div className="px-4 py-3.5 bg-ink-raised border-b border-bone/10 flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <EnigmaCrest className="w-6 h-6" />
+              <NocturneMark className="w-6 h-6" />
               <div>
-                <h2 className="font-display text-base tracking-wide text-[#f9f9f9]">
-                  ENIGMA Grail Stylist
+                <h2 className="font-display text-base tracking-wide text-bone">
+                  NOCTURNE Grail Stylist
                 </h2>
-                <p className="font-mono text-[9px] tracking-[0.24em] uppercase text-[#f9f9f9]">
+                <p className="font-mono text-[9px] tracking-[0.24em] uppercase text-bone">
                   HYBRID RAG · TOOL ROUTER · GENERATIVE UI
                 </p>
               </div>
@@ -207,7 +207,7 @@ export function AiChatWidget() {
               type="button"
               onClick={() => setOpen(false)}
               aria-label="Close Grail Stylist"
-              className="p-1 text-[#a3a3a3] hover:text-[#f9f9f9]"
+              className="p-1 text-bone-muted hover:text-bone"
             >
               <X className="w-4 h-4" />
             </button>
@@ -225,8 +225,8 @@ export function AiChatWidget() {
                 <div
                   className={`max-w-[90%] px-3.5 py-2.5 text-xs leading-relaxed ${
                     entry.role === 'user'
-                      ? 'bg-[#f9f9f9] text-[#0a0a0a] font-medium'
-                      : 'bg-[#111111] border border-[#f9f9f9]/10 text-[#f9f9f9]'
+                      ? 'bg-bone text-ink font-medium'
+                      : 'bg-ink-raised border border-bone/10 text-bone'
                   }`}
                 >
                   {entry.text}
@@ -237,7 +237,7 @@ export function AiChatWidget() {
                     {entry.toolsInvoked.map(tool => (
                       <span
                         key={tool}
-                        className="px-2 py-0.5 bg-[#232323] border border-[#f9f9f9]/10 font-mono text-[9px] uppercase tracking-wider text-[#a3a3a3]"
+                        className="px-2 py-0.5 bg-umber-line border border-bone/10 font-mono text-[9px] uppercase tracking-wider text-bone-muted"
                       >
                         tool:{tool}
                       </span>
@@ -250,7 +250,7 @@ export function AiChatWidget() {
                   if (block.kind === 'product_cards') {
                     return (
                       <div key={bIdx} className="w-full space-y-2.5">
-                        <p className="font-mono text-[10px] tracking-[0.22em] text-[#f9f9f9] uppercase">
+                        <p className="font-mono text-[10px] tracking-[0.22em] text-bone uppercase">
                           {block.title}
                         </p>
                         {block.products.map(p => {
@@ -258,25 +258,25 @@ export function AiChatWidget() {
                           return (
                             <div
                               key={p.id}
-                              className="p-2.5 bg-[#111111] border border-[#f9f9f9]/12 flex gap-3"
+                              className="p-2.5 bg-ink-raised border border-bone/12 flex gap-3"
                             >
                               {p.imageUrl && (
                                 <img
                                   src={p.imageUrl}
                                   alt={p.name}
                                   onClick={() => navigate(`/products/${p.id}`)}
-                                  className="w-16 h-20 object-cover bg-[#0a0a0a] cursor-pointer flex-shrink-0"
+                                  className="w-16 h-20 object-cover bg-ink cursor-pointer flex-shrink-0"
                                 />
                               )}
                               <div className="flex-1 min-w-0">
                                 <button
                                   type="button"
                                   onClick={() => navigate(`/products/${p.id}`)}
-                                  className="text-left text-xs font-medium text-[#f9f9f9] hover:text-[#f9f9f9] line-clamp-1"
+                                  className="text-left text-xs font-medium text-bone hover:text-bone line-clamp-1"
                                 >
                                   {p.name}
                                 </button>
-                                <p className="font-mono text-[11px] text-[#f9f9f9] tabular-nums mt-0.5">
+                                <p className="font-mono text-[11px] text-bone tabular-nums mt-0.5">
                                   {formatVnd(p.price)}
                                 </p>
                                 <div className="flex flex-wrap gap-1 my-1.5">
@@ -289,8 +289,8 @@ export function AiChatWidget() {
                                       }
                                       className={`px-1.5 py-0.5 font-mono text-[10px] border ${
                                         activeSz === sz
-                                          ? 'border-[#f9f9f9] text-[#f9f9f9]'
-                                          : 'border-[#f9f9f9]/15 text-[#a3a3a3]'
+                                          ? 'border-bone text-bone'
+                                          : 'border-bone/15 text-bone-muted'
                                       }`}
                                     >
                                       {sz}
@@ -300,7 +300,7 @@ export function AiChatWidget() {
                                 <button
                                   type="button"
                                   onClick={() => void handleQuickAdd(p)}
-                                  className="w-full py-1.5 bg-[#f9f9f9] text-[#0a0a0a] font-mono text-[10px] font-semibold uppercase tracking-widest flex items-center justify-center gap-1"
+                                  className="w-full py-1.5 bg-bone text-ink font-mono text-[10px] font-semibold uppercase tracking-widest flex items-center justify-center gap-1"
                                 >
                                   <ShoppingBag className="w-3 h-3" /> Add ({activeSz})
                                 </button>
@@ -316,31 +316,31 @@ export function AiChatWidget() {
                     return (
                       <div
                         key={bIdx}
-                        className="w-full bg-[#111111] border border-[#f9f9f9]/15 p-3 space-y-2"
+                        className="w-full bg-ink-raised border border-bone/15 p-3 space-y-2"
                       >
-                        <p className="font-mono text-[10px] tracking-[0.2em] text-[#f9f9f9] uppercase">
+                        <p className="font-mono text-[10px] tracking-[0.2em] text-bone uppercase">
                           {block.title}
                         </p>
                         <div className="grid grid-cols-2 gap-2 text-[11px]">
                           {block.columns.map(col => (
                             <div
                               key={col.id}
-                              className="p-2 bg-[#0a0a0a] border border-[#f9f9f9]/10 space-y-1"
+                              className="p-2 bg-ink border border-bone/10 space-y-1"
                             >
-                              <p className="font-medium text-[#f9f9f9] line-clamp-2">{col.name}</p>
-                              <p className="font-mono text-[#f9f9f9] tabular-nums">
+                              <p className="font-medium text-bone line-clamp-2">{col.name}</p>
+                              <p className="font-mono text-bone tabular-nums">
                                 {formatVnd(col.price)}
                               </p>
-                              <p className="font-mono text-[10px] text-[#a3a3a3]">
+                              <p className="font-mono text-[10px] text-bone-muted">
                                 {col.releaseType} · {col.condition}
                               </p>
-                              <p className="font-mono text-[10px] text-[#a3a3a3]">
+                              <p className="font-mono text-[10px] text-bone-muted">
                                 Sizes: {col.sizes}
                               </p>
                             </div>
                           ))}
                         </div>
-                        <p className="text-[11px] text-[#a3a3a3] italic pt-1">{block.verdict}</p>
+                        <p className="text-[11px] text-bone-muted italic pt-1">{block.verdict}</p>
                       </div>
                     )
                   }
@@ -348,21 +348,21 @@ export function AiChatWidget() {
                   if (block.kind === 'auction_card') {
                     return (
                       <div key={bIdx} className="w-full space-y-2">
-                        <p className="font-mono text-[10px] tracking-[0.2em] text-[#f9f9f9] uppercase">
+                        <p className="font-mono text-[10px] tracking-[0.2em] text-bone uppercase">
                           {block.title}
                         </p>
                         {block.lots.map(lot => (
                           <div
                             key={lot.id}
-                            className="p-3 bg-[#111111] border border-[#f9f9f9]/35 space-y-2"
+                            className="p-3 bg-ink-raised border border-bone/35 space-y-2"
                           >
-                            <p className="text-xs font-medium text-[#f9f9f9]">{lot.title}</p>
+                            <p className="text-xs font-medium text-bone">{lot.title}</p>
                             <div className="flex items-center justify-between font-mono text-[11px] tabular-nums">
-                              <span className="text-[#f9f9f9]">
+                              <span className="text-bone">
                                 Bid: {formatVnd(lot.currentBid)}
                               </span>
-                              <span className="inline-flex items-center gap-1 text-[#f9f9f9]">
-                                <Clock className="w-3 h-3 text-[#f9f9f9]" />
+                              <span className="inline-flex items-center gap-1 text-bone">
+                                <Clock className="w-3 h-3 text-bone" />
                                 {formatCountdown(lot.remainingSeconds)}
                               </span>
                             </div>
@@ -372,7 +372,7 @@ export function AiChatWidget() {
                                 setOpen(false)
                                 navigate('/auctions')
                               }}
-                              className="w-full py-1.5 border border-[#f9f9f9] text-[#f9f9f9] font-mono text-[10px] uppercase tracking-widest hover:bg-[#f9f9f9] hover:text-[#0a0a0a] transition"
+                              className="w-full py-1.5 border border-bone text-bone font-mono text-[10px] uppercase tracking-widest hover:bg-bone hover:text-ink transition"
                             >
                               Enter Bidding Room
                             </button>
@@ -386,11 +386,11 @@ export function AiChatWidget() {
                     return (
                       <div
                         key={bIdx}
-                        className="w-full p-3 bg-[#111111] border border-[#f9f9f9]/15 space-y-2.5"
+                        className="w-full p-3 bg-ink-raised border border-bone/15 space-y-2.5"
                       >
                         <div className="flex items-center justify-between font-mono text-[10px]">
-                          <span className="text-[#f9f9f9] uppercase">{block.title}</span>
-                          <span className="tabular-nums text-[#f9f9f9]">
+                          <span className="text-bone uppercase">{block.title}</span>
+                          <span className="tabular-nums text-bone">
                             {formatVnd(block.order.total)}
                           </span>
                         </div>
@@ -402,12 +402,12 @@ export function AiChatWidget() {
                             >
                               <CheckCircle2
                                 className={`w-3.5 h-3.5 ${
-                                  st.completed ? 'text-[#f9f9f9]' : 'text-[#a3a3a3]/30'
+                                  st.completed ? 'text-bone' : 'text-bone-muted/30'
                                 }`}
                               />
                               <span
                                 className={
-                                  st.completed ? 'text-[#f9f9f9]' : 'text-[#a3a3a3]/60'
+                                  st.completed ? 'text-bone' : 'text-bone-muted/60'
                                 }
                               >
                                 {st.label}
@@ -421,7 +421,7 @@ export function AiChatWidget() {
                             setOpen(false)
                             navigate(`/orders/${block.order.id}`)
                           }}
-                          className="inline-flex items-center gap-1 font-mono text-[10px] text-[#f9f9f9] uppercase tracking-widest"
+                          className="inline-flex items-center gap-1 font-mono text-[10px] text-bone uppercase tracking-widest"
                         >
                           Inspect Full Dossier <ArrowUpRight className="w-3 h-3" />
                         </button>
@@ -433,22 +433,22 @@ export function AiChatWidget() {
                     return (
                       <div
                         key={bIdx}
-                        className="w-full p-3.5 bg-[#111111] border border-[#f9f9f9]/45 space-y-2"
+                        className="w-full p-3.5 bg-ink-raised border border-bone/45 space-y-2"
                       >
-                        <div className="flex items-center gap-2 text-[#f9f9f9] font-mono text-[10px] uppercase tracking-widest">
+                        <div className="flex items-center gap-2 text-bone font-mono text-[10px] uppercase tracking-widest">
                           <Compass className="w-3.5 h-3.5" />
                           <span>{block.title}</span>
                         </div>
-                        <p className="text-xs text-[#a3a3a3] leading-relaxed">{block.subtitle}</p>
+                        <p className="text-xs text-bone-muted leading-relaxed">{block.subtitle}</p>
                         <button
                           type="button"
                           onClick={() => {
                             setOpen(false)
                             navigate(block.ctaUrl)
                           }}
-                          className="w-full py-2 bg-[#f9f9f9] text-[#0a0a0a] font-mono text-[10px] font-semibold uppercase tracking-widest"
+                          className="w-full py-2 bg-bone text-ink font-mono text-[10px] font-semibold uppercase tracking-widest"
                         >
-                          Open 8-Step Style Decoder
+                          Open 8-Step Style Reading
                         </button>
                       </div>
                     )
@@ -459,7 +459,7 @@ export function AiChatWidget() {
               </div>
             ))}
             {sending && (
-              <div className="font-mono text-[10px] tracking-[0.24em] text-[#a3a3a3] uppercase">
+              <div className="font-mono text-[10px] tracking-[0.24em] text-bone-muted uppercase">
                 QUERYING ARCHIVE INDEX...
               </div>
             )}
@@ -467,13 +467,13 @@ export function AiChatWidget() {
           </div>
 
           {/* Quick Prompt Strip */}
-          <div className="px-3 py-2 border-t border-[#f9f9f9]/10 bg-[#0a0a0a] flex gap-1.5 overflow-x-auto">
+          <div className="px-3 py-2 border-t border-bone/10 bg-ink flex gap-1.5 overflow-x-auto">
             {QUICK_PROMPTS.map(prompt => (
               <button
                 key={prompt}
                 type="button"
                 onClick={() => void sendQuery(prompt)}
-                className="flex-shrink-0 px-2.5 py-1 border border-[#f9f9f9]/15 hover:border-[#f9f9f9] font-mono text-[10px] text-[#a3a3a3] hover:text-[#f9f9f9] whitespace-nowrap transition"
+                className="flex-shrink-0 px-2.5 py-1 border border-bone/15 hover:border-bone font-mono text-[10px] text-bone-muted hover:text-bone whitespace-nowrap transition"
               >
                 {prompt}
               </button>
@@ -486,7 +486,7 @@ export function AiChatWidget() {
               e.preventDefault()
               void sendQuery(input)
             }}
-            className="p-3 bg-[#111111] border-t border-[#f9f9f9]/10 flex gap-2"
+            className="p-3 bg-ink-raised border-t border-bone/10 flex gap-2"
           >
             <input
               id="ai-stylist-input"
@@ -494,13 +494,13 @@ export function AiChatWidget() {
               value={input}
               onChange={e => setInput(e.target.value)}
               placeholder="Ask for grails, compare items, live auctions, order #..."
-              className="flex-1 bg-[#0a0a0a] border border-[#f9f9f9]/15 px-3 py-2 text-xs text-[#f9f9f9] placeholder-[#a3a3a3] focus:outline-none focus:border-[#f9f9f9]"
+              className="flex-1 bg-ink border border-bone/15 px-3 py-2 text-xs text-bone placeholder-bone-muted focus:outline-none focus:border-bone"
             />
             <button
               type="submit"
               disabled={sending}
               aria-label="Send message to Grail Stylist"
-              className="px-3.5 py-2 bg-[#f9f9f9] text-[#0a0a0a] hover:bg-[#d9d9d9] disabled:opacity-40 transition"
+              className="px-3.5 py-2 bg-bone text-ink hover:bg-bone-dim disabled:opacity-40 transition"
             >
               <Send className="w-4 h-4" />
             </button>

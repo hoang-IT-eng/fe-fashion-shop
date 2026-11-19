@@ -7,30 +7,27 @@ export default {
   theme: {
     extend: {
       colors: {
-        obsidian: '#0a0a0a',
-        charcoal: '#111111',
-        slate: '#232323',
-        bone: '#f9f9f9',
-        pewter: '#a3a3a3',
-        // Monochrome restyle: the former gold accent is retired. The token is
-        // repurposed to the neutral off-white so legacy `gold` call sites
-        // render monochrome instead of breaking.
-        gold: '#f9f9f9',
-        'gold-dim': '#d9d9d9',
+        // NOCTURNE art tokens ("Nocturne Fresco"): warm ink, bone, umber, one ember accent.
+        ink: { DEFAULT: '#0b0908', raised: '#15110e', deep: '#070605' },
+        bone: { DEFAULT: '#efe9df', dim: '#d8cfc1', muted: '#a69c8e' },
+        umber: { DEFAULT: '#3a2216', line: '#2a211b', glow: '#5a3320' },
+        ember: { DEFAULT: '#c8864a', soft: '#e0a874', deep: '#a86c38' },
+        verdigris: '#4f5b45',
+        // Legacy names kept so older call sites resolve to the new palette.
+        obsidian: '#0b0908',
+        charcoal: '#15110e',
+        slate: '#2a211b',
+        pewter: '#a69c8e',
+        gold: '#c8864a',
+        'gold-dim': '#a86c38',
         crimson: '#b54444',
         sage: '#5e8c6a',
-        // Legacy aliases mapped cleanly to Enigma tokens
-        ink: '#f9f9f9',
-        paper: '#0a0a0a',
-        sand: '#111111',
-        line: '#232323',
-        muted: '#a3a3a3',
       },
       fontFamily: {
-        sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
-        display: ['"Playfair Display"', 'Georgia', 'serif'],
-        ritual: ['"Playfair Display"', 'Georgia', 'serif'],
-        mono: ['"JetBrains Mono"', 'monospace'],
+        sans: ['"Manrope Variable"', 'Manrope', 'system-ui', 'sans-serif'],
+        display: ['"Cormorant Garamond Variable"', '"Cormorant Garamond"', 'Georgia', 'serif'],
+        ritual: ['"Cormorant Garamond Variable"', '"Cormorant Garamond"', 'Georgia', 'serif'],
+        mono: ['"JetBrains Mono Variable"', '"JetBrains Mono"', 'ui-monospace', 'monospace'],
       },
       letterSpacing: {
         brand: '0.34em',

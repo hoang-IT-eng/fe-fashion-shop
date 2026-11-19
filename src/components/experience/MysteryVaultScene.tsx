@@ -152,8 +152,8 @@ export default function MysteryVaultScene({
       {!webglReady && (
         <img
           src="/images/enigma/mystery-chest.jpg"
-          alt="ENIGMA Anodized Mystery Vault Chest"
-          className="w-full h-full object-cover rounded border border-[#f9f9f9]/15"
+          alt="NOCTURNE Anodized Mystery Vault Chest"
+          className="w-full h-full object-cover rounded border border-bone/15"
         />
       )}
     </div>

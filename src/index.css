@@ -3,19 +3,28 @@
 @tailwind utilities;
 
 :root {
-  --enigma-obsidian: #0a0a0a;
-  --enigma-charcoal: #111111;
-  --enigma-slate: #232323;
-  --enigma-bone: #f9f9f9;
-  --enigma-pewter: #a3a3a3;
-  /* Retired gold accent, repurposed to the neutral off-white (monochrome). */
-  --enigma-gold: #f9f9f9;
+  /* NOCTURNE art tokens */
+  --n-ink: #0b0908;
+  --n-ink-raised: #15110e;
+  --n-bone: #efe9df;
+  --n-bone-muted: #a69c8e;
+  --n-umber: #3a2216;
+  --n-umber-line: #2a211b;
+  --n-ember: #c8864a;
+  --n-verdigris: #4f5b45;
+  /* legacy aliases (older components still read these) */
+  --enigma-obsidian: var(--n-ink);
+  --enigma-charcoal: var(--n-ink-raised);
+  --enigma-slate: var(--n-umber-line);
+  --enigma-bone: var(--n-bone);
+  --enigma-pewter: var(--n-bone-muted);
+  --enigma-gold: var(--n-ember);
   --enigma-crimson: #b54444;
   --enigma-sage: #5e8c6a;
-  --font-display: 'Playfair Display', Georgia, serif;
-  --font-ritual: 'Playfair Display', Georgia, serif;
-  --font-body: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
+  --font-display: 'Cormorant Garamond Variable', 'Cormorant Garamond', Georgia, serif;
+  --font-ritual: var(--font-display);
+  --font-body: 'Manrope Variable', Manrope, system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, monospace;
 }
 
 @layer base {
@@ -34,14 +43,23 @@
   }
 
   ::selection {
-    background: var(--enigma-bone);
-    color: var(--enigma-obsidian);
+    background: var(--n-ember);
+    color: var(--n-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--n-ember);
+    outline-offset: 3px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
   }
 
   /* Slim monochrome scrollbar */
   html {
     scrollbar-width: thin;
-    scrollbar-color: #2e2e2e var(--enigma-obsidian);
+    scrollbar-color: #3a2e25 var(--enigma-obsidian);
   }
 
   ::-webkit-scrollbar {
@@ -53,13 +71,13 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    background: #2e2e2e;
+    background: #3a2e25;
     border: 2px solid var(--enigma-obsidian);
     border-radius: 8px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: #454545;
+    background: #5a4636;
   }
 
   /* Native cursor is hidden only while <CustomCursor /> is mounted
@@ -72,7 +90,7 @@
 
 /* Subtle tactile analog film grain surface */
 .enigma-grain {
-  background-image: radial-gradient(rgba(249, 249, 249, 0.035) 1px, transparent 0);
+  background-image: radial-gradient(rgba(239, 233, 223, 0.035) 1px, transparent 0);
   background-size: 24px 24px;
 }
 
@@ -241,4 +259,27 @@
 
 .animate-fade-in {
   animation: enigma-rise 0.3s ease-out both;
+}
+
+/* ------------------------------------------------------------------ */
+/* NOCTURNE foundations                                                */
+/* ------------------------------------------------------------------ */
+.skip-link {
+  position: fixed;
+  left: 1rem;
+  top: -4rem;
+  z-index: 200;
+  padding: 0.75rem 1.1rem;
+  background: var(--n-bone);
+  color: var(--n-ink);
+  font: 600 12px/1 var(--font-body);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  transition: top 0.2s ease;
+}
+.skip-link:focus { top: 1rem; }
+
+@keyframes route-load {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(300%); }
 }

@@ -1,5 +1,5 @@
 /**
- * Diegetic Web Audio Procedural Synthesizer for ENIGMA.
+ * Diegetic Web Audio Procedural Synthesizer for NOCTURNE.
  * Off by default; respects browser autoplay rules; zero external .mp3 dependencies.
  */
 
