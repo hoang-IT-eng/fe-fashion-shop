@@ -70,10 +70,9 @@ export function JournalChapter() {
                 >
                   <span
                     aria-hidden="true"
-                    className={`font-display text-3xl italic leading-none transition ${i === active ? 'text-ember-soft' : 'text-bone/30'}`}
-                  >
-                    {String(i + 1).padStart(2, '0')}
-                  </span>
+                    data-numeral={String(i + 1).padStart(2, '0')}
+                    className={`font-display text-3xl italic leading-none transition before:content-[attr(data-numeral)] ${i === active ? 'text-ember-soft' : 'text-bone/30'}`}
+                  />
                   <span className="flex-1">
                     <span className="mb-1.5 block font-sans text-[10px] font-medium uppercase tracking-[0.16em] text-bone-muted">
                       {s.kicker} · {s.readTime}
