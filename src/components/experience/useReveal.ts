@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { motionDisabled } from '../../lib/motion'
+import { afterIdle, motionDisabled } from '../../lib/motion'
 
 let pluginRegistered = false
 
@@ -43,6 +43,7 @@ export function useRevealScope<T extends HTMLElement = HTMLDivElement>(
     if (!scope) return
     ensurePlugin()
 
+    return afterIdle(() => {
     const ctx = gsap.context(() => {
       scope.querySelectorAll<HTMLElement>('[data-reveal]').forEach(el => {
         gsap.fromTo(
@@ -113,6 +114,7 @@ export function useRevealScope<T extends HTMLElement = HTMLDivElement>(
       window.removeEventListener('load', onLoad)
       ctx.revert()
     }
+    })
   }, [])
 
   /* Layout above the fold grows when API data lands — recalculate only. */

@@ -184,21 +184,33 @@ export function DescentHero({ products, introReady, onScrollPast }: DescentHeroP
     const h1 = h1Ref.current
     const title = titleRef.current
     if (!h1 || !title) return
-    const ctx = gsap.context(() => {
-      splitWords(h1)
-      const words = h1.querySelectorAll<HTMLElement>('.hero-word')
-      const fades = title.querySelectorAll<HTMLElement>('.hero-fade')
-      gsap.set(words, { yPercent: 118 })
-      gsap.set(fades, { opacity: 0, y: 16 })
-      const tl = gsap.timeline({ paused: true })
-      tl.to(words, { yPercent: 0, duration: 1.1, ease: 'power4.out', stagger: 0.045 }, 0.05)
-      tl.to(fades, { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', stagger: 0.08 }, 0.45)
-      introRef.current = tl
-    }, title)
-    const safety = window.setTimeout(() => introRef.current?.play(), 3500)
+    // initial state via plain inline styles (no computed-style reads at boot);
+    // the GSAP timeline is only built when the intro actually plays
+    splitWords(h1)
+    const words = Array.from(h1.querySelectorAll<HTMLElement>('.hero-word'))
+    const fades = Array.from(title.querySelectorAll<HTMLElement>('.hero-fade'))
+    words.forEach(w => (w.style.transform = 'translateY(118%)'))
+    fades.forEach(f => {
+      f.style.opacity = '0'
+      f.style.transform = 'translateY(16px)'
+    })
+    let tl: gsap.core.Timeline | null = null
+    const play = () => {
+      if (tl) return
+      tl = gsap.timeline()
+      tl.fromTo(words, { yPercent: 118 }, { yPercent: 0, duration: 1.1, ease: 'power4.out', stagger: 0.045 }, 0.05)
+      tl.fromTo(fades, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', stagger: 0.08 }, 0.45)
+    }
+    introRef.current = { play } as unknown as gsap.core.Timeline
+    const safety = window.setTimeout(play, 3500)
     return () => {
       window.clearTimeout(safety)
-      ctx.revert()
+      tl?.kill()
+      words.forEach(w => (w.style.transform = ''))
+      fades.forEach(f => {
+        f.style.opacity = ''
+        f.style.transform = ''
+      })
       introRef.current = null
     }
   }, [])

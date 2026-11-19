@@ -57,3 +57,31 @@ export function scrollToTop() {
     window.scrollTo({ top: 0, behavior: 'auto' })
   }
 }
+
+/**
+ * Run `init` once the main thread is idle (after first paint), so GSAP's
+ * style reads and ScrollTrigger measuring stay out of the boot task.
+ * Returns a cleanup that cancels a pending init or undoes a finished one.
+ */
+export function afterIdle(init: () => (() => void) | void, timeout = 900): () => void {
+  let cleanup: (() => void) | void
+  let cancelled = false
+  const run = () => {
+    if (!cancelled) cleanup = init()
+  }
+  const w = window as any
+  if (typeof w.requestIdleCallback === 'function') {
+    const id = w.requestIdleCallback(run, { timeout })
+    return () => {
+      cancelled = true
+      w.cancelIdleCallback?.(id)
+      cleanup?.()
+    }
+  }
+  const id = window.setTimeout(run, 120)
+  return () => {
+    cancelled = true
+    window.clearTimeout(id)
+    cleanup?.()
+  }
+}

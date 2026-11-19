@@ -21,7 +21,7 @@ import { ResponsiveImage } from '../components/media/ResponsiveImage'
 import { QuickViewModal } from '../components/QuickViewModal'
 import { DescentHero } from '../components/home/DescentHero'
 import { useRevealScope } from '../components/experience/useReveal'
-import { motionDisabled } from '../lib/motion'
+import { afterIdle, motionDisabled } from '../lib/motion'
 import { useSoundStore } from '../store/useSoundStore'
 import { useToast } from '../components/Toast'
 
@@ -127,6 +127,7 @@ export default function HomePage() {
     const section = manifestoRef.current
     if (!section) return
 
+    return afterIdle(() => {
     const ctx = gsap.context(() => {
       const lines = section.querySelectorAll('.manifesto-line')
       // transform + clip only: text keeps full contrast at every frame
@@ -150,6 +151,7 @@ export default function HomePage() {
     }, section)
 
     return () => ctx.revert()
+    })
   }, [])
 
   /* Journal: horizontal-scroll gallery pinned to vertical scroll,
@@ -160,6 +162,7 @@ export default function HomePage() {
     const track = journalTrackRef.current
     if (!section || !track) return
 
+    return afterIdle(() => {
     const mm = gsap.matchMedia()
     mm.add('(min-width: 1024px)', () => {
       const cards = Array.from(track.children) as HTMLElement[]
@@ -200,6 +203,7 @@ export default function HomePage() {
     })
 
     return () => mm.revert()
+    })
   }, [])
 
   const openQuickBid = (lot: AuctionLot) => {
