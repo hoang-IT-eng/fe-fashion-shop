@@ -3,7 +3,7 @@ import Lenis from 'lenis'
 import 'lenis/dist/lenis.css'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { motionDisabled, setLenis } from '../../lib/motion'
+import { afterIdle, motionDisabled, setLenis } from '../../lib/motion'
 
 /**
  * App-wide Lenis smooth scrolling, driven by GSAP's ticker so Lenis and
@@ -18,6 +18,9 @@ export function SmoothScroll() {
   useEffect(() => {
     if (motionDisabled()) return
 
+    // native scroll until the boot work is done; Lenis + the first full
+    // ScrollTrigger measure happen in an idle slot, not the boot task
+    return afterIdle(() => {
     gsap.registerPlugin(ScrollTrigger)
 
     const lenis = new Lenis({
@@ -43,6 +46,7 @@ export function SmoothScroll() {
       lenis.destroy()
       setLenis(null)
     }
+    }, 1200)
   }, [])
 
   return null
