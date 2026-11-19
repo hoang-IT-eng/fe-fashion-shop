@@ -31,9 +31,16 @@ function shouldShow(): boolean {
 export function NocturneLoader() {
   const [visible, setVisible] = useState(shouldShow)
   const [phase, setPhase] = useState<'hold' | 'part'>('hold')
-  const [count, setCount] = useState(0)
   const veilRef = useRef<HTMLDivElement | null>(null)
+  const countRef = useRef<HTMLSpanElement | null>(null)
+  const barRef = useRef<HTMLSpanElement | null>(null)
   const live = useRef(false)
+
+  // The static boot veil in index.html has done its job once React paints.
+  useEffect(() => {
+    const boot = document.getElementById('boot')
+    if (boot) requestAnimationFrame(() => boot.remove())
+  }, [])
 
   useEffect(() => {
     if (!visible) return
@@ -50,7 +57,9 @@ export function NocturneLoader() {
     let raf = 0
     const tick = (now: number) => {
       const t = now - start
-      setCount(Math.round(Math.min(1, t / HOLD_MS) * 100))
+      const c = Math.round(Math.min(1, t / HOLD_MS) * 100)
+      if (countRef.current) countRef.current.textContent = String(c).padStart(3, '0')
+      if (barRef.current) barRef.current.style.width = `${c}%`
       const el = veilRef.current
       if (el && t > HOLD_MS) {
         // part from the centre: an expanding soft hole in the painted veil
@@ -93,13 +102,13 @@ export function NocturneLoader() {
           parting ? '-translate-y-3 opacity-0' : 'opacity-100'
         }`}
       >
-        <NocturneWordmark className="loader-mark h-7 w-auto text-bone md:h-10" />
+        <NocturneWordmark className="h-7 w-auto text-bone md:h-10" />
         <div className="flex items-center gap-4 font-mono text-[10px] uppercase tracking-[0.34em] text-bone/70">
           <span>Descending</span>
           <span className="h-px w-16 overflow-hidden bg-bone/20">
-            <span className="block h-full bg-ember" style={{ width: `${count}%` }} />
+            <span ref={barRef} className="block h-full bg-ember" style={{ width: '0%' }} />
           </span>
-          <span className="tabular-nums">{String(count).padStart(3, '0')}</span>
+          <span ref={countRef} className="tabular-nums">000</span>
         </div>
       </div>
     </div>
