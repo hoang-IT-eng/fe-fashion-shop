@@ -197,6 +197,10 @@ export function DescentHero({ products, introReady, onScrollPast }: DescentHeroP
     let tl: gsap.core.Timeline | null = null
     const play = () => {
       if (tl) return
+      // hand the inline pre-state over to GSAP (otherwise it would parse the
+      // translateY(118%) as a px offset and keep it after the tween)
+      words.forEach(w => (w.style.transform = ''))
+      fades.forEach(f => (f.style.transform = ''))
       tl = gsap.timeline()
       tl.fromTo(words, { yPercent: 118 }, { yPercent: 0, duration: 1.1, ease: 'power4.out', stagger: 0.045 }, 0.05)
       tl.fromTo(fades, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', stagger: 0.08 }, 0.45)
