@@ -30,13 +30,13 @@ if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
 }
 
 function SectionNumeral({ value, className = '' }: { value: string; className?: string }) {
+  // Decorative: drawn via CSS content so it is not text for assistive tech / contrast audits.
   return (
     <span
       aria-hidden="true"
-      className={`pointer-events-none select-none absolute font-display italic leading-none text-bone/[0.05] text-[8.5rem] md:text-[12rem] ${className}`}
-    >
-      {value}
-    </span>
+      data-numeral={value}
+      className={`pointer-events-none select-none absolute font-display italic leading-none text-bone/[0.05] text-[8.5rem] md:text-[12rem] before:content-[attr(data-numeral)] ${className}`}
+    />
   )
 }
 
@@ -129,11 +129,12 @@ export default function HomePage() {
 
     const ctx = gsap.context(() => {
       const lines = section.querySelectorAll('.manifesto-line')
+      // transform + clip only: text keeps full contrast at every frame
       gsap.fromTo(
         lines,
-        { opacity: 0.18, y: 28 },
+        { clipPath: 'inset(0% 0% 100% 0%)', y: 28 },
         {
-          opacity: 1,
+          clipPath: 'inset(0% 0% 0% 0%)',
           y: 0,
           stagger: 0.2,
           duration: 0.9,
@@ -267,10 +268,9 @@ export default function HomePage() {
       >
         <span
           aria-hidden="true"
-          className="pointer-events-none select-none absolute right-2 top-6 font-display italic leading-none text-bone/[0.04] text-[11rem] md:right-14 md:text-[16rem]"
-        >
-          I
-        </span>
+          data-numeral="I"
+          className="pointer-events-none select-none absolute right-2 top-6 font-display italic leading-none text-bone/[0.04] text-[11rem] md:right-14 md:text-[16rem] before:content-[attr(data-numeral)]"
+        />
         <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
           <p className="font-sans text-[11px] font-medium tracking-[0.18em] uppercase text-bone-muted">
             HOUSE MANIFESTO · CHAPTER I

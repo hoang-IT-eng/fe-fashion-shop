@@ -1,18 +1,13 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { NocturneWordmark } from '../brand/NocturneMark'
+import { HeroPoster } from '../media/ResponsiveImage'
 import { motionDisabled } from '../../lib/motion'
-import {
-  cloud,
-  cloudsSupported,
-  loadCloudWorld,
-  veilOut,
-  veilSnap,
-} from './cloud/cloudState'
+import { getCloudWorld, veilOut, veilSnap } from './cloud/cloudState'
 
 const SESSION_KEY = 'nocturne_loader_seen'
 /** Total budget: hold + part ≤ 1.2s. */
-const HOLD_MS = 620
-const TOTAL_MS = 1180
+const HOLD_MS = 600
+const PART_MS = 520
 
 function shouldShow(): boolean {
   if (typeof window === 'undefined' || motionDisabled()) return false
@@ -24,16 +19,21 @@ function shouldShow(): boolean {
 }
 
 /**
- * First-visit loader (once per session, ≤1.2s). The wordmark rises over a
- * closed veil of painted cloud; then the clouds part from the centre to
- * reveal the page underneath. When the live cloud world is ready in time
- * the veil is the real WebGL veil; otherwise the painted DOM layer fades.
+ * First-visit loader (once per session, ≤1.2s): the wordmark rises over a
+ * closed veil of the same painted clouds, then the clouds part from the
+ * centre outward — the same parting shape the WebGL veil uses for the menu
+ * and page transitions. On a first visit the WebGL world is deliberately not
+ * loaded yet (it arms on first interaction, keeping LCP/TBT clean), so the
+ * veil is painted from the hero artwork that is already preloaded; if the
+ * world is already live (e.g. a later session in the same tab), the real
+ * cloud veil is used.
  */
 export function NocturneLoader() {
   const [visible, setVisible] = useState(shouldShow)
   const [phase, setPhase] = useState<'hold' | 'part'>('hold')
-  const [live, setLive] = useState(false)
   const [count, setCount] = useState(0)
+  const veilRef = useRef<HTMLDivElement | null>(null)
+  const live = useRef(false)
 
   useEffect(() => {
     if (!visible) return
@@ -42,32 +42,34 @@ export function NocturneLoader() {
     } catch {
       /* ignore */
     }
-    let liveNow = false
-    if (cloudsSupported()) {
+    if (getCloudWorld()) {
+      live.current = true
       veilSnap(1)
-      void loadCloudWorld().then(w => {
-        if (w && cloud.overlay) {
-          liveNow = true
-          setLive(true)
-        }
-      })
     }
     const start = performance.now()
     let raf = 0
     const tick = (now: number) => {
-      const r = Math.min(1, (now - start) / HOLD_MS)
-      setCount(Math.round(r * 100))
-      if (r < 1) raf = requestAnimationFrame(tick)
+      const t = now - start
+      setCount(Math.round(Math.min(1, t / HOLD_MS) * 100))
+      const el = veilRef.current
+      if (el && t > HOLD_MS) {
+        // part from the centre: an expanding soft hole in the painted veil
+        const k = Math.min(1, (t - HOLD_MS) / PART_MS)
+        const e = 1 - Math.pow(1 - k, 3)
+        const r = e * 135
+        const mask = `radial-gradient(ellipse 120% 95% at 50% 58%, transparent ${r}%, #000 ${r + 22}%)`
+        el.style.maskImage = mask
+        el.style.webkitMaskImage = mask
+        el.style.transform = `scale(${1 + e * 0.12})`
+      }
+      if (t < HOLD_MS + PART_MS) raf = requestAnimationFrame(tick)
     }
     raf = requestAnimationFrame(tick)
     const tPart = window.setTimeout(() => {
       setPhase('part')
-      veilOut(liveNow ? 1.85 : 50)
+      if (live.current) veilOut(1.9)
     }, HOLD_MS)
-    const tEnd = window.setTimeout(() => {
-      veilOut(50)
-      setVisible(false)
-    }, TOTAL_MS)
+    const tEnd = window.setTimeout(() => setVisible(false), HOLD_MS + PART_MS + 40)
     return () => {
       cancelAnimationFrame(raf)
       window.clearTimeout(tPart)
@@ -79,17 +81,13 @@ export function NocturneLoader() {
   const parting = phase === 'part'
 
   return (
-    <div
-      id="nocturne-loader"
-      aria-hidden="true"
-      className="pointer-events-none fixed inset-0 z-[120] text-bone"
-    >
-      {/* Painted DOM veil (used until / unless the WebGL veil is live) */}
-      <div
-        className={`loader-veil absolute inset-0 transition-[opacity,transform] ease-[cubic-bezier(0.7,0,0.2,1)] ${
-          live ? 'opacity-0 duration-300' : parting ? 'scale-110 opacity-0 duration-500' : 'opacity-100'
-        }`}
-      />
+    <div id="nocturne-loader" aria-hidden="true" className="pointer-events-none fixed inset-0 z-[120] text-bone">
+      {!live.current && (
+        <div ref={veilRef} className="absolute inset-0 overflow-hidden bg-ink will-change-transform">
+          <HeroPoster className="h-full w-full scale-125 object-cover blur-[3px] brightness-[0.55]" />
+          <div className="loader-veil absolute inset-0" />
+        </div>
+      )}
       <div
         className={`relative flex h-full flex-col items-center justify-center gap-6 px-6 transition-all duration-300 ${
           parting ? '-translate-y-3 opacity-0' : 'opacity-100'

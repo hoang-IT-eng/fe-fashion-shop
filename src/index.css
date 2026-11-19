@@ -291,8 +291,7 @@
 .loader-veil {
   background:
     radial-gradient(ellipse 70% 45% at 50% 82%, rgba(200, 134, 74, 0.32), rgba(200, 134, 74, 0) 70%),
-    radial-gradient(ellipse 90% 70% at 50% 40%, rgba(58, 34, 22, 0.55), rgba(11, 9, 8, 0) 75%),
-    #0b0908;
+    radial-gradient(ellipse 90% 70% at 50% 40%, rgba(11, 9, 8, 0.2), rgba(11, 9, 8, 0.75) 80%);
 }
 .loader-mark {
   animation: loader-rise 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;

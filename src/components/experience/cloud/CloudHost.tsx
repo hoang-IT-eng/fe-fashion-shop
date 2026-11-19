@@ -2,8 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import {
   cloudsSupported,
   isModeLive,
-  loadCloudWorld,
-  loadCloudWorldWhenIdle,
+  armCloudWorld,
   registerCloudHost,
   subscribeLive,
   type CloudMode,
@@ -16,7 +15,8 @@ interface CloudHostProps {
   load?: 'idle' | 'near'
 }
 
-/** A slot the shared cloud canvas can occupy. Renders nothing visible on its own. */
+/** A slot the shared cloud canvas can occupy. Renders nothing visible on its own.
+ *  'idle' arms the world immediately (first interaction loads it); 'near' arms it when the slot nears the viewport. */
 export function CloudHost({ mode, className = '', load = 'near' }: CloudHostProps) {
   const ref = useRef<HTMLDivElement | null>(null)
   useEffect(() => {
@@ -25,12 +25,12 @@ export function CloudHost({ mode, className = '', load = 'near' }: CloudHostProp
     const unregister = registerCloudHost(el, mode)
     let io: IntersectionObserver | null = null
     if (load === 'idle') {
-      loadCloudWorldWhenIdle()
+      armCloudWorld()
     } else {
       io = new IntersectionObserver(
         entries => {
           if (entries.some(e => e.isIntersecting)) {
-            void loadCloudWorld()
+            armCloudWorld()
             io?.disconnect()
           }
         },

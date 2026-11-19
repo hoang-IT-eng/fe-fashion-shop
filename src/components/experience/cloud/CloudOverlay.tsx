@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { cloudsSupported, loadCloudWorldWhenIdle, registerCloudHost } from './cloudState'
+import { armCloudWorld, cloudsSupported, registerCloudHost } from './cloudState'
 
 /**
  * Fixed full-screen slot for the shared cloud canvas when it plays the veil
@@ -12,8 +12,8 @@ export function CloudOverlay() {
     const el = ref.current
     if (!el || !cloudsSupported()) return
     const off = registerCloudHost(el, 'overlay')
-    // transitions + menu use the world on every page; fetch it once idle
-    loadCloudWorldWhenIdle(4000)
+    // transitions + menu use the world on every page; load it on first interaction
+    armCloudWorld()
     return off
   }, [])
   return (

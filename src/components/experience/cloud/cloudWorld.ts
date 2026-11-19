@@ -158,7 +158,9 @@ export async function createCloudWorld(): Promise<CloudWorldApi> {
     powerPreference: 'high-performance',
   })
   renderer.outputColorSpace = LinearSRGBColorSpace
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, coarse ? 1.25 : 1.5))
+  const maxDpr = Math.min(window.devicePixelRatio || 1, coarse ? 1.25 : 1.5)
+  let dpr = maxDpr
+  renderer.setPixelRatio(dpr)
   renderer.setClearColor(0x000000, 0)
   const canvas = renderer.domElement
   canvas.setAttribute('aria-hidden', 'true')
@@ -245,9 +247,10 @@ export async function createCloudWorld(): Promise<CloudWorldApi> {
   veilScene.add(veil)
 
   // compile both programs up-front so the first visible frame never hitches
+  // (async where KHR_parallel_shader_compile exists, so the main thread isn't blocked)
   renderer.setSize(2, 2, false)
-  renderer.compile(world, camera)
-  renderer.compile(veilScene, camera)
+  await renderer.compileAsync(world, camera)
+  await renderer.compileAsync(veilScene, camera)
 
   /* ---------------- hosts & visibility ---------------- */
   let hostList: HostEntry[] = []
@@ -267,7 +270,8 @@ export async function createCloudWorld(): Promise<CloudWorldApi> {
     if (!current) return
     const w = Math.max(1, current.el.clientWidth)
     const h = Math.max(1, current.el.clientHeight)
-    if (w === size.w && h === size.h) return
+    if (w === size.w && h === size.h && renderer.getPixelRatio() === dpr) return
+    renderer.setPixelRatio(dpr)
     size = { w, h }
     renderer.setSize(w, h, false)
     camera.aspect = w / h
@@ -378,10 +382,31 @@ export async function createCloudWorld(): Promise<CloudWorldApi> {
     }
   }
 
+  // adaptive quality: if frames run slow, render the (soft) clouds at a lower resolution
+  let slowAcc = 0
+  let slowFrames = 0
+  function adapt(rawDt: number) {
+    slowAcc += rawDt
+    slowFrames++
+    if (slowFrames < 45) return
+    const avg = slowAcc / slowFrames
+    slowAcc = 0
+    slowFrames = 0
+    if (avg > 1 / 40 && dpr > 0.6) {
+      dpr = Math.max(0.6, dpr * 0.75)
+      resize()
+    } else if (avg < 1 / 70 && dpr < maxDpr) {
+      dpr = Math.min(maxDpr, dpr / 0.85)
+      resize()
+    }
+  }
+
   function frame(now: number) {
     raf = requestAnimationFrame(frame)
-    const dt = Math.min(0.05, (now - last) / 1000)
+    const rawDt = (now - last) / 1000
+    const dt = Math.min(0.05, rawDt)
     last = now
+    if (rawDt < 0.5) adapt(rawDt)
     clock += dt
 
     // veil eases linearly toward its target so loader/transition timing is exact

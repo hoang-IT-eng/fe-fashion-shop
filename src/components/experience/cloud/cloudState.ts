@@ -152,6 +152,28 @@ export function loadCloudWorldWhenIdle(timeout = 1800): void {
   else window.addEventListener('load', go, { once: true })
 }
 
+let armed = false
+/**
+ * Arm the world: it is fetched + compiled on the visitor's first real
+ * interaction (pointer, touch, wheel, key, scroll) — the static painting is
+ * already on screen, so nothing heavy competes with first paint / LCP.
+ * `?clouds=eager` loads on idle instead (used for perf measurements).
+ */
+export function armCloudWorld(): void {
+  if (armed || world || pending || !cloudsSupported()) return
+  armed = true
+  if (urlFlag() === 'eager') {
+    loadCloudWorldWhenIdle()
+    return
+  }
+  const events = ['pointermove', 'pointerdown', 'wheel', 'touchstart', 'keydown', 'scroll'] as const
+  const go = () => {
+    events.forEach(e => window.removeEventListener(e, go))
+    void loadCloudWorld()
+  }
+  events.forEach(e => window.addEventListener(e, go, { passive: true }))
+}
+
 /** Engine → UI: a host's canvas became (in)visible/live. */
 export function setModeLive(mode: CloudMode, live: boolean) {
   const had = liveModes.has(mode)
