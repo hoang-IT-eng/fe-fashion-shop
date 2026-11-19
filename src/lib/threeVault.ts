@@ -5,7 +5,6 @@ export {
   AmbientLight,
   BoxGeometry,
   BufferGeometry,
-  CylinderGeometry,
   DirectionalLight,
   Float32BufferAttribute,
   Fog,

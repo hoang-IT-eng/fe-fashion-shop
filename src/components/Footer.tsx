@@ -103,9 +103,9 @@ export default function Footer() {
           </div>
 
           <div className="md:col-span-2 space-y-3">
-            <h3 className="font-sans text-[11px] font-semibold tracking-[0.18em] uppercase text-bone">
+            <h2 className="font-sans text-[11px] font-semibold tracking-[0.18em] uppercase text-bone">
               Archive
-            </h3>
+            </h2>
             <ul className="space-y-2.5 text-sm text-bone-muted">
               <li>
                 <Link to="/products" className="hover:text-bone transition">
@@ -131,9 +131,9 @@ export default function Footer() {
           </div>
 
           <div className="md:col-span-2 space-y-3">
-            <h3 className="font-sans text-[11px] font-semibold tracking-[0.18em] uppercase text-bone">
+            <h2 className="font-sans text-[11px] font-semibold tracking-[0.18em] uppercase text-bone">
               House
-            </h3>
+            </h2>
             <ul className="space-y-2.5 text-sm text-bone-muted">
               <li>
                 <Link to="/journal" className="hover:text-bone transition">
@@ -159,9 +159,9 @@ export default function Footer() {
           </div>
 
           <div className="md:col-span-3 space-y-4">
-            <h3 className="font-sans text-[11px] font-semibold tracking-[0.18em] uppercase text-bone">
+            <h2 className="font-sans text-[11px] font-semibold tracking-[0.18em] uppercase text-bone">
               Authentication Protocol
-            </h3>
+            </h2>
             <p className="text-xs text-bone-muted leading-relaxed">
               Every listing carries its own authenticity code. Pieces are checked for stitch density,
               hardware and leather grain before dispatch.

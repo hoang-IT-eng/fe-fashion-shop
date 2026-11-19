@@ -49,8 +49,8 @@ export default function MysteryVaultScene({ unsealed = false, tierSlug = 'inner-
           camera.position.set(0, 1.55, 5.6)
           camera.lookAt(0, 0.05, 0)
 
-          scene.add(new THREE.AmbientLight(0x6b4a33, 0.55))
-          const key = new THREE.DirectionalLight(0xe0a874, 1.6)
+          scene.add(new THREE.AmbientLight(0x8a6446, 1.1))
+          const key = new THREE.DirectionalLight(0xe0a874, 2.4)
           key.position.set(-3.5, 4.5, 3)
           scene.add(key)
           const rim = new THREE.DirectionalLight(0xc8864a, 0.9)
@@ -61,7 +61,7 @@ export default function MysteryVaultScene({ unsealed = false, tierSlug = 'inner-
           scene.add(ember)
 
           const brassHex = tierSlug === 'grail-vault' ? 0xd2a46a : tierSlug === 'initiate-box' ? 0x8f7a62 : 0xb8894f
-          const bodyMat = new THREE.MeshStandardMaterial({ color: 0x2a1c14, metalness: 0.35, roughness: 0.55 })
+          const bodyMat = new THREE.MeshStandardMaterial({ color: 0x4a3122, metalness: 0.3, roughness: 0.5 })
           const brassMat = new THREE.MeshStandardMaterial({ color: brassHex, metalness: 0.9, roughness: 0.32 })
           const glowMat = new THREE.MeshBasicMaterial({ color: 0xe0a874, transparent: true, opacity: 0.0 })
 
@@ -91,16 +91,15 @@ export default function MysteryVaultScene({ unsealed = false, tierSlug = 'inner-
           const lidPivot = new THREE.Group()
           lidPivot.position.set(0, 0.2, -0.75)
           chest.add(lidPivot)
-          const lid = new THREE.Mesh(add(new THREE.CylinderGeometry(0.75, 0.75, 2.3, 24, 1, false, 0, Math.PI)), bodyMat)
-          lid.rotation.z = Math.PI / 2
-          lid.scale.set(1, 1, 0.55)
-          lid.position.set(0, 0, 0.75)
+          const lid = new THREE.Mesh(add(new THREE.BoxGeometry(2.32, 0.4, 1.52)), bodyMat)
+          lid.position.set(0, 0.2, 0.75)
           lidPivot.add(lid)
+          const lidCap = new THREE.Mesh(add(new THREE.BoxGeometry(2.2, 0.12, 1.36)), bodyMat)
+          lidCap.position.set(0, 0.46, 0.75)
+          lidPivot.add(lidCap)
           for (const x of [-0.8, 0.8]) {
-            const s = new THREE.Mesh(add(new THREE.CylinderGeometry(0.77, 0.77, 0.12, 24, 1, false, 0, Math.PI)), brassMat)
-            s.rotation.z = Math.PI / 2
-            s.scale.set(1, 1, 0.56)
-            s.position.set(x, 0, 0.75)
+            const s = new THREE.Mesh(add(new THREE.BoxGeometry(0.12, 0.54, 1.56)), brassMat)
+            s.position.set(x, 0.25, 0.75)
             lidPivot.add(s)
           }
           const seal = new THREE.Mesh(add(new THREE.OctahedronGeometry(0.17, 0)), brassMat)

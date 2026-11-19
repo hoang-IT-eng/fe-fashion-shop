@@ -6,6 +6,7 @@ import { formatCountdown, formatVnd, secondsUntil } from '../lib/format'
 import Breadcrumb from '../components/Breadcrumb'
 import { useSoundStore } from '../store/useSoundStore'
 import { useToast } from '../components/Toast'
+import { subscribeAuctionFeed, type FeedStatus } from '../lib/auctionSocket'
 
 export default function AuctionsPage() {
   const { playTick, playChime } = useSoundStore()
@@ -38,6 +39,54 @@ export default function AuctionsPage() {
     return () => window.clearInterval(timer)
   }, [])
 
+  // live floor over Socket.IO: bids and +120s anti-snipe extensions from other collectors
+  const [feed, setFeed] = useState<FeedStatus>('connecting')
+  const [extendedFlash, setExtendedFlash] = useState<string>('')
+  const lotKey = lots.map(l => l.id).join(',')
+  useEffect(() => {
+    if (!lotKey) return
+    let flashTimer = 0
+    const off = subscribeAuctionFeed(
+      {
+        onStatus: setFeed,
+        onBid: e =>
+          setLots(prev =>
+            prev.map(l =>
+              l.id === e.auctionId
+                ? {
+                    ...l,
+                    currentBid: e.currentBid,
+                    bidCount: e.bidCount,
+                    endsAt: e.endsAt,
+                    reserveMet: e.reserveMet,
+                    remainingSeconds: secondsUntil(e.endsAt),
+                    nextMinimumBid: e.currentBid + l.minIncrement,
+                    bids: [{ ...e.bid, auctionId: e.auctionId }, ...(l.bids || [])],
+                  }
+                : l
+            )
+          ),
+        onExtended: e => {
+          setLots(prev =>
+            prev.map(l =>
+              l.id === e.auctionId
+                ? { ...l, endsAt: e.endsAt, antiSnipeCount: e.antiSnipeCount, remainingSeconds: secondsUntil(e.endsAt) }
+                : l
+            )
+          )
+          setExtendedFlash(`Lot ${String(e.auctionId).padStart(2, '0')} extended +${e.extendedBySeconds}s`)
+          window.clearTimeout(flashTimer)
+          flashTimer = window.setTimeout(() => setExtendedFlash(''), 4000)
+        },
+      },
+      lotKey.split(',').map(Number)
+    )
+    return () => {
+      off()
+      window.clearTimeout(flashTimer)
+    }
+  }, [lotKey])
+
   const activeLot = lots.find(l => l.id === selectedLotId) || lots[0] || null
 
   const openBidModal = (lot: AuctionLot, customAmount?: number) => {
@@ -50,7 +99,7 @@ export default function AuctionsPage() {
     if (!confirmBidLot) return
     try {
       setSubmitting(true)
-      const res = await api.post<{ lot: AuctionLot; extended: boolean }>(
+      const res = await api.post<{ lot: AuctionLot; extended?: boolean; antiSnipeExtended?: boolean }>(
         `/auctions/${confirmBidLot.id}/bids`,
         {
           amount: Number(bidAmount),
@@ -62,7 +111,7 @@ export default function AuctionsPage() {
       setSelectedLotId(res.lot.id)
       setConfirmBidLot(null)
       toast(
-        res.extended
+        (res.antiSnipeExtended ?? res.extended)
           ? 'ANTI-SNIPE TRIGGERED! Bid accepted & closing clock extended by +120s.'
           : 'Binding Bid Accepted! Your alias leads the Grail Lot.',
         'success'
@@ -78,6 +127,13 @@ export default function AuctionsPage() {
     <div className="min-h-screen bg-ink text-bone py-10 md:py-14">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <Breadcrumb items={[{ label: 'Archive', path: '/' }, { label: 'Live Grail Auctions' }]} />
+        <div className="mt-4 flex flex-wrap items-center gap-4 font-sans text-[11px] uppercase tracking-[0.16em] text-bone-muted" role="status">
+          <span className="inline-flex items-center gap-2">
+            <span aria-hidden="true" className={`h-2 w-2 rounded-full ${feed === 'live' ? 'animate-pulse bg-ember' : 'bg-bone/30'}`} />
+            {feed === 'live' ? 'Live feed connected' : feed === 'connecting' ? 'Connecting to the floor…' : 'Live feed offline'}
+          </span>
+          {extendedFlash && <span className="border border-ember/60 px-2 py-0.5 text-ember-soft">{extendedFlash}</span>}
+        </div>
 
         {/* Header + Anti-Snipe Rule Banner */}
         <div className="pb-10 border-b border-bone/10 mb-10 flex flex-col lg:flex-row lg:items-end justify-between gap-6">

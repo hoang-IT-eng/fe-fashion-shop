@@ -397,13 +397,12 @@ export function DescentHero({ products, introReady, onScrollPast }: DescentHeroP
               ref={cueRef}
               type="button"
               onClick={scrollOn}
-              aria-label="Descend to the vault"
               data-cursor="Descend"
               className="hero-fade mt-10 flex flex-col items-center gap-3 text-bone/80 transition hover:text-bone"
             >
               <span className="font-mono text-[10px] uppercase tracking-[0.34em]">Scroll to descend</span>
               <span className="flex h-14 w-14 items-center justify-center rounded-full border border-bone/40 bg-ink/20 backdrop-blur-sm">
-                <ArrowDown className="h-5 w-5" />
+                <ArrowDown aria-hidden="true" className="h-5 w-5" />
               </span>
             </button>
           </div>
