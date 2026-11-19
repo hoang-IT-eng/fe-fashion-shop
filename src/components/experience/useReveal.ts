@@ -123,6 +123,12 @@ export function useRevealScope<T extends HTMLElement = HTMLDivElement>(
     }
     if (motionDisabled()) return
     ensurePlugin()
+    // a full refresh re-measures every trigger: keep it off the critical path
+    const ric = (window as any).requestIdleCallback as ((cb: () => void, o?: { timeout: number }) => number) | undefined
+    if (ric) {
+      const id = ric(() => ScrollTrigger.refresh(), { timeout: 1500 })
+      return () => (window as any).cancelIdleCallback?.(id)
+    }
     const id = window.setTimeout(() => ScrollTrigger.refresh(), 60)
     return () => window.clearTimeout(id)
   }, [refreshKey])

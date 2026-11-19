@@ -171,7 +171,11 @@ export function DescentHero({ products, introReady, onScrollPast }: DescentHeroP
 
   /* re-apply when products arrive (new frames in the DOM) */
   useEffect(() => {
-    if (descent) ScrollTrigger.refresh()
+    if (!descent) return
+    const ric = (window as any).requestIdleCallback as ((cb: () => void, o?: { timeout: number }) => number) | undefined
+    if (!ric) return
+    const id = ric(() => ScrollTrigger.refresh(), { timeout: 1500 })
+    return () => (window as any).cancelIdleCallback?.(id)
   }, [descent, triptych.length])
 
   /* title intro: words rise once the loader has gone */
