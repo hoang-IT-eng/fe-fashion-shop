@@ -125,5 +125,21 @@ describe('NOCTURNE Demo Vault Engine & Stores', () => {
       { message: 'Show live auctions' }
     )
     expect(auctionRes.uiBlocks?.[0]?.kind).toBe('auction_card')
+
+    const guestOrderRes = await demoHandleRequest<AiChatResponsePayload>(
+      'POST',
+      '/ai-chat/message',
+      { message: 'Track order #1002' }
+    )
+    expect(guestOrderRes.uiBlocks).toBeUndefined()
+    expect(guestOrderRes.message.toLowerCase()).toContain('sign in')
+
+    const voucherRes = await demoHandleRequest<AiChatResponsePayload>(
+      'POST',
+      '/ai-chat/message',
+      { message: 'Validate NOCTURNE15' }
+    )
+    expect(voucherRes.toolsInvoked).toContain('validate_coupon')
+    expect(voucherRes.message).toContain('NOCTURNE15')
   })
 })
