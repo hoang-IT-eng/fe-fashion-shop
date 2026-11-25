@@ -664,12 +664,37 @@ function handleAiStylistMessage(
   }
 
   // 2. Order Tracking Intent
-  if (/\b(orders?|track|tracking|shipping|delivery|don hang|đơn hàng)\b|#?\d{4}/i.test(q)) {
+  const isPurchasePhrase =
+    /\b(?:want to|like to|how to|place an|can i)\s+order\b/i.test(rawMessage) ||
+    /\border\s+\d+\s+[a-z]/i.test(rawMessage)
+  const hasOrderIntent =
+    !isPurchasePhrase &&
+    (/\b(track|tracking|shipping|delivery|my order|order status|don hang|đơn hàng)\b/i.test(q) ||
+      /\border\s*#\d+/i.test(q) ||
+      /#\d{1,6}\b/.test(q))
+
+  if (hasOrderIntent) {
     toolsInvoked.push('get_order_status')
-    const idMatch = q.match(/#?(\d{4})/)
+    if (!user) {
+      return {
+        type: 'text',
+        sessionId,
+        engine: 'hybrid-local-rag',
+        toolsInvoked,
+        message: 'Please sign in to your NOCTURNE account to inspect live order telemetry.',
+      }
+    }
+
+    const idMatch =
+      rawMessage.match(/#(\d{1,6})\b/) ||
+      rawMessage.match(/(?:order|đơn(?:\s+hàng)?|don(?:\s+hang)?)\s*(?:id|no\.?|number|số|so|mã|ma)?\s*#?(\d{1,6})(?=\s|$|[.,!?])/i)
+    const ownedOrders =
+      user.role === 'admin'
+        ? state.orders
+        : state.orders.filter(o => o.userId === user.id)
     const targetOrder = idMatch
-      ? state.orders.find(o => o.id === Number(idMatch[1]))
-      : (user ? state.orders.find(o => o.userId === user.id) : null) || state.orders[0]
+      ? ownedOrders.find(o => o.id === Number(idMatch[1]))
+      : ownedOrders[0]
 
     if (targetOrder) {
       const stageKeys = ['pending', 'confirmed', 'shipping', 'delivered']
@@ -703,12 +728,20 @@ function handleAiStylistMessage(
         uiBlocks,
       }
     }
+
+    return {
+      type: 'text',
+      sessionId,
+      engine: 'hybrid-local-rag',
+      toolsInvoked,
+      message: 'No matching order was found on your account. Verify your order number and try again.',
+    }
   }
 
   // 3. Coupon / Initiation Code Intent
-  if (/\b(coupons?|vouchers?|codes?|discounts?|enigma15|cult10|ma giam|mã giảm)\b/i.test(q)) {
+  if (/\b(coupons?|vouchers?|codes?|discounts?|nocturne15|enigma15|cult10|vault500k|ma giam|mã giảm)\b/i.test(q)) {
     toolsInvoked.push('validate_coupon')
-    const codeMatch = rawMessage.match(/\b(NOCTURNE15|CULT10|VAULT500K)\b/i)
+    const codeMatch = rawMessage.match(/\b(NOCTURNE15|ENIGMA15|CULT10|VAULT500K)\b/i)
     const checkCode = codeMatch ? codeMatch[1].toUpperCase() : 'NOCTURNE15'
     const v = evaluateVoucher(state, checkCode, 10000000)
     return {
@@ -750,31 +783,33 @@ function handleAiStylistMessage(
     toolsInvoked.push('search_products_hybrid', 'check_variant_stock')
     const scored = scoreProductsBM25(state.products, q)
     const pair = (scored.length >= 2 ? scored : state.products).slice(0, 2)
-    uiBlocks.push({
-      kind: 'comparison_table',
-      title: 'SIDE-BY-SIDE GRAIL SPECIFICATION',
-      columns: pair.map(p => ({
-        id: p.id,
-        name: p.name,
-        brand: p.brand || 'NOCTURNE',
-        category: p.category || 'Archive',
-        price: p.price,
-        releaseType: (p.releaseType || 'drop').toUpperCase(),
-        condition: p.condition || 'Deadstock',
-        sizes: (p.sizes || []).join(', '),
-        colors: (p.colors || []).join(', '),
-        stock: p.stock,
-        imageUrl: p.imageUrl,
-      })),
-      verdict: `${pair[0].name} leads in collector rarity (${pair[0].condition || 'Vault Sealed'}), while ${pair[1].name} anchors daily archival rotation.`,
-    })
-    return {
-      type: 'generative_ui',
-      sessionId,
-      engine: 'hybrid-local-rag',
-      toolsInvoked,
-      message: `Prepared an architectural specification matrix comparing ${pair[0].name} and ${pair[1].name}:`,
-      uiBlocks,
+    if (pair.length >= 2) {
+      uiBlocks.push({
+        kind: 'comparison_table',
+        title: 'SIDE-BY-SIDE GRAIL SPECIFICATION',
+        columns: pair.map(p => ({
+          id: p.id,
+          name: p.name,
+          brand: p.brand || 'NOCTURNE',
+          category: p.category || 'Archive',
+          price: p.price,
+          releaseType: (p.releaseType || 'drop').toUpperCase(),
+          condition: p.condition || 'Deadstock',
+          sizes: (p.sizes || []).join(', '),
+          colors: (p.colors || []).join(', '),
+          stock: p.stock,
+          imageUrl: p.imageUrl,
+        })),
+        verdict: `${pair[0].name} leads in collector rarity (${pair[0].condition || 'Vault Sealed'}), while ${pair[1].name} anchors daily archival rotation.`,
+      })
+      return {
+        type: 'generative_ui',
+        sessionId,
+        engine: 'hybrid-local-rag',
+        toolsInvoked,
+        message: `Prepared an architectural specification matrix comparing ${pair[0].name} and ${pair[1].name}:`,
+        uiBlocks,
+      }
     }
   }
 
