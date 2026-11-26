@@ -175,6 +175,7 @@ export default function Footer() {
 
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 font-sans text-[11px] tracking-[0.14em] text-bone-muted uppercase">
           <span>© 2026 NOCTURNE NIGHT ARCHIVE · ALL RIGHTS RESERVED</span>
+          <span className="normal-case tracking-[0.04em]">Designed and built by Trần Huy Hoàng, 2026.</span>
           <span>OBSIDIAN ATELIER · SAIGON / TOKYO / ANTWERP</span>
         </div>
       </div>
