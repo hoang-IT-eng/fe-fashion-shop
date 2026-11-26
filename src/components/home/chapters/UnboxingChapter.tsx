@@ -117,7 +117,16 @@ export function UnboxingChapter() {
           </h2>
           <div className="relative mt-8 aspect-[4/3.4] overflow-hidden border border-bone/10 bg-ink-deep bg-[radial-gradient(ellipse_70%_55%_at_50%_62%,rgba(200,134,74,0.22),transparent_70%)]">
             {near && live3d ? (
-              <Suspense fallback={<div className="h-full w-full bg-ink-deep" />}>
+              <Suspense
+                fallback={
+                  <ResponsiveImage
+                    src="/images/enigma/mystery-chest.jpg"
+                    alt="Carved chest, lid ajar with an ember glow"
+                    sizes="(min-width: 1024px) 40vw, 100vw"
+                    className="film-grade h-full w-full object-cover"
+                  />
+                }
+              >
                 <div className="absolute inset-0 [&>div]:h-full">
                   <MysteryVaultScene unsealed={Boolean(codex)} tierSlug={codex?.matchedTierSlug || 'inner-circle-chest'} />
                 </div>

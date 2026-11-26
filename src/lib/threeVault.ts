@@ -9,6 +9,7 @@ export {
   Float32BufferAttribute,
   Fog,
   Group,
+  HemisphereLight,
   Mesh,
   MeshBasicMaterial,
   MeshStandardMaterial,
