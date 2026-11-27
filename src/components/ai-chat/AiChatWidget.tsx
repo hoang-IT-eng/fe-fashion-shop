@@ -318,9 +318,6 @@ export function AiChatWidget() {
                     Live
                   </span>
                 </div>
-                <p className="font-mono text-[9px] tracking-[0.22em] uppercase text-bone-muted mt-1">
-                  HYBRID RAG · ARCHIVE CONCIERGE
-                </p>
               </div>
             </div>
             <div className="flex items-center gap-1">
